@@ -1,13 +1,21 @@
 package ru.hse.java.hashtable;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class HashTableTest {
 
+    private HashTable t;
+
+    @BeforeEach
+    void initHashTable() {
+        t = new HashTable();
+    }
+
     @Test
     void putGetHashTableTest() {
-        HashTable t = new HashTable();
         t.put("a", "b");
         t.put("a", "c");
         assertEquals(t.get("a"), "c");
@@ -18,7 +26,6 @@ class HashTableTest {
 
     @Test
     void putGetRemoveHashTableTest() {
-        HashTable t = new HashTable();
         t.put("a", "b");
         t.put("a", "c");
         assertEquals(t.get("a"), "c");
@@ -34,7 +41,6 @@ class HashTableTest {
 
     @Test
     void getSize() {
-        HashTable t = new HashTable();
         t.put("a", "b");
         t.put("a", "c");
         t.put("b", "c");
@@ -44,27 +50,7 @@ class HashTableTest {
     }
 
     @Test
-    void getCapacity() {
-        HashTable t = new HashTable();
-        t.put("a", "b");
-        t.put("a", "c");
-        t.put("b", "c");
-        t.put("b", "e");
-        t.put("d", "e");
-        t.put("e", "f");
-        t.remove("b");
-        assertEquals(t.getCapacity(), 8);
-        HashTable p = new HashTable(2);
-        p.put("a", "b");
-        assertEquals(p.getCapacity(), 2);
-        p.put("b", "e");
-        p.put("d", "e");
-        assertEquals(p.getCapacity(), 4);
-}
-
-    @Test
     void contains() {
-        HashTable t = new HashTable();
         t.put("a", "b");
         t.put("a", "c");
         assertTrue(t.contains("a"));
@@ -79,7 +65,6 @@ class HashTableTest {
 
     @Test
     void clear() {
-        HashTable t = new HashTable();
         t.put("a", "b");
         t.put("a", "c");
         t.put("d", "e");

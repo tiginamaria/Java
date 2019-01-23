@@ -15,21 +15,15 @@ public class HashTable {
      * Constructor for HashTable with default capacity = 1
      */
     public HashTable() {
-        size = 0;
-        capacity = 1;
-        table = new List[capacity];
-        for (int i = 0; i < capacity; i++) {
-            table[i] = new List();
-        }
+        this(1);
     }
 
     /**
      * Constructor for HashTable with given capacity
-     * @param cp - capacity
+     * @param capacity - capacity
      */
-    public HashTable(int cp) {
-        size = 0;
-        capacity = cp;
+    public HashTable(int capacity) {
+        this.capacity = capacity;
         table = new List[capacity];
         for (int i = 0; i < capacity; i++) {
             table[i] = new List();
@@ -40,22 +34,18 @@ public class HashTable {
         return size;
     }
 
-    public int getCapacity() {
-        return capacity;
-    }
-
     /**
      * Double the capacity of HashTable
      */
-    private void extand() {
+    private void extend() {
         int newCapacity = capacity * 2;
-        List[] newTable = new List[newCapacity];
+        var newTable = new List[newCapacity];
         for (int i = 0; i < newCapacity; i++) {
             newTable[i] = new List();
         }
 
-        for(int i = 0; i != capacity; i++) {
-            while(!table[i].empty()) {
+        for (int i = 0; i != capacity; i++) {
+            while (!table[i].empty()) {
                 Data elem = table[i].removeFromHead();
                 newTable[getHash(elem.getKey(), newCapacity)].put(elem.getKey(), elem.getValue());
             }
@@ -89,8 +79,6 @@ public class HashTable {
      * @return value of the element with given key or null if it does not exist
      */
     public String get(String key) {
-        if(key == null)
-            return null;
         return table[getHash(key, capacity)].get(key);
     }
 
@@ -102,10 +90,12 @@ public class HashTable {
      */
     public String put(String key, String value) {
         String elem = table[getHash(key, capacity)].put(key, value);
-        if(elem == null)
+        if (elem == null) {
             size++;
-        if(size >= capacity)
-            extand();
+        }
+        if (size >= capacity) {
+            extend();
+        }
         return elem;
     }
 
@@ -116,7 +106,7 @@ public class HashTable {
      */
     public String remove(String key) {
         String elem = table[getHash(key, capacity)].remove(key);
-        if(elem != null)
+        if (elem != null)
             size--;
         return elem;
     }
@@ -125,7 +115,7 @@ public class HashTable {
      * Remove all elements from HashTable
      */
     public void clear() {
-        for(int i = 0; i < capacity; i++) {
+        for (int i = 0; i < capacity; i++) {
             table[i].clear();
         }
         size = 0;

@@ -1,13 +1,21 @@
 package ru.hse.java.hashtable;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ListTest {
 
+    private List list;
+
+    @BeforeEach
+    void initHashTable() {
+        list = new List();
+    }
+
     @Test
     void putFindListTest() {
-        List list = new List();
         list.put("a", "b");
         list.put("c", "d");
         assertNotNull(list.find("a"));
@@ -15,21 +23,18 @@ class ListTest {
 
     @Test
     void putFindNullListTest() {
-        List list = new List();
         list.put("a", "b");
         assertNull(list.find(null));
     }
 
     @Test
     void putNotFindListTest() {
-        List list = new List();
         list.put("a", "b");
         assertNull(list.find("b"));
     }
 
     @Test
     void putGetListTest() {
-        List list = new List();
         list.put("a", "b");
         assertEquals(list.get("a"), "b" );
         list.put("a", "d");
@@ -38,7 +43,6 @@ class ListTest {
 
     @Test
     void putGetNotListTest() {
-        List list = new List();
         list.put("a", "b");
         list.put("c", "d");
         assertNotEquals(list.get("a"), "d" );
@@ -46,14 +50,12 @@ class ListTest {
 
     @Test
     void putGetNullListTest() {
-        List list = new List();
         list.put("a", "b");
         assertNull(list.get("b"));
     }
 
     @Test
     void addToRemoveFromHeadListTest() {
-        List list = new List();
         list.addToHead("a", "b");
         list.addToHead("c", "d");
         assertEquals(list.removeFromHead().getKey(), "c");
@@ -63,7 +65,6 @@ class ListTest {
 
     @Test
     void removeListTest() {
-        List list = new List();
         list.addToHead("a", "b");
         list.addToHead("c", "d");
         list.addToHead("e", "f");
@@ -77,7 +78,6 @@ class ListTest {
 
     @Test
     void removeFindListTest() {
-        List list = new List();
         list.addToHead("a", "b");
         list.addToHead("c", "d");
         assertEquals(list.remove("a"), "b");
@@ -88,7 +88,6 @@ class ListTest {
 
     @Test
     void emptyNotListTest() {
-        List list = new List();
         list.put("a", "b");
         list.put("c", "d");
         list.remove("c");
@@ -97,7 +96,6 @@ class ListTest {
 
     @Test
     void emptyListTest() {
-        List list = new List();
         list.put("a", "b");
         list.put("c", "d");
         list.remove("a");
@@ -107,13 +105,11 @@ class ListTest {
 
     @Test
     void emptyNewListTest() {
-        List list = new List();
         assertTrue(list.empty());
     }
 
     @Test
     void clear() {
-        List list = new List();
         list.addToHead("a", "b");
         list.addToHead("c", "d");
         list.clear();

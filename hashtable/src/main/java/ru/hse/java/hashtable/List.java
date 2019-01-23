@@ -1,27 +1,25 @@
 package ru.hse.java.hashtable;
 
 /**
- *  List - sequence of data structures, which are connected together via links (linked list)
+ *  List - sequence of pair structures, which are connected together via links (linked list)
  *  head - first element of list (or null, if list is empty)
  */
 public class List {
 
     /**
-     * Node is an element of list, which contains information(data) and links to next and previous elements of list
+     * Node is an element of list, which contains information(pair) and links to next and previous elements of list
      */
     private class Node {
-        private Data data;
+        private Data pair;
         private Node next;
         private Node prev;
 
         /**
          * Constructor for Node(element of list)
-         * @param d - data
+         * @param pair - pair
          */
-        public Node(Data d) {
-            data = d;
-            next = null;
-            prev = null;
+        public Node(Data pair) {
+            this.pair = pair;
         }
     }
 
@@ -48,12 +46,12 @@ public class List {
      * @return Node  with given key or null if the key has not been found
      */
     public Node find(String key) {
-        Node cur = head;
-        while (cur != null) {
-            if (cur.data.getKey().equals(key)) {
-                return cur;
+        var currentNode = head;
+        while (currentNode != null) {
+            if (currentNode.pair.getKey().equals(key)) {
+                return currentNode;
             }
-            cur = cur.next;
+            currentNode = currentNode.next;
         }
         return null;
     }
@@ -65,8 +63,8 @@ public class List {
      */
     public String get(String key) {
         Node node = find(key);
-        if(node != null) {
-            return node.data.getValue();
+        if (node != null) {
+            return node.pair.getValue();
         }
         return null;
     }
@@ -79,9 +77,9 @@ public class List {
      */
     public String put(String key, String value) {
         Node node = find(key);
-        if(node != null) {
-            String v = node.data.getValue();
-            node.data.setValue(value);
+        if (node != null) {
+            String v = node.pair.getValue();
+            node.pair.setValue(value);
             return v;
         }
         addToHead(key, value);
@@ -94,10 +92,10 @@ public class List {
      * @param value - value to add
      */
     public void addToHead(String key, String value) {
-        Node nxt = head;
+        Node oldHead = head;
         head = new Node(new Data(key, value));
-        head.next = nxt;
-        if(head.next != null) {
+        head.next = oldHead;
+        if (head.next != null) {
             head.next.prev = head;
         }
     }
@@ -109,7 +107,7 @@ public class List {
     public Data removeFromHead() {
         if (head == null)
             return null;
-        Data d = head.data;
+        Data d = head.pair;
         head = head.next;
         return d;
     }
@@ -121,17 +119,17 @@ public class List {
      */
     public String remove(String key) {
         Node node = find(key);
-        if(node != null) {
-            if(node.prev != null) {
+        if (node != null) {
+            if (node.prev != null) {
                 node.prev.next = node.next;
             }
-            if(node.next != null) {
+            if (node.next != null) {
                 node.next.prev = node.prev;
             }
-            if(node.equals(head)) {
+            if (node.equals(head)) {
                 head = head.next;
             }
-            return node.data.getValue();
+            return node.pair.getValue();
         }
         return null;
     }
