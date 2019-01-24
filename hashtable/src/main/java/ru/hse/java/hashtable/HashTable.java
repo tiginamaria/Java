@@ -59,8 +59,12 @@ public class HashTable {
      * @param key - given key of element
      * @param mod - maximum hash for key
      * @return hash for given key
+     * @throws IllegalArgumentException
      */
-    private int getHash(String key, int mod) {
+    private int getHash(String key, int mod) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("key can not be null!");
+        }
         int hash = key.hashCode() % mod;
         if(hash < 0) {
             hash += mod;
