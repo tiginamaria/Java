@@ -61,15 +61,23 @@ public class HashTable {
      * @return hash for given key
      */
     private int getHash(String key, int mod) {
-        return key.hashCode() % mod;
+        int hash = key.hashCode() % mod;
+        if(hash < 0) {
+            hash += mod;
+        }
+        return hash;
     }
 
     /**
      * Check if there is an element with given key in HashTable
      * @param key - key to check
      * @return true - if found an element with given key, false - if not
+     * @throws IllegalArgumentException
      */
-    public boolean contains(String key) {
+    public boolean contains(String key) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("key can not be null!");
+        }
         return (get(key) != null);
     }
 
@@ -77,8 +85,13 @@ public class HashTable {
      * Get the value of element with given key from HashTable if it exists
      * @param key - key of element, from which the desired value can be got
      * @return value of the element with given key or null if it does not exist
+     * @throws IllegalArgumentException
      */
-    public String get(String key) {
+    public String get(String key) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("key can not be null!");
+        }
+
         return table[getHash(key, capacity)].get(key);
     }
 
@@ -87,37 +100,52 @@ public class HashTable {
      * @param key - key of element where to change the value
      * @param value - new value
      * @return Previous value of the element with given key or null if it does not exist
+     * @throws IllegalArgumentException
      */
-    public String put(String key, String value) {
-        String elem = table[getHash(key, capacity)].put(key, value);
-        if (elem == null) {
+    public String put(String key, String value) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("key can not be null!");
+        }
+        if (value == null) {
+            throw new IllegalArgumentException("value can not be null!");
+        }
+
+        String oldData = table[getHash(key, capacity)].put(key, value);
+        if (oldData == null) {
             size++;
         }
         if (size >= capacity) {
             extend();
         }
-        return elem;
+        return oldData;
     }
 
     /**
      * Remove element with given key from HashTable if it exists
      * @param key - key to remove
      * @return Previous value of the element with given key or null if it does not exist
+     * @throws IllegalArgumentException
      */
-    public String remove(String key) {
-        String elem = table[getHash(key, capacity)].remove(key);
-        if (elem != null)
+    public String remove(String key) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("key can not be null!");
+        }
+
+        String oldData = table[getHash(key, capacity)].remove(key);
+        if (oldData != null)
             size--;
-        return elem;
+        return oldData;
     }
 
     /**
-     * Remove all elements from HashTable
+     * Remove all elements from HashTable and shorten capacity to default
      */
     public void clear() {
-        for (int i = 0; i < capacity; i++) {
-            table[i].clear();
-        }
         size = 0;
+        capacity = 1;
+        table = new List[capacity];
+        for (int i = 0; i < capacity; i++) {
+            table[i] = new List();
+        }
     }
 }

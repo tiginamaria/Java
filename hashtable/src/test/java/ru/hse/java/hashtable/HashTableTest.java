@@ -40,6 +40,26 @@ class HashTableTest {
     }
 
     @Test
+    void putNullKeyThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> t.put(null, "b"));
+    }
+
+    @Test
+    void putNullValueThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> t.put("a", null));
+    }
+
+    @Test
+    void getNullKeyThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> t.get(null));
+    }
+
+    @Test
+    void removeNullKeyThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> t.remove(null));
+    }
+
+    @Test
     void getSize() {
         t.put("a", "b");
         t.put("a", "c");
@@ -61,6 +81,11 @@ class HashTableTest {
         t.put("e", "f");
         assertTrue(t.contains("a"));
         assertFalse(t.contains("b"));
+    }
+
+    @Test
+    void containsNullKeyThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> t.contains(null));
     }
 
     @Test

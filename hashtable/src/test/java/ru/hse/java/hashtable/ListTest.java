@@ -7,112 +7,112 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ListTest {
 
-    private List list;
+    private List l;
 
     @BeforeEach
     void initHashTable() {
-        list = new List();
+        l = new List();
     }
 
     @Test
     void putFindListTest() {
-        list.put("a", "b");
-        list.put("c", "d");
-        assertNotNull(list.find("a"));
+        l.put("a", "b");
+        l.put("c", "d");
+        assertNotNull(l.find("a"));
     }
 
     @Test
     void putFindNullListTest() {
-        list.put("a", "b");
-        assertNull(list.find(null));
+        l.put("a", "b");
+        assertNull(l.find(null));
     }
 
     @Test
     void putNotFindListTest() {
-        list.put("a", "b");
-        assertNull(list.find("b"));
+        l.put("a", "b");
+        assertNull(l.find("b"));
     }
 
     @Test
     void putGetListTest() {
-        list.put("a", "b");
-        assertEquals(list.get("a"), "b" );
-        list.put("a", "d");
-        assertEquals(list.get("a"), "d" );
+        l.put("a", "b");
+        assertEquals(l.get("a"), "b" );
+        l.put("a", "d");
+        assertEquals(l.get("a"), "d" );
     }
 
     @Test
     void putGetNotListTest() {
-        list.put("a", "b");
-        list.put("c", "d");
-        assertNotEquals(list.get("a"), "d" );
+        l.put("a", "b");
+        l.put("c", "d");
+        assertNotEquals(l.get("a"), "d" );
     }
 
     @Test
     void putGetNullListTest() {
-        list.put("a", "b");
-        assertNull(list.get("b"));
+        l.put("a", "b");
+        assertNull(l.get("b"));
     }
 
     @Test
     void addToRemoveFromHeadListTest() {
-        list.addToHead("a", "b");
-        list.addToHead("c", "d");
-        assertEquals(list.removeFromHead().getKey(), "c");
-        assertEquals(list.removeFromHead().getKey(), "a");
-        assertNull(list.removeFromHead());
+        l.addToHead("a", "b");
+        l.addToHead("c", "d");
+        assertEquals(l.removeFromHead().getKey(), "c");
+        assertEquals(l.removeFromHead().getKey(), "a");
+        assertNull(l.removeFromHead());
     }
 
     @Test
     void removeListTest() {
-        list.addToHead("a", "b");
-        list.addToHead("c", "d");
-        list.addToHead("e", "f");
-        assertEquals(list.remove("a"), "b");
-        assertNull(list.remove("a"));
-        assertEquals(list.remove("c"), "d");
-        assertNull(list.remove("c"));
-        assertEquals(list.remove("e"), "f");
-        assertNull(list.remove("e"));
+        l.addToHead("a", "b");
+        l.addToHead("c", "d");
+        l.addToHead("e", "f");
+        assertEquals(l.remove("a"), "b");
+        assertNull(l.remove("a"));
+        assertEquals(l.remove("c"), "d");
+        assertNull(l.remove("c"));
+        assertEquals(l.remove("e"), "f");
+        assertNull(l.remove("e"));
     }
 
     @Test
     void removeFindListTest() {
-        list.addToHead("a", "b");
-        list.addToHead("c", "d");
-        assertEquals(list.remove("a"), "b");
-        assertNull(list.find("a"));
-        assertNotNull(list.find("c"));
+        l.addToHead("a", "b");
+        l.addToHead("c", "d");
+        assertEquals(l.remove("a"), "b");
+        assertNull(l.find("a"));
+        assertNotNull(l.find("c"));
     }
 
 
     @Test
     void emptyNotListTest() {
-        list.put("a", "b");
-        list.put("c", "d");
-        list.remove("c");
-        assertFalse(list.empty());
+        l.put("a", "b");
+        l.put("c", "d");
+        l.remove("c");
+        assertFalse(l.empty());
     }
 
     @Test
     void emptyListTest() {
-        list.put("a", "b");
-        list.put("c", "d");
-        list.remove("a");
-        list.remove("c");
-        assertTrue(list.empty());
+        l.put("a", "b");
+        l.put("c", "d");
+        l.remove("a");
+        l.remove("c");
+        assertTrue(l.empty());
     }
 
     @Test
     void emptyNewListTest() {
-        assertTrue(list.empty());
+        assertTrue(l.empty());
     }
 
     @Test
     void clear() {
-        list.addToHead("a", "b");
-        list.addToHead("c", "d");
-        list.clear();
-        assertTrue(list.empty());
+        l.addToHead("a", "b");
+        l.addToHead("c", "d");
+        l.clear();
+        assertTrue(l.empty());
     }
 }

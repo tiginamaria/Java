@@ -107,9 +107,9 @@ public class List {
     public Data removeFromHead() {
         if (head == null)
             return null;
-        Data d = head.pair;
+        var removedData = head.pair;
         head = head.next;
-        return d;
+        return removedData;
     }
 
     /**
