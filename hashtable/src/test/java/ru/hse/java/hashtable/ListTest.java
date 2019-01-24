@@ -10,7 +10,7 @@ class ListTest {
     private List l;
 
     @BeforeEach
-    void initHashTable() {
+    void initList() {
         l = new List();
     }
 

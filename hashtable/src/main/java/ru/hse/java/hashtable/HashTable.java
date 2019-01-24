@@ -44,7 +44,7 @@ public class HashTable {
             newTable[i] = new List();
         }
 
-        for (int i = 0; i != capacity; i++) {
+        for (int i = 0; i < capacity; i++) {
             while (!table[i].empty()) {
                 Data elem = table[i].removeFromHead();
                 newTable[getHash(elem.getKey(), newCapacity)].put(elem.getKey(), elem.getValue());
@@ -59,7 +59,7 @@ public class HashTable {
      * @param key - given key of element
      * @param mod - maximum hash for key
      * @return hash for given key
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException - throws exception then given key is null
      */
     private int getHash(String key, int mod) throws IllegalArgumentException {
         if (key == null) {
@@ -76,20 +76,17 @@ public class HashTable {
      * Check if there is an element with given key in HashTable
      * @param key - key to check
      * @return true - if found an element with given key, false - if not
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException - throws exception then given key is null
      */
     public boolean contains(String key) throws IllegalArgumentException {
-        if (key == null) {
-            throw new IllegalArgumentException("key can not be null!");
-        }
-        return (get(key) != null);
+        return get(key) != null;
     }
 
     /**
      * Get the value of element with given key from HashTable if it exists
      * @param key - key of element, from which the desired value can be got
      * @return value of the element with given key or null if it does not exist
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException - throws exception then given key is null
      */
     public String get(String key) throws IllegalArgumentException {
         if (key == null) {
@@ -104,7 +101,7 @@ public class HashTable {
      * @param key - key of element where to change the value
      * @param value - new value
      * @return Previous value of the element with given key or null if it does not exist
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException - throws exception then given key is or value is null
      */
     public String put(String key, String value) throws IllegalArgumentException {
         if (key == null) {
@@ -128,7 +125,7 @@ public class HashTable {
      * Remove element with given key from HashTable if it exists
      * @param key - key to remove
      * @return Previous value of the element with given key or null if it does not exist
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException - throws exception then given key is null
      */
     public String remove(String key) throws IllegalArgumentException {
         if (key == null) {

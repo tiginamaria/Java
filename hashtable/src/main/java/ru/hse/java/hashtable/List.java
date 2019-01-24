@@ -78,9 +78,9 @@ public class List {
     public String put(String key, String value) {
         Node node = find(key);
         if (node != null) {
-            String v = node.pair.getValue();
+            String oldValue = node.pair.getValue();
             node.pair.setValue(value);
-            return v;
+            return oldValue;
         }
         addToHead(key, value);
         return null;
@@ -109,6 +109,9 @@ public class List {
             return null;
         var removedData = head.pair;
         head = head.next;
+        if (head != null) {
+            head.prev = null;
+        }
         return removedData;
     }
 
