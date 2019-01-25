@@ -58,6 +58,9 @@ public class Trie {
         public void decPrefixCounter() {
             prefixCounter--;
         }
+        public int getPrefixCounter() {
+            return prefixCounter;
+        }
     }
     TrieNode root;
 
@@ -65,21 +68,26 @@ public class Trie {
         root = new TrieNode();
     }
 
+    public int size() {
+        return size;
+    }
+
     /**
      * Add string to Trie.
      * @param element - string to add
-     * @return true - if element is already stored in Trie, otherwise false
+     * @return true - if element is not stored in Trie, otherwise false
      * @throws IllegalArgumentException - throws exception if element is null
      */
     public boolean add(String element) throws IllegalArgumentException {
         if (element == null) {
             throw new IllegalArgumentException("element can not be null");
         }
-        if(!contains(element)) {
+        if (contains(element)) {
             return false;
         }
         size++;
         var currentNode = root;
+        root.incPrefixCounter();
         for (char character : element.toCharArray()) {
             if (!currentNode.hasNext(character)) {
                 currentNode.addNext(character);
@@ -107,12 +115,8 @@ public class Trie {
                 return false;
             }
             currentNode = currentNode.getNext(character);
-            currentNode.incPrefixCounter();
         }
-        if (!currentNode.isTerminal()) {
-            return false;
-        }
-        return true;
+        return currentNode.isTerminal();
     }
 
     /**
@@ -130,16 +134,37 @@ public class Trie {
         }
         size--;
         var currentNode = root;
+        root.decPrefixCounter();
         for (char character : element.toCharArray()) {
-            currentNode.decPrefixCounter();
             var nextNode = currentNode.getNext(character);
             if (nextNode.isUniquePrefix()) {
                 currentNode.removeNext(character);
                 return true;
             }
             currentNode = nextNode;
+            currentNode.decPrefixCounter();
         }
         currentNode.setTerminal(false);
         return true;
+    }
+
+    /**
+     * Count how many stored strings starts with given prefix
+     * @param prefix - prefix of sting to count
+     * @return number of stored strings starts with given prefix
+     * @throws IllegalArgumentException - throws exception if prefix is null
+     */
+    public int howManyStartsWithPrefix(String prefix) throws IllegalArgumentException {
+        if (prefix == null) {
+            throw new IllegalArgumentException("element can not be null");
+        }
+        var currentNode = root;
+        for (char character : prefix.toCharArray()) {
+            if (!currentNode.hasNext(character)) {
+                return 0;
+            }
+            currentNode = currentNode.getNext(character);
+        }
+        return currentNode.getPrefixCounter();
     }
 }
