@@ -8,12 +8,12 @@ import java.util.HashMap;
  * root - root or tree, where elements are stored(associated with the empty string)
  */
 public class Trie {
-    int size;
+    private int size;
     /**
      * TrieNode - vertices of Trie which contains:
      * next - associative array, which maps from character(possible next characters of string) to TrieNode
      * isTerminal - boolean flag, which is true when TrieNode which represents a complete string
-     * prefixCounter - number of strings, which have currant prefix = path from root o this TrieNode
+     * prefixCounter - number of strings, which have currant prefix = path from root to this TrieNode
      */
     private static class TrieNode {
         private HashMap<Character, TrieNode> next;
@@ -65,6 +65,12 @@ public class Trie {
         root = new TrieNode();
     }
 
+    /**
+     * Add string to Trie.
+     * @param element - string to add
+     * @return true - if element is already stored in Trie, otherwise false
+     * @throws IllegalArgumentException - throws exception if element is null
+     */
     public boolean add(String element) throws IllegalArgumentException {
         if (element == null) {
             throw new IllegalArgumentException("element can not be null");
@@ -85,6 +91,12 @@ public class Trie {
         return true;
     }
 
+    /**
+     * Check if Trie contains required string
+     * @param element - string to check
+     * @return true - if element is already stored in Trie, otherwise false
+     * @throws IllegalArgumentException - throws exception if element is null
+     */
     public boolean contains(String element) throws IllegalArgumentException {
         if (element == null) {
             throw new IllegalArgumentException("element can not be null");
@@ -103,6 +115,12 @@ public class Trie {
         return true;
     }
 
+    /**
+     * Remove string to Trie.
+     * @param element - string to remove
+     * @return true - if element is already stored in Trie, otherwise false
+     * @throws IllegalArgumentException - throws exception if element is null
+     */
     public boolean remove(String element) throws IllegalArgumentException {
         if (element == null) {
             throw new IllegalArgumentException("element can not be null");
