@@ -1,5 +1,6 @@
 package ru.hse.hw.trie;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
@@ -7,7 +8,7 @@ import java.util.HashMap;
  * size - number of stored strings
  * root - root or tree, where elements are stored(associated with the empty string)
  */
-public class Trie {
+public class Trie implements Serializable {
     private int size;
     /**
      * TrieNode - vertices of Trie which contains:
