@@ -106,7 +106,7 @@ class TrieTest {
     }
 
     @Test
-    void serializationTest() {
+    void serializationTest() throws IOException {
         dictionary.add("abba");
         dictionary.add("aba");
         dictionary.add("bba");
@@ -119,8 +119,6 @@ class TrieTest {
             try (var is = new ByteArrayInputStream(os.toByteArray())) {
                 newDictionary.deserialize(is);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         assertTrue(newDictionary.contains("abba"));
         assertTrue(newDictionary.contains("aba"));

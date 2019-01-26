@@ -59,16 +59,20 @@ public class Trie implements Serializable {
         public void incPrefixCounter() {
             prefixCounter++;
         }
+
         public void decPrefixCounter() {
             prefixCounter--;
         }
+
         public int getPrefixCounter() {
             return prefixCounter;
         }
+
         public void setPrefixCounter(int counter) {
             prefixCounter = counter;
         }
     }
+
     TrieNode root;
 
     public Trie() {
@@ -175,6 +179,12 @@ public class Trie implements Serializable {
         return currentNode.getPrefixCounter();
     }
 
+    /**
+     * Recursively serialize Trie
+     * @param currentNode - TrieNode, which is now in process of translating
+     * @param out - output stream
+     * @throws IOException - throws an exception when writing to a output stream fails
+     */
     public void recursiveSerialize(TrieNode currentNode, OutputStream out) throws IOException {
         out.write(currentNode.getTerminalState() ? 1 : 0);
         out.write(currentNode.next.size());
@@ -189,6 +199,12 @@ public class Trie implements Serializable {
         recursiveSerialize(root, out);
     }
 
+    /**
+     * Recursively deserialize Trie
+     * @param currentNode - TrieNode, which is now in process of reading and building
+     * @param in - input stream
+     * @throws IOException - throws an exception when reading from an input stream fails
+     */
     public void recursiveDeserialize(TrieNode currentNode, InputStream in) throws IOException {
         currentNode.setTerminalState(in.read() == 1);
         int nextSize = in.read();
@@ -209,6 +225,11 @@ public class Trie implements Serializable {
         calcPrefixes(root);
     }
 
+    /**
+     * Recursively count how many stored strings starts with each prefix
+     * @param currentNode - prefix to calculate
+     * @return number of stored strings starts with each prefix
+     */
     public int calcPrefixes(TrieNode currentNode) {
         var counter = 0;
         for(var nextNode : currentNode.next.values()) {
