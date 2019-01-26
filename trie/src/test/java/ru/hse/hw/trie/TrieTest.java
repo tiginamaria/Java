@@ -129,5 +129,8 @@ class TrieTest {
         assertTrue(newDictionary.contains(""));
         assertTrue(newDictionary.contains("ba"));
         assertEquals(newDictionary.size(), dictionary.size());
+        assertEquals(dictionary.howManyStartsWithPrefix("ab"), newDictionary.howManyStartsWithPrefix("ab"));
+        assertEquals(dictionary.howManyStartsWithPrefix(""), newDictionary.howManyStartsWithPrefix(""));
+        assertEquals(dictionary.howManyStartsWithPrefix("b"), newDictionary.howManyStartsWithPrefix("b"));
     }
 }

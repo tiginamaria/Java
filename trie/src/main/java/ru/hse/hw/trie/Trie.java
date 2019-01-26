@@ -65,6 +65,9 @@ public class Trie implements Serializable {
         public int getPrefixCounter() {
             return prefixCounter;
         }
+        public void setPrefixCounter(int counter) {
+            prefixCounter = counter;
+        }
     }
     TrieNode root;
 
@@ -207,10 +210,12 @@ public class Trie implements Serializable {
     }
 
     public int calcPrefixes(TrieNode currentNode) {
-        var ends = 0;
+        var counter = 0;
         for(var nextNode : currentNode.next.values()) {
-            ends += calcPrefixes(nextNode);
+            counter += calcPrefixes(nextNode);
         }
-        return ends + (currentNode.getTerminalState() ?  1 : 0);
+        counter += currentNode.getTerminalState() ?  1 : 0;
+        currentNode.setPrefixCounter(counter);
+        return counter;
     }
 }
