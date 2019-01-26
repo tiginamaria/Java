@@ -1,5 +1,8 @@
 package ru.hse.hw.trie;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 
@@ -12,14 +15,14 @@ public class Trie implements Serializable {
     private int size;
     /**
      * TrieNode - vertices of Trie which contains:
-     * next - associative array, which maps from character(possible next characters of string) to TrieNode
      * isTerminal - boolean flag, which is true when TrieNode which represents a complete string
      * prefixCounter - number of strings, which have currant prefix = path from root to this TrieNode
+     * next - associative array, which maps from character(possible next characters of string) to TrieNode
      */
     private static class TrieNode {
-        private HashMap<Character, TrieNode> next;
         private boolean isTerminal;
         private int prefixCounter;
+        private HashMap<Character, TrieNode> next;
 
         public TrieNode() {
             next = new HashMap<>();
@@ -33,19 +36,19 @@ public class Trie implements Serializable {
             return next.get(character);
         }
 
-        public TrieNode addNext(Character character) {
-            return next.put(character, new TrieNode());
+        public TrieNode addNext(Character character, TrieNode node) {
+            return next.put(character, node);
         }
 
         public TrieNode removeNext(Character character) {
             return next.remove(character);
         }
 
-        public boolean isTerminal() {
+        public boolean getTerminalState() {
             return isTerminal;
         }
 
-        public void setTerminal(boolean state) {
+        public void setTerminalState(boolean state) {
             isTerminal = state;
         }
 
@@ -91,12 +94,12 @@ public class Trie implements Serializable {
         root.incPrefixCounter();
         for (char character : element.toCharArray()) {
             if (!currentNode.hasNext(character)) {
-                currentNode.addNext(character);
+                currentNode.addNext(character, new TrieNode());
             }
             currentNode = currentNode.getNext(character);
             currentNode.incPrefixCounter();
         }
-        currentNode.setTerminal(true);
+        currentNode.setTerminalState(true);
         return true;
     }
 
@@ -117,7 +120,7 @@ public class Trie implements Serializable {
             }
             currentNode = currentNode.getNext(character);
         }
-        return currentNode.isTerminal();
+        return currentNode.getTerminalState();
     }
 
     /**
@@ -145,7 +148,7 @@ public class Trie implements Serializable {
             currentNode = nextNode;
             currentNode.decPrefixCounter();
         }
-        currentNode.setTerminal(false);
+        currentNode.setTerminalState(false);
         return true;
     }
 
@@ -167,5 +170,47 @@ public class Trie implements Serializable {
             currentNode = currentNode.getNext(character);
         }
         return currentNode.getPrefixCounter();
+    }
+
+    public void recursiveSerialize(TrieNode currentNode, OutputStream out) throws IOException {
+        out.write(currentNode.getTerminalState() ? 1 : 0);
+        out.write(currentNode.next.size());
+        for (char character : currentNode.next.keySet()) {
+            out.write((int) character);
+            recursiveSerialize(currentNode.getNext(character), out);
+        }
+    }
+
+    public void serialize(OutputStream out) throws IOException {
+        out.write(size);
+        recursiveSerialize(root, out);
+    }
+
+    public void recursiveDeserialize(TrieNode currentNode, InputStream in) throws IOException {
+        currentNode.setTerminalState(in.read() == 1);
+        int nextSize = in.read();
+        for (int i = 0; i < nextSize; i++) {
+            char character = (char)in.read();
+            var nextNode = new TrieNode();
+            currentNode.addNext(character, nextNode);
+            recursiveDeserialize(nextNode, in);
+        }
+    }
+
+    public void deserialize(InputStream in) throws IOException {
+        var newRoot = new TrieNode();
+        int newSize = in.read();
+        recursiveDeserialize(newRoot, in);
+        root = newRoot;
+        size = newSize;
+        calcPrefixes(root);
+    }
+
+    public int calcPrefixes(TrieNode currentNode) {
+        var ends = 0;
+        for(var nextNode : currentNode.next.values()) {
+            ends += calcPrefixes(nextNode);
+        }
+        return ends + (currentNode.getTerminalState() ?  1 : 0);
     }
 }

@@ -3,6 +3,10 @@ package ru.hse.hw.trie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class TrieTest {
@@ -21,6 +25,7 @@ class TrieTest {
         assertTrue(dictionary.contains("abba"));
         assertTrue(dictionary.contains("aba"));
         assertFalse(dictionary.contains("ab"));
+        assertFalse(dictionary.contains("abbab"));
     }
 
     @Test
@@ -98,5 +103,31 @@ class TrieTest {
         assertEquals(2, dictionary.size());
         assertTrue(dictionary.remove("aba"));
         assertEquals(1, dictionary.size());
+    }
+
+    @Test
+    void serializationTest() {
+        dictionary.add("abba");
+        dictionary.add("aba");
+        dictionary.add("bba");
+        dictionary.add("baa");
+        dictionary.add("");
+        dictionary.add("ba");
+        var newDictionary = new Trie();
+        try (var os = new ByteArrayOutputStream()) {
+            dictionary.serialize(os);
+            try (var is = new ByteArrayInputStream(os.toByteArray())) {
+                newDictionary.deserialize(is);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assertTrue(newDictionary.contains("abba"));
+        assertTrue(newDictionary.contains("aba"));
+        assertTrue(newDictionary.contains("bba"));
+        assertTrue(newDictionary.contains("baa"));
+        assertTrue(newDictionary.contains(""));
+        assertTrue(newDictionary.contains("ba"));
+        assertEquals(newDictionary.size(), dictionary.size());
     }
 }
