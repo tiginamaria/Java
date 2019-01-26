@@ -9,7 +9,7 @@ import java.util.HashMap;
 /**
  * Trie - a data structure for storing strings, which is a suspended tree with symbols on the edges.
  * size - number of stored strings
- * root - root or tree, where elements are stored(associated with the empty string)
+ * root - root of tree, where elements are stored
  */
 public class Trie implements Serializable {
     private int size;
@@ -131,7 +131,7 @@ public class Trie implements Serializable {
     }
 
     /**
-     * Remove string to Trie.
+     * Remove string from Trie.
      * @param element - string to remove
      * @return true - if element is already stored in Trie, otherwise false
      * @throws IllegalArgumentException - throws exception if element is null
