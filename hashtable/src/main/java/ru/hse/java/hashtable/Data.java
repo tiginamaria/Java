@@ -11,8 +11,8 @@ public class Data {
 
     /**
      * Constructor for Data
-     * @param key - key
-     * @param value - value
+     * @param key key
+     * @param value value
      */
     public Data(String key, String value) {
         this.key = key;

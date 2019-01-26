@@ -16,7 +16,7 @@ public class List {
 
         /**
          * Constructor for Node(element of list)
-         * @param pair - pair
+         * @param pair element of Data class
          */
         public Node(Data pair) {
             this.pair = pair;
@@ -42,7 +42,7 @@ public class List {
 
     /**
      * Find element with given key
-     * @param key - key to find
+     * @param key key to find
      * @return Node  with given key or null if the key has not been found
      */
     public Node find(String key) {
@@ -58,7 +58,7 @@ public class List {
 
     /**
      * Get the value of element with given key if it exists
-     * @param key - key of element to get
+     * @param key key of element to get
      * @return Value of the element with given key or null if it does not exist
      */
     public String get(String key) {
@@ -71,8 +71,8 @@ public class List {
 
     /**
      * Change the value of element with given key if it exists or create element with given key and value
-     * @param key - key of the element to change
-     * @param value - new value
+     * @param key key of the element to change
+     * @param value new value
      * @return Previous value of the element with given key or null if it does not exist
      */
     public String put(String key, String value) {
@@ -88,8 +88,8 @@ public class List {
 
     /**
      * Add new element with given key and value to head of list
-     * @param key - key to add
-     * @param value - value to add
+     * @param key key to add
+     * @param value value to add
      */
     public void addToHead(String key, String value) {
         Node oldHead = head;
@@ -105,8 +105,9 @@ public class List {
      * @return head's Data
      */
     public Data removeFromHead() {
-        if (head == null)
+        if (head == null) {
             return null;
+        }
         var removedData = head.pair;
         head = head.next;
         if (head != null) {
@@ -117,7 +118,7 @@ public class List {
 
     /**
      * Remove element with given key if it exists
-     * @param key - key to remove
+     * @param key key to remove
      * @return Previous value of the element with given key or null if it does not exist
      */
     public String remove(String key) {

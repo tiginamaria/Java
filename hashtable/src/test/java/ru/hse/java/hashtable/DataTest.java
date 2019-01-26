@@ -6,33 +6,33 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DataTest {
 
-    private Data d;
+    private Data pair;
 
     @BeforeEach
     void initData() {
-        d = new Data("a", "b");;
+        pair = new Data("a", "b");
     }
 
     @Test
     void getKeyDataTest() {
-        assertEquals(d.getKey(), "a");
+        assertEquals(pair.getKey(), "a");
     }
 
     @Test
     void getValueDataTest() {
-        assertEquals(d.getValue(),"b");
+        assertEquals(pair.getValue(), "b");
     }
 
     @Test
     void setKeyDataTest() {
-        d.setKey("c");
-        assertEquals(d.getKey(),"c");
+        pair.setKey("c");
+        assertEquals(pair.getKey(), "c");
     }
 
     @Test
     void setValueDataTest() {
-        d.setValue("c");
-        assertEquals(d.getValue(),"c");
+        pair.setValue("c");
+        assertEquals(pair.getValue(), "c");
     }
 
 }

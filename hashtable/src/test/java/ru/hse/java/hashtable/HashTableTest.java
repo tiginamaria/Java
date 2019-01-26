@@ -7,96 +7,96 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class HashTableTest {
 
-    private HashTable t;
+    private HashTable hashtable;
 
     @BeforeEach
     void initHashTable() {
-        t = new HashTable();
+        hashtable = new HashTable();
     }
 
     @Test
     void putGetHashTableTest() {
-        t.put("a", "b");
-        t.put("a", "c");
-        assertEquals(t.get("a"), "c");
-        t.put("d", "e");
-        t.put("e", "f");
-        assertEquals(t.get("e"), "f");
+        hashtable.put("a", "b");
+        hashtable.put("a", "c");
+        assertEquals(hashtable.get("a"), "c");
+        hashtable.put("d", "e");
+        hashtable.put("e", "f");
+        assertEquals(hashtable.get("e"), "f");
     }
 
     @Test
     void putGetRemoveHashTableTest() {
-        t.put("a", "b");
-        t.put("a", "c");
-        assertEquals(t.get("a"), "c");
-        assertEquals(t.remove("a"), "c");
-        assertNull(t.remove("a"), "c");
-        t.put("d", "e");
-        t.put("a", "d");
-        t.put("e", "f");
-        assertEquals(t.get("a"), "d");
-        assertEquals(t.remove("e"), "f");
-        assertNotNull(t.remove("d"));
+        hashtable.put("a", "b");
+        hashtable.put("a", "c");
+        assertEquals(hashtable.get("a"), "c");
+        assertEquals(hashtable.remove("a"), "c");
+        assertNull(hashtable.remove("a"), "c");
+        hashtable.put("d", "e");
+        hashtable.put("a", "d");
+        hashtable.put("e", "f");
+        assertEquals(hashtable.get("a"), "d");
+        assertEquals(hashtable.remove("e"), "f");
+        assertNotNull(hashtable.remove("d"));
     }
 
     @Test
     void putNullKeyThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> t.put(null, "b"));
+        assertThrows(IllegalArgumentException.class, () -> hashtable.put(null, "b"));
     }
 
     @Test
     void putNullValueThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> t.put("a", null));
+        assertThrows(IllegalArgumentException.class, () -> hashtable.put("a", null));
     }
 
     @Test
     void getNullKeyThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> t.get(null));
+        assertThrows(IllegalArgumentException.class, () -> hashtable.get(null));
     }
 
     @Test
     void removeNullKeyThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> t.remove(null));
+        assertThrows(IllegalArgumentException.class, () -> hashtable.remove(null));
     }
 
     @Test
     void getSize() {
-        t.put("a", "b");
-        t.put("a", "c");
-        t.put("b", "c");
-        t.put("d", "e");
-        t.remove("b");
-        assertEquals(t.getSize(), 2);
+        hashtable.put("a", "b");
+        hashtable.put("a", "c");
+        hashtable.put("b", "c");
+        hashtable.put("d", "e");
+        hashtable.remove("b");
+        assertEquals(hashtable.getSize(), 2);
     }
 
     @Test
     void contains() {
-        t.put("a", "b");
-        t.put("a", "c");
-        assertTrue(t.contains("a"));
-        t.remove("a");
-        assertFalse(t.contains("a"));
-        t.put("d", "e");
-        t.put("a", "d");
-        t.put("e", "f");
-        assertTrue(t.contains("a"));
-        assertFalse(t.contains("b"));
+        hashtable.put("a", "b");
+        hashtable.put("a", "c");
+        assertTrue(hashtable.contains("a"));
+        hashtable.remove("a");
+        assertFalse(hashtable.contains("a"));
+        hashtable.put("d", "e");
+        hashtable.put("a", "d");
+        hashtable.put("e", "f");
+        assertTrue(hashtable.contains("a"));
+        assertFalse(hashtable.contains("b"));
     }
 
     @Test
     void containsNullKeyThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> t.contains(null));
+        assertThrows(IllegalArgumentException.class, () -> hashtable.contains(null));
     }
 
     @Test
     void clear() {
-        t.put("a", "b");
-        t.put("a", "c");
-        t.put("d", "e");
-        t.put("a", "d");
-        t.put("e", "f");
-        t.clear();
-        assertFalse(t.contains("a"));
-        assertFalse(t.contains("b"));
+        hashtable.put("a", "b");
+        hashtable.put("a", "c");
+        hashtable.put("d", "e");
+        hashtable.put("a", "d");
+        hashtable.put("e", "f");
+        hashtable.clear();
+        assertFalse(hashtable.contains("a"));
+        assertFalse(hashtable.contains("b"));
     }
 }
