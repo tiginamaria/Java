@@ -167,7 +167,7 @@ public class Trie implements Serializable {
      */
     public int howManyStartsWithPrefix(String prefix) throws IllegalArgumentException {
         if (prefix == null) {
-            throw new IllegalArgumentException("element can not be null");
+            throw new IllegalArgumentException("prefix can not be null");
         }
         var currentNode = root;
         for (char character : prefix.toCharArray()) {
