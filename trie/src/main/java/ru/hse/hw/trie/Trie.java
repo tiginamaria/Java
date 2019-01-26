@@ -232,7 +232,7 @@ public class Trie implements Serializable {
      */
     public int calcPrefixes(TrieNode currentNode) {
         var counter = 0;
-        for(var nextNode : currentNode.next.values()) {
+        for (var nextNode : currentNode.next.values()) {
             counter += calcPrefixes(nextNode);
         }
         counter += currentNode.getTerminalState() ?  1 : 0;
