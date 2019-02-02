@@ -15,15 +15,15 @@ import java.io.OutputStream;
 public interface Serializable {
     /**
      * Translating data structure Trie into given format
-     * @param out - output stream
-     * @throws IOException - throws an exception when reading from an input stream fails
+     * @param out output stream
+     * @throws IOException throws an exception when reading from an input stream fails
      */
     void serialize(OutputStream out) throws IOException;
 
     /**
      * Builds Trie from description in given format
-     * @param in - input stream
-     * @throws IOException - throws an exception when writing to a output stream fails
+     * @param in input stream
+     * @throws IOException throws an exception when writing to a output stream fails
      */
     void deserialize(InputStream in) throws IOException;
 }

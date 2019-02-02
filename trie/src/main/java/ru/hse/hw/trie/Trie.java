@@ -205,6 +205,11 @@ public class Trie implements Serializable {
         }
     }
 
+    /**
+     * Translating data structure Trie into given format in Serializable.java
+     * @param out output stream
+     * @throws IOException throws an exception when reading from an input stream fails
+     */
     public void serialize(OutputStream out) throws IOException {
         out.write(size);
         recursiveSerialize(root, out);
@@ -227,6 +232,11 @@ public class Trie implements Serializable {
         }
     }
 
+    /**
+     * Builds Trie from description in given format in Serializable.java
+     * @param in input stream
+     * @throws IOException throws an exception when writing to a output stream fails
+     */
     public void deserialize(InputStream in) throws IOException {
         var newRoot = new TrieNode();
         int newSize = in.read();
