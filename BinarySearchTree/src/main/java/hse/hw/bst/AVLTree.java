@@ -52,6 +52,10 @@ public class AVLTree<E extends Comparable<? super E>> extends AbstractSet<E> imp
             return right;
         }
 
+        private TreeNode getParent() {
+            return parent;
+        }
+
 
         /**
          *        A                  B
@@ -150,7 +154,6 @@ public class AVLTree<E extends Comparable<? super E>> extends AbstractSet<E> imp
         return true;
     }
 
-
     @Override
     public Iterator<E> descendingIterator() {
         return null;
@@ -195,9 +198,56 @@ public class AVLTree<E extends Comparable<? super E>> extends AbstractSet<E> imp
         return null;
     }
 
+    private TreeNode downLeft(TreeNode node) {
+        while(node.getLeft() != null) {
+            node = node.getLeft();
+        }
+        return node;
+    }
+
+    private boolean comparator(E firstValue, E secondValue) {
+        return true;
+    }
+
+    private TreeNode upLeft(TreeNode node) {
+        while(!comparator(node.getValue(), node.getParent().getLeft().getValue())) {
+            node = node.left;
+        }
+        return node;
+    }
+
+    private TreeNode nextAVL(@NotNull TreeNode node) {
+        if (node.getRight() != null) {
+            return downLeft(node.getRight());
+        }
+        return upLeft(node);
+    }
+
+    private class TreeIterator<E> implements Iterator<E> {
+        private TreeNode nextNode;
+        TreeIterator() {
+            nextNode = null;  //TODO
+        }
+
+
+        @Override
+        public boolean hasNext() {
+            return false;
+        }
+
+        @Override
+        public E next() {
+            return null;
+        }
+
+        @Override
+        public void remove() {
+
+        }
+    }
     @Override
     public Iterator<E> iterator() {
-        return null;
+        return new TreeIterator<E>();
     }
 
     @Override
