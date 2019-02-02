@@ -3,7 +3,6 @@ package ru.hse.hw.trie;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.util.HashMap;
 
 /**
@@ -210,6 +209,7 @@ public class Trie implements Serializable {
      * @param out output stream
      * @throws IOException throws an exception when reading from an input stream fails
      */
+    @Override
     public void serialize(OutputStream out) throws IOException {
         out.write(size);
         recursiveSerialize(root, out);
@@ -237,6 +237,7 @@ public class Trie implements Serializable {
      * @param in input stream
      * @throws IOException throws an exception when writing to a output stream fails
      */
+    @Override
     public void deserialize(InputStream in) throws IOException {
         var newRoot = new TrieNode();
         int newSize = in.read();
