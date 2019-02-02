@@ -17,10 +17,12 @@ public class Trie implements Serializable {
          * isTerminal - boolean flag, which is true when TrieNode which represents a complete string
          */
         private boolean isTerminal;
+
         /**
          * prefixCounter - number of strings, which have currant prefix = path from root to this TrieNode
          */
         private int prefixCounter;
+
         /**
          * next - associative array, which maps from character(possible next characters of string) to TrieNode
          */
