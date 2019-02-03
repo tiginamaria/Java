@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="BinarySearchTree" target="6" />
+      <module name="BinarySearchTree" target="8" />
     </bytecodeTargetLevel>
   </component>
 </project>
