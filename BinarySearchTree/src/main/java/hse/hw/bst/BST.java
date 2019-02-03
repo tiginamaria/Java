@@ -65,7 +65,7 @@ public class BST<E> extends AbstractSet<E> implements MyTreeSet<E> {
                 } else {
                     node = rotateRight(node);
                 }
-            } else if (getBalanceFactor(node) <= 2) {
+            } else if (getBalanceFactor(node) <= -2) {
                 if (getBalanceFactor(node.right) > 0) {
                     node = rotateBigLeft(node);
                 } else {
@@ -171,8 +171,8 @@ public class BST<E> extends AbstractSet<E> implements MyTreeSet<E> {
          * @return node C on scheme - node with write balance
          */
         private TreeNode rotateBigRight(TreeNode node) {
-            node.left = rotateRight(node.left);
-            return rotateLeft(node);
+            node.left = rotateLeft(node.left);
+            return rotateRight(node);
         }
 
         /**
@@ -181,7 +181,12 @@ public class BST<E> extends AbstractSet<E> implements MyTreeSet<E> {
          * @return balance
          */
         private int getBalanceFactor(TreeNode node) {
-            return node.left.height - node.right.height;
+            if (node == null) {
+                return 0;
+            }
+            int leftHeight = (node.left == null) ? 0 : node.left.height;
+            int rightHeight = (node.right == null) ? 0 : node.right.height;
+            return leftHeight - rightHeight;
         }
 
         /**
@@ -215,12 +220,32 @@ public class BST<E> extends AbstractSet<E> implements MyTreeSet<E> {
     private Comparator<E> comparator;
 
     public BST() {
-        root = new TreeNode();
+        root = null;
     }
 
     public BST(Comparator<E> comparator) {
         this();
         this.comparator = comparator;
+    }
+
+
+    /**
+     * Recursively add given value to tree
+     * @param value value to add
+     * @param node currant node, in which subtree given value is adding
+     * @param parent parent of  currant node
+     * @return modified current node(with added value to subtree)
+     */
+    private TreeNode addBST(E value, TreeNode node, TreeNode parent) {
+        if (node == null) {
+            return new TreeNode(value, parent);
+        }
+        if (compareE(value, node.value) < 0) {
+            node.left = addBST(value, node.left, node);
+        } else {
+            node.right = addBST(value, node.right, node);
+        }
+        return node.updateNode();
     }
 
     /**
@@ -280,25 +305,6 @@ public class BST<E> extends AbstractSet<E> implements MyTreeSet<E> {
                 return node;
             }
         }
-    }
-
-    /**
-     * Recursively add given value to tree
-     * @param value value to add
-     * @param node currant node, in which subtree given value is adding
-     * @param parent parent of  currant node
-     * @return modified current node(with added value to subtree)
-     */
-    private TreeNode addBST(E value, TreeNode node, TreeNode parent) {
-        if (node == null) {
-            return new TreeNode(value, parent);
-        }
-        if (compareE(value, node.value) < 0) {
-            node.left = addBST(value, node.left, node);
-        } else {
-            node.right = addBST(value, node.right, node);
-        }
-        return node.updateNode();
     }
 
     /**
@@ -379,6 +385,11 @@ public class BST<E> extends AbstractSet<E> implements MyTreeSet<E> {
         return true;
     }
 
+    @Override
+    public boolean contains(@NotNull Object value) {
+        return findBST((E)value, root) != null;
+    }
+
     /**
      * Find minimum in set
      * @return if set is not empty - least element, otherwise null
@@ -388,6 +399,10 @@ public class BST<E> extends AbstractSet<E> implements MyTreeSet<E> {
         return downLeft(root).value;
     }
 
+    /**
+     * Find maximum in set
+     * @return if set is not empty - greatest element, otherwise null
+     */
     @Override
     public E last() {
         return downRight(root).value;
