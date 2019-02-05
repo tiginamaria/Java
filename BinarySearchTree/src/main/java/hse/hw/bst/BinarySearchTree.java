@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.AbstractSet;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.TreeSet;
+import java.util.TreeMap;
 
 import static java.lang.Math.max;
 
@@ -44,11 +44,58 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
          */
         private int height = 1;
 
-        private TreeNode() { }
-
         private TreeNode(E value, TreeNode parent) {
             this.value = value;
             this.parent = parent;
+        }
+
+        /**
+         *       C                  C
+         *       |                  |
+         *       A        =>        B
+         *       |                  |
+         *       B                  A
+         * Safety change parents of given nodeA and nodeB and change child of nodeC from nodeA to nodeB
+         * @param nodeA given node
+         * @param nodeB son of nodeA
+         * @param isLeft true means to set nodeA as .left of nodeB, false - as .right
+         */
+        private void changeParents(TreeNode nodeA, TreeNode nodeB, boolean isLeft) {
+            TreeNode nodeC = nodeA.parent;
+            if (nodeC != null) {
+                if (nodeC.left == nodeA) {
+                    nodeC.left = nodeB;
+                } else {
+                    nodeC.right = nodeB;
+                }
+            }
+            nodeB.parent = nodeC;
+            nodeA.parent = nodeB;
+
+            if (isLeft) {
+                nodeB.left = nodeA;
+            } else {
+                nodeB.right = nodeA;
+            }
+        }
+
+        /**
+         *Safety set given parent to given node
+         * @param parent given parent
+         * @param node given node to set parent to
+         * @param isLeft true means to set node as .left of given parent, false - as .right child
+         */
+        private void setParent(TreeNode parent, TreeNode node, boolean isLeft) {
+            if (node != null) {
+                node.parent = parent;
+            }
+            if (parent != null) {
+                if (isLeft) {
+                    parent.left = node;
+                } else {
+                    parent.right = node;
+                }
+            }
         }
 
         /**
@@ -89,14 +136,9 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
             TreeNode nodeA = node;
             TreeNode nodeB = node.right;
 
-            nodeB.parent = nodeA.parent;
-            nodeA.parent = nodeB;
-            if (nodeB.left!= null) {
-                nodeB.left.parent = nodeA;
-            }
 
-            nodeA.right = nodeB.left;
-            nodeB.left = nodeA;
+            setParent(nodeA, nodeB.left, false);
+            changeParents(nodeA, nodeB, true);
 
             updateHeight(nodeA);
             updateHeight(nodeB);
@@ -120,14 +162,8 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
             TreeNode nodeA = node;
             TreeNode nodeB = node.left;
 
-            nodeB.parent = nodeA.parent;
-            nodeA.parent = nodeB;
-            if (nodeB.right!= null) {
-                nodeB.right.parent = nodeA;
-            }
-
-            nodeA.left = nodeB.right;
-            nodeB.right = nodeA;
+            setParent(nodeA, nodeB.right, true);
+            changeParents(nodeA, nodeB, false);
 
             updateHeight(nodeA);
             updateHeight(nodeB);
@@ -178,10 +214,7 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
          * @param node node to get balance
          * @return balance
          */
-        private int getBalanceFactor(TreeNode node) {
-            if (node == null) {
-                return 0;
-            }
+        private int getBalanceFactor(@NotNull TreeNode node) {
             int leftHeight = (node.left == null) ? 0 : node.left.height;
             int rightHeight = (node.right == null) ? 0 : node.right.height;
             return leftHeight - rightHeight;
@@ -199,6 +232,14 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
         private TreeNode updateNode() {
             updateHeight(this);
             return rebalance(this);
+        }
+
+        private TreeNode recursiveUpdateNode() {
+            if (this.parent != null) {
+                return this.parent.recursiveUpdateNode();
+            } else {
+                return this;
+            }
         }
     }
 
@@ -227,20 +268,41 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
     }
 
     /**
+     * Safety replace given node with another given node
+     * @param currantNode node to replace
+     * @param newNode new node to put instead currant node
+     */
+    private TreeNode replaceNode(@NotNull TreeNode currantNode, TreeNode newNode) {
+        if (newNode != null) {
+            newNode.parent = currantNode.parent;
+        }
+        if (currantNode.parent != null) {
+            if (compareNode(currantNode.parent.left, currantNode)) {
+                currantNode.parent.left = newNode;
+            } else {
+                currantNode.parent.right = newNode;
+            }
+            return currantNode.parent.recursiveUpdateNode();
+        } else {
+            return newNode;
+        }
+    }
+
+    /**
      * Recursively add given value to tree
      * @param value value to add
      * @param node currant node, in which subtree given value is adding
      * @param parent parent of currant node
      * @return modified current node(with added value to subtree)
      */
-    private TreeNode addBST(E value, TreeNode node, TreeNode parent) {
+    private TreeNode addNode(E value, TreeNode node, TreeNode parent) {
         if (node == null) {
             return new TreeNode(value, parent);
         }
         if (compareE(value, node.value) < 0) {
-            node.left = addBST(value, node.left, node);
+            node.left = addNode(value, node.left, node);
         } else {
-            node.right = addBST(value, node.right, node);
+            node.right = addNode(value, node.right, node);
         }
         return node.updateNode();
     }
@@ -249,17 +311,24 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      * Recursively remove given value from tree
      * @param value value to remove
      * @param node currant node, in which subtree given value is removing
-     * @return modified current node(with removed value to subtree)
+     * @return root for modified tree
      */
-    private TreeNode removeBST(E value, TreeNode node, TreeNode parent) {
+    private TreeNode removeNode(E value, TreeNode node) {
         if (compareE(value, node.value) < 0) {
-            return removeBST(value, node.left, node);
+            return removeNode(value, node.left);
         } if (compareE(value, node.value) > 0) {
-            return removeBST(value, node.right, node);
+            return removeNode(value, node.right);
         } else {
-            //TODO
+            if (node.left == null) {
+                return replaceNode(node, node.right);
+            } else if (node.right == null) {
+                return replaceNode(node, node.left);
+            } else {
+                TreeNode nextNode = nextNode(node);
+                node.value =  nextNode.value;
+                return removeNode(node.value, node.right);
+            }
         }
-        return null;
     }
 
     /**
@@ -268,15 +337,15 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      * @param node currant node, in which subtree given value is finding
      * @return node which stores required value, if there is one, null otherwise
      */
-    private TreeNode findBST(E value, TreeNode node) {
+    private TreeNode findNode(E value, TreeNode node) {
         if (node == null) {
             return null;
         }
         if (compareE(value, node.value) < 0) {
-            return findBST(value, node.left);
+            return findNode(value, node.left);
         }
         else if (compareE(value, node.value) > 0) {
-            return findBST(value, node.right);
+            return findNode(value, node.right);
         }
         return node;
     }
@@ -287,7 +356,7 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      * @param node currant node, in which subtree lowerbound of value can be
      * @return node which stores lowerbound of given value if there is one, null otherwise
      */
-    private TreeNode lowerBoundBST(E value, TreeNode node) {
+    private TreeNode lowerBoundNode(E value, TreeNode node) {
         if (node == null) {
             return null;
         }
@@ -295,9 +364,9 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
         if (compare == 0) {
             return node;
         } else if (compare < 0) {
-            return lowerBoundBST(value, node.left);
+            return lowerBoundNode(value, node.left);
         } else {
-            TreeNode rightNode = lowerBoundBST(value, node.right);
+            TreeNode rightNode = lowerBoundNode(value, node.right);
             if (rightNode != null) {
                 return rightNode;
             } else {
@@ -312,7 +381,7 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      * @param node currant node, in which subtree upperbound of value can be
      * @return node which stores upperbound of given value if there is one, null otherwise
      */
-    private TreeNode upperBoundBST(E value, TreeNode node) {
+    private TreeNode upperBoundNode(E value, TreeNode node) {
         if (node == null) {
             return null;
         }
@@ -320,9 +389,9 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
         if (compare == 0) {
             return node;
         } else if (compare > 0) {
-            return upperBoundBST(value, node.right);
+            return upperBoundNode(value, node.right);
         } else {
-            TreeNode leftNode = upperBoundBST(value, node.left);
+            TreeNode leftNode = upperBoundNode(value, node.left);
             if (leftNode != null) {
                 return leftNode;
             } else {
@@ -352,10 +421,7 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      * @return if one of nodes is null return false, else true if elements they store are equal, false otherwise
      */
     private boolean compareNode(TreeNode nodeA, TreeNode nodeB) {
-        if (nodeA == null || nodeB == null) {
-            return false;
-        }
-        return compareE(nodeA.value, nodeB.value) == 0;
+        return nodeA == nodeB;
     }
 
     /**
@@ -423,7 +489,7 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      * @param node current node to find next
      * @return next node for given one or null if there is no
      */
-    private TreeNode nextBST(@NotNull TreeNode node) {
+    private TreeNode nextNode(@NotNull TreeNode node) {
         if (node.right != null) {
             return downLeft(node.right);
         }
@@ -435,17 +501,17 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      * @param node current node to find previous
      * @return previous node for given one or null if there is no
      */
-    private TreeNode prevBST(@NotNull TreeNode node) {
+    private TreeNode prevNode(@NotNull TreeNode node) {
         if (node.left != null) {
             return downRight(node.left);
         }
         return upRight(node);
     }
 
-    private class BSTIterator implements Iterator<E> {
+    private class BinarySearchTreeIterator implements Iterator<E> {
         private TreeNode currentPointer;
 
-        BSTIterator() {
+        BinarySearchTreeIterator() {
             currentPointer = downLeft(root);
         }
 
@@ -457,19 +523,14 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
         @Override
         public E next() {
             E next = hasNext() ? currentPointer.value : null;
-            currentPointer = nextBST(currentPointer);
+            currentPointer = nextNode(currentPointer);
             return next;
-        }
-
-        @Override
-        public void remove() {
-
         }
     }
 
     @Override
     public Iterator<E> iterator() {
-        return new BSTIterator();
+        return new BinarySearchTreeIterator();
     }
 
     @Override
@@ -485,10 +546,10 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      */
     @Override
     public boolean add(@NotNull E value) {
-        if (findBST(value, root) != null) {
+        if (findNode(value, root) != null) {
             return false;
         }
-        root = addBST(value, root, null);
+        root = addNode(value, root, null);
         size++;
         return true;
     }
@@ -500,11 +561,11 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      */
     @Override
     public boolean remove(@NotNull Object value) {
-        if (findBST((E)value, root) != null) {
+        if (findNode((E)value, root) == null) {
             return false;
         }
-        root = removeBST((E)value, root, null);
-        size++;
+        root = removeNode((E)value, root);
+        size--;
         return true;
     }
 
@@ -514,7 +575,7 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      */
     @Override
     public boolean contains(@NotNull Object value) {
-        return findBST((E)value, root) != null;
+        return findNode((E)value, root) != null;
     }
 
     /**
@@ -544,13 +605,13 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      */
     @Override
     public E lower(E e) {
-        TreeNode lowerEqualNode = lowerBoundBST(e, root);
+        TreeNode lowerEqualNode = lowerBoundNode(e, root);
         if (lowerEqualNode == null) {
             return null;
         } else if (compareE(lowerEqualNode.value, e) < 0) {
             return lowerEqualNode.value;
         }
-        TreeNode lowerNode = prevBST(lowerEqualNode);
+        TreeNode lowerNode = prevNode(lowerEqualNode);
         return (lowerNode == null) ? null : lowerNode.value;
     }
 
@@ -561,13 +622,13 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      */
     @Override
     public E higher(E e) {
-        TreeNode upperEqualNode = upperBoundBST(e, root);
+        TreeNode upperEqualNode = upperBoundNode(e, root);
         if (upperEqualNode == null) {
             return null;
         } else if (compareE(upperEqualNode.value, e) > 0) {
             return upperEqualNode.value;
         }
-        TreeNode upperNode = nextBST(upperEqualNode);
+        TreeNode upperNode = nextNode(upperEqualNode);
         return (upperNode == null) ? null : upperNode.value;
     }
 
@@ -578,7 +639,7 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      */
     @Override
     public E floor(E e) {
-        TreeNode lowerEqualNode = lowerBoundBST(e, root);
+        TreeNode lowerEqualNode = lowerBoundNode(e, root);
         return (lowerEqualNode == null) ? null : lowerEqualNode.value;
     }
 
@@ -589,7 +650,7 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      */
     @Override
     public E ceiling(E e) {
-        TreeNode upperEqualNode = upperBoundBST(e, root);
+        TreeNode upperEqualNode = upperBoundNode(e, root);
         return (upperEqualNode == null) ? null : upperEqualNode.value;
     }
 
@@ -600,7 +661,7 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
     }
 
     @Override
-    public TreeSet<E> descendingSet() {
+    public MyTreeSet<E> descendingSet() {
         return null;
     }
 }
