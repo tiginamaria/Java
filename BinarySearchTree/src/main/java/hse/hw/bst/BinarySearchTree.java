@@ -243,80 +243,28 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
         }
     }
 
-    private class InformationHolder {
-
-        /**
-         * common root both for ascending and descending versions of tree
-         */
-        private TreeNode root;
-
-        /**
-         * link to tree with ascending order of elements
-         */
-        private BinarySearchTree<E> ascendingVersion;
-
-        /**
-         * link to tree with descending order of elements
-         */
-        private BinarySearchTree<E> descendingVersion;
-
-        /**
-         * original comparator, according to which ascending tree is build
-         */
-        private Comparator<? super E> treeOrderComparator;
-
-        /**
-         * number of modifications made it tree since it was build
-         */
-        int modificationCounter;
-
-        /**
-         * number of elements in tree
-         */
-        int size;
-    }
-
     /**
      *comparator for stored elements
      */
     private boolean isDescending;
 
     /**
-     * field with all general information about tree, which is must be the same for ascending and descending versions of tree
-     */
-    private InformationHolder holder;
-
-    /**
      *comparator for elements in tree
      */
     private Comparator<? super E> comparator;
 
-    public BinarySearchTree() {
-        holder = new InformationHolder();
-        holder.ascendingVersion = this;
-    }
+    public BinarySearchTree() { }
 
     public BinarySearchTree(Comparator<? super E>  comparator) {
         this();
         this.comparator = comparator;
-        holder.treeOrderComparator = comparator;
     }
 
-    /**
-     * Private constructor to make descending version of tree from ascending;
-     * @param ascendingTree tree to make descending version
-     */
-    private BinarySearchTree(BinarySearchTree<E> ascendingTree) {
-        isDescending = true;
-        holder = ascendingTree.holder;
-        if (ascendingTree.comparator != null) {
-            comparator = ascendingTree.comparator.reversed();
-        }
-    }
+    private TreeNode root;
 
-    private TreeNode root() {
-        return holder.root;
-    }
+    private int modificationCounter;
+
+    private int size;
 
     /**
      * Safety replace given node with another given node
@@ -350,7 +298,7 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
         if (node == null) {
             return new TreeNode(value, parent);
         }
-        if (treeOrderCompare(value, node.value) < 0) {
+        if (compareValue(value, node.value) < 0) {
             node.left = addNode(value, node.left, node);
         } else {
             node.right = addNode(value, node.right, node);
@@ -366,9 +314,9 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      */
     @Nullable
     private TreeNode removeNode(@NotNull E value, @NotNull TreeNode node) {
-        if (treeOrderCompare(value, node.value) < 0) {
+        if (compareValue(value, node.value) < 0) {
             return removeNode(value, node.left);
-        } if (treeOrderCompare(value, node.value) > 0) {
+        } if (compareValue(value, node.value) > 0) {
             return removeNode(value, node.right);
         } else {
             if (node.left == null) {
@@ -394,10 +342,10 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
         if (node == null) {
             return null;
         }
-        if (treeOrderCompare(value, node.value) < 0) {
+        if (compareValue(value, node.value) < 0) {
             return findNode(value, node.left);
         }
-        else if (treeOrderCompare(value, node.value) > 0) {
+        else if (compareValue(value, node.value) > 0) {
             return findNode(value, node.right);
         }
         return node;
@@ -461,13 +409,6 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      * @param secondValue second element
      * @return <0 if firstValue < secondValue, >0 if firstValue > secondValue, 0 otherwise
      */
-    private int treeOrderCompare(E firstValue, E secondValue) {
-        if (holder.treeOrderComparator != null) {
-            return holder.treeOrderComparator.compare(firstValue, secondValue) ;
-        }
-        Comparable<? super E> fistValueComparable = (Comparable<? super E>) firstValue;
-        return fistValueComparable.compareTo(secondValue);
-    }
 
     private int compareValue(E firstValue, E secondValue) {
         if (comparator != null) {
@@ -574,7 +515,8 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
         private TreeNode currentPointer;
 
         BinarySearchTreeIterator() {
-            currentPointer = downLeft(root());
+            currentPointer = downLeft(root
+            );
         }
 
         @Override
@@ -597,7 +539,7 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
 
     @Override
     public int size() {
-        return holder.size;
+        return size;
     }
 
     /**
@@ -607,12 +549,14 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      */
     @Override
     public boolean add(@NotNull E value) {
-        if (findNode(value, root()) != null) {
+        if (findNode(value, root
+        ) != null) {
             return false;
         }
-        holder.modificationCounter++;
-        holder.root = addNode(value, root(), null);
-        holder.size++;
+        modificationCounter++;
+        root = addNode(value, root
+                , null);
+        size++;
         return true;
     }
 
@@ -623,12 +567,14 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      */
     @Override
     public boolean remove(@NotNull Object value) {
-        if (findNode((E)value, root()) == null) {
+        if (findNode((E)value, root
+        ) == null) {
             return false;
         }
-        holder.modificationCounter++;
-        holder.root = removeNode((E)value, root());
-        holder.size--;
+        modificationCounter++;
+        root = removeNode((E)value, root
+        );
+        size--;
         return true;
     }
 
@@ -638,7 +584,8 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      */
     @Override
     public boolean contains(@NotNull Object value) {
-        return findNode((E)value, root()) != null;
+        return findNode((E)value, root
+        ) != null;
     }
 
     /**
@@ -648,7 +595,8 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
     @Override
     @Nullable
     public E first() {
-        TreeNode firstNode = downLeft(root());
+        TreeNode firstNode = downLeft(root
+        );
         return firstNode == null ? null : firstNode.value;
     }
 
@@ -659,7 +607,8 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
     @Override
     @Nullable
     public E last() {
-        TreeNode lastNode = downRight(root());
+        TreeNode lastNode = downRight(root
+        );
         return lastNode == null ? null : lastNode.value;
     }
 
@@ -674,7 +623,8 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
         if (isDescending) {
             return ceiling(e);
         }
-        TreeNode lowerEqualNode = lowerBoundNode(e, root());
+        TreeNode lowerEqualNode = lowerBoundNode(e, root
+        );
         if (lowerEqualNode == null) {
             return null;
         } else if (compareValue(lowerEqualNode.value, e) < 0) {
@@ -695,7 +645,8 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
         if (isDescending) {
             return floor(e);
         }
-        TreeNode upperEqualNode = upperBoundNode(e, root());
+        TreeNode upperEqualNode = upperBoundNode(e, root
+        );
         if (upperEqualNode == null) {
             return null;
         } else if (compareValue(upperEqualNode.value, e) > 0) {
@@ -715,7 +666,8 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
         if (isDescending) {
             return higher(e);
         }
-        TreeNode lowerEqualNode = lowerBoundNode(e, root());
+        TreeNode lowerEqualNode = lowerBoundNode(e, root
+        );
         return (lowerEqualNode == null) ? null : lowerEqualNode.value;
     }
 
@@ -729,22 +681,109 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
         if (isDescending) {
             return lower(e);
         }
-        TreeNode upperEqualNode = upperBoundNode(e, root());
+        TreeNode upperEqualNode = upperBoundNode(e, root
+        );
         return (upperEqualNode == null) ? null : upperEqualNode.value;
     }
 
+
+    private class DescendingBinarySearchTree extends BinarySearchTree<E> {
+        BinarySearchTree<E> ascendingVersion;
+
+        /** {@link BinarySearchTree#iterator()} **/
+        @Override
+        public Iterator<E> iterator() {
+            return new BinarySearchTreeIterator();
+        }
+
+        /** {@link BinarySearchTree#size()} **/
+        @Override
+        public int size() {
+            return size;
+        }
+
+        /** {@link BinarySearchTree#add(E value)} **/
+        @Override
+        public boolean add(@NotNull E value) {
+        }
+
+        /** {@link BinarySearchTree#remove(Object value)} **/
+        @Override
+        public boolean remove(@NotNull Object value) {
+        }
+
+        /** {@link BinarySearchTree#contains(Object value)} **/
+        @Override
+        public boolean contains(@NotNull Object value) {
+        }
+
+        /** {@link BinarySearchTree#first()} **/
+        @Override
+        @Nullable
+        public E first() {
+        }
+
+        /** {@link BinarySearchTree#last()} **/
+        @Override
+        @Nullable
+        public E last() {
+        }
+
+        /** {@link BinarySearchTree#floor(E e)} **/
+        @Override
+        @Nullable
+        public E lower(@NotNull E e) {
+        }
+
+        /** {@link BinarySearchTree#floor(E e)} **/
+        @Override
+        @Nullable
+        public E higher(@NotNull E e) {
+            return ascendingVersion.higher(e);
+        }
+
+        /** {@link BinarySearchTree#floor(E e)} **/
+        @Override
+        public E floor(@NotNull E e) {
+            return ascendingVersion.higher(e);
+        }
+
+        /**
+         * Find least element in Tree, which is not greater then given element
+         * @param e given element
+         * @return required element, if there is one, null otherwise
+         */
+        @Override
+        public E ceiling(E e) {
+
+        }
+
+        @Override
+        public Iterator<E> descendingIterator() {
+            return null;
+        }
+
+
+
+        @Override
+        public MyTreeSet<E> descendingSet() {
+        }
+
+    }
 
     @Override
     public Iterator<E> descendingIterator() {
         return null;
     }
 
+
+
     @Override
     public MyTreeSet<E> descendingSet() {
         if (isDescending) {
-            return holder.ascendingVersion;
+            return hascendingVersion;
         } else {
-            if (holder.descendingVersion == null) {
+            if (descendingVersion == null) {
                 holder.descendingVersion = new BinarySearchTree<>(this);
             }
             return holder.descendingVersion;
