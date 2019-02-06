@@ -31,10 +31,6 @@ public class SmartList<E> extends AbstractList implements List {
         }
     }
 
-    E getData(int index) {
-        return null;
-    }
-
     public E get(int index) {
         return null;
     }
