@@ -94,7 +94,6 @@ public class SmartList<E> extends AbstractList implements List {
         }
     }
 
-
     private void cutData() {
         if (size == 1) {
             data = ((Object[])data)[0];
