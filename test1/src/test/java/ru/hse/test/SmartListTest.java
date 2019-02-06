@@ -22,8 +22,11 @@ class SmartListTest {
         list.add(3);
         list.add(4);
         list.add(5);
-        assertTrue(list.contains(3));
-
+        list.add(6);
+        list.add(7);
+        assertTrue(list.contains(6));
+        list.remove(6);
+        assertFalse(list.contains(6));
     }
 
     @Test

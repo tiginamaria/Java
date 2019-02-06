@@ -53,10 +53,22 @@ public class SmartList<E> extends AbstractList implements List {
         data = null;
     }
 
-    private void removeArray(@NotNull Object e) { }
+    private void removeArray(@NotNull Object e) {
+        var array = (Object[]) data;
+        boolean isRemoved = false;
+        for (int i = 0; i < size; i++) {
+            if (isRemoved) {
+                array[i - 1] = array[i];
+            }
+            if (!isRemoved && array[i] == e) {
+                isRemoved = true;
+            }
+        }
+        data = array;
+    }
 
     private void removeList(@NotNull Object e) {
-        ((List<Object>)data).remove((Object)e);
+        ((List<Object>)data).remove(e);
     }
 
     private boolean containsElement(@NotNull Object e) {
