@@ -278,11 +278,9 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
     /**
      * pointer for descending version of tree
      */
-    private BinarySearchTree<E> descendingVersion;
+    private DescendingBinarySearchTree descendingVersion;
 
-    public BinarySearchTree() {
-        descendingVersion = new DescendingBinarySearchTree<>(this);
-    }
+    public BinarySearchTree() { }
 
     public BinarySearchTree(Comparator<? super E>  comparator) {
         this();
@@ -530,7 +528,7 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      * follows sorted order of elements in tree;
      * become not valid when tree was modified;
      */
-    private class BinarySearchTreeIterator implements Iterator {
+    private class BinarySearchTreeIterator implements Iterator<E> {
         private TreeNode<E> currentPointer;
         private int lastModification;
         private boolean isDescending;
@@ -597,8 +595,7 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      */
     @Override
     public boolean add(@NotNull E value) {
-        if (findNode(value, root
-        ) != null) {
+        if (findNode(value, root) != null) {
             return false;
         }
         currantModification++;
@@ -614,8 +611,7 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      */
     @Override
     public boolean remove(@NotNull Object value) {
-        if (findNode((E)value, root
-        ) == null) {
+        if (findNode((E)value, root) == null) {
             return false;
         }
         currantModification++;
@@ -711,8 +707,7 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
     @Override
     @Nullable
     public E ceiling(@NotNull E e) {
-        TreeNode<E> upperEqualNode = upperBoundNode(e, root
-        );
+        TreeNode<E> upperEqualNode = upperBoundNode(e, root);
         return (upperEqualNode == null) ? null : upperEqualNode.value;
     }
 
@@ -720,7 +715,7 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      * descending binary search tree has same size and root
      * all modifications in ascending and descending version synchronised in adding and removing, but order elements is reversed
      */
-    private static class DescendingBinarySearchTree<E> extends BinarySearchTree<E> {
+    private class DescendingBinarySearchTree extends BinarySearchTree<E> {
         /**
          * pointer for ascending version of thee
          */
@@ -744,7 +739,7 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
         /** {@link BinarySearchTree#size()} **/
         @Override
         public int size() {
-            return ascendingVersion.size;
+            return ascendingVersion.size();
         }
 
         /** {@link BinarySearchTree#add(E value)} **/
@@ -827,6 +822,9 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
 
     @Override
     public MyTreeSet<E> descendingSet() {
+        if (descendingVersion == null) {
+            descendingVersion = new DescendingBinarySearchTree(this);
+        }
         return descendingVersion;
     }
 }
