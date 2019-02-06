@@ -86,13 +86,13 @@ public class SmartList<E> extends AbstractList implements List {
 
     private void expandData() {
         if (size == 2) {
-            var element = (E)data;
-            var array = (E[])data;
+            var element = (Object)data;
+            var array = (Object[])data;
             array[0] = element;
-            data = element;
+            data = array;
         }
         if (size == 6) {
-            var list = Arrays.asList((E[])data);
+            var list = Arrays.asList((Object[])data);
             data = list;
         }
     }
