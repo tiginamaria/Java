@@ -526,11 +526,11 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
     }
 
     /**
-     * iterator for binary search tree:
+     * iterator for ascending binary search tree:
      * follows sorted order of elements in tree;
      * become not valid when tree was modified;
      */
-    private class BinarySearchTreeIterator implements Iterator<E> {
+    private class BinarySearchTreeIterator implements Iterator {
         private TreeNode<E> currentPointer;
         private int lastModification;
         private boolean isDescending;
@@ -697,6 +697,7 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      * @return required element, if there is one, null otherwise
      */
     @Override
+    @Nullable
     public E floor(@NotNull E e) {
         TreeNode<E> lowerEqualNode = lowerBoundNode(e, root);
         return (lowerEqualNode == null) ? null : lowerEqualNode.value;
@@ -708,7 +709,8 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
      * @return required element, if there is one, null otherwise
      */
     @Override
-    public E ceiling(E e) {
+    @Nullable
+    public E ceiling(@NotNull E e) {
         TreeNode<E> upperEqualNode = upperBoundNode(e, root
         );
         return (upperEqualNode == null) ? null : upperEqualNode.value;
@@ -822,7 +824,6 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
     public Iterator<E> descendingIterator() {
         return descendingVersion.iterator();
     }
-
 
     @Override
     public MyTreeSet<E> descendingSet() {
