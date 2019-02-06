@@ -39,29 +39,27 @@ public class SmartList<E> extends AbstractList implements List {
         return null;
     }
 
-    private void addElement(@NotNull E e) {
+    private void addElement(@NotNull Object e) {
         data = e;
     }
 
-    private void addArray(@NotNull E  e) {
+    private void addArray(@NotNull Object  e) {
         var array = new Object[5];
         array[size - 1] = e;
         data = array;
     }
 
-    private void addList(@NotNull E  e) {
-        ((List<Object>)data).add((Object)e);
+    private void addList(@NotNull Object e) {
+        ((List<Object>)data).add(e);
     }
 
     private void removeElement(@NotNull Object e) {
         data = null;
     }
 
-    private void removeArray(@NotNull Object  e) {
+    private void removeArray(@NotNull Object e) { }
 
-    }
-
-    private void removeList(@NotNull Object  e) {
+    private void removeList(@NotNull Object e) {
         ((List<Object>)data).remove((Object)e);
     }
 
@@ -80,7 +78,7 @@ public class SmartList<E> extends AbstractList implements List {
     }
 
     private boolean containsList(@NotNull Object e) {
-        return ((List<Object>)data).contains((Object)e);
+        return ((List<Object>)data).contains(e);
     }
 
 
@@ -92,8 +90,17 @@ public class SmartList<E> extends AbstractList implements List {
             data = array;
         }
         if (size == 6) {
-            var list = Arrays.asList((Object[])data);
-            data = list;
+            data = Arrays.asList((Object[])data);
+        }
+    }
+
+
+    private void cutData() {
+        if (size == 1) {
+            data = ((Object[])data)[0];
+        }
+        if (size == 5) {
+            data = ((List<Object>)data).toArray();
         }
     }
 
@@ -105,11 +112,11 @@ public class SmartList<E> extends AbstractList implements List {
         size++;
         expandData();
         if (size == 1) {
-            addElement((E) e);
+            addElement(e);
         } else if (size < 6) {
-            addArray((E) e);
+            addArray(e);
         } else {
-            addList((E) e);
+            addList(e);
         }
         return true;
     }
@@ -138,7 +145,7 @@ public class SmartList<E> extends AbstractList implements List {
             removeList(e);
         }
         size--;
-        //updateData();
+        cutData();
         return true;
     }
 
