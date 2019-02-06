@@ -182,7 +182,7 @@ class BinarySearchTreeTest {
         assertEquals((Integer)(1), treeSet.lower(3));
         treeSet.add(-2);
         treeSet.add(6);
-        assertEquals((Integer)(4), treeSet.lower(6));
+        assertEquals((Integer)(4), treeSet.lower(5));
         treeSet.add(-8);
         treeSet.add(-9);
         assertEquals((Integer)(-9), treeSet.lower(-8));
@@ -203,7 +203,7 @@ class BinarySearchTreeTest {
         assertEquals((Integer)(1), treeSet.lower(3));
         treeSet.add(-2);
         treeSet.add(6);
-        assertEquals((Integer)(4), treeSet.lower(6));
+        assertEquals((Integer)(4), treeSet.lower(5));
         treeSet.add(-8);
         treeSet.add(-9);
         assertEquals((Integer)(-8), treeSet.lower(-2));
@@ -213,140 +213,95 @@ class BinarySearchTreeTest {
         assertEquals((Integer)(-9), treeSet.lower(1));
         treeSet.remove(-9);
         assertNull(treeSet.lower(1));
-        assertNull(treeSet.lower(-1000));
     }
 
     @Test
     void lowerOfFirstTest() {
-        assertNull(treeSet.lower(10));
-        treeSet.add(30);
-        treeSet.add(25);
-        treeSet.add(1000);
-        treeSet.add(403);
-        treeSet.add(-647);
-        treeSet.add(5);
-        treeSet.add(6);
-        treeSet.add(66);
-        treeSet.add(-8);
-        treeSet.add(-78);
-        assertNull(treeSet.lower(-647));
-        assertNull(treeSet.lower(-1000));
+        assertNull(treeSet.lower(0));
+        for (int i = -10; i < 10; i += 3) {
+            treeSet.add(i);
+        }
+        assertNull(treeSet.lower(-10));
+        assertNull(treeSet.lower(-100));
     }
 
     @Test
     void higherGeneralTest() {
-        assertNull(treeSet.lower(10));
-        treeSet.add(30);
-        treeSet.add(25);
-        treeSet.add(1000);
-        treeSet.add(403);
-        treeSet.add(5);
-        treeSet.add(6);
-        treeSet.add(66);
-        treeSet.add(-8);
-        treeSet.add(-78);
-        treeSet.add(-647);
-        assertEquals((Integer)(30), treeSet.higher(26));
-        assertEquals((Integer)(25), treeSet.higher(24));
-        assertEquals((Integer)(-8), treeSet.higher(-77));
-        assertEquals((Integer)(403), treeSet.higher(100));
-        assertEquals((Integer)(66), treeSet.higher(30));
-        assertEquals((Integer)(6), treeSet.higher(5));
-        assertEquals((Integer)(-78), treeSet.higher(-647));
+        assertNull(treeSet.higher(0));
+        treeSet.add(-3);
+        treeSet.add(2);
+        assertEquals((Integer)(2), treeSet.higher(-3));
+        treeSet.add(-1);
+        treeSet.add(-4);
+        assertEquals((Integer)(-1), treeSet.higher(-3));
+        treeSet.add(2);
+        treeSet.add(-6);
+        assertEquals((Integer)(-4), treeSet.higher(-6));
+        treeSet.add(8);
+        treeSet.add(9);
+        assertEquals((Integer)(9), treeSet.higher(8));
+        assertNull(treeSet.higher(9));
+        assertNull(treeSet.higher(1000));
     }
 
     @Test
-    void higherOfLastTest() {
-        treeSet.add(30);
-        treeSet.add(25);
-        treeSet.add(1000);
-        treeSet.add(403);
-        treeSet.add(5);
-        treeSet.add(6);
-        treeSet.add(66);
-        treeSet.add(-8);
-        treeSet.add(-78);
-        treeSet.add(-647);
-        assertNull(treeSet.higher(1000));
-        assertNull(treeSet.higher(1500));
+    void higherOfLastTest()  {
+        assertNull(treeSet.lower(0));
+        for (int i = 10; i > -10; i -= 3) {
+            treeSet.add(i);
+        }
+        assertNull(treeSet.higher(10));
+        assertNull(treeSet.higher(100));
     }
 
     @Test
     void floorGeneralTest() {
-        treeSet.add(30);
-        treeSet.add(25);
-        treeSet.add(1000);
-        treeSet.add(403);
-        treeSet.add(-647);
-        treeSet.add(5);
+        assertNull(treeSet.floor(0));
+        treeSet.add(3);
+        treeSet.add(-2);
+        assertEquals((Integer)(3), treeSet.floor(3));
+        treeSet.remove(3);
+        assertEquals((Integer)(-2), treeSet.floor(3));
+        assertEquals((Integer)(-2), treeSet.floor(2));
+        treeSet.add(1);
+        treeSet.add(4);
+        assertEquals((Integer)(1), treeSet.floor(2));
+        treeSet.add(-2);
         treeSet.add(6);
-        treeSet.add(66);
+        assertEquals((Integer)(6), treeSet.floor(6));
+        assertEquals((Integer)(6), treeSet.floor(7));
         treeSet.add(-8);
-        treeSet.add(-78);
-        assertEquals((Integer)(25), treeSet.floor(26));
-        assertEquals((Integer)(25), treeSet.floor(25));
-        assertEquals((Integer)(-78), treeSet.floor(-77));
-        assertEquals((Integer)(66), treeSet.floor(100));
-        assertEquals((Integer)(30), treeSet.floor(30));
-        assertEquals((Integer)(-78), treeSet.floor(-9));
-        assertEquals((Integer)(-647), treeSet.floor(-647));
-        assertEquals((Integer)(1000), treeSet.floor(10000));
-        assertEquals((Integer)(-647), treeSet.floor(-646));
-    }
-
-    @Test
-    void floorLessThenLeastTest() {
-        treeSet.add(30);
-        treeSet.add(25);
-        treeSet.add(1000);
-        treeSet.add(403);
-        treeSet.add(-647);
-        treeSet.add(5);
-        treeSet.add(6);
-        treeSet.add(66);
-        treeSet.add(-8);
-        treeSet.add(-78);
-        assertNull(treeSet.floor(-648));
+        treeSet.add(-9);
+        assertEquals((Integer)(-8), treeSet.floor(-8));
+        treeSet.remove(-8);
+        assertEquals((Integer)(-9), treeSet.floor(-8));
+        assertNotNull(treeSet.floor(-9));
         assertNull(treeSet.floor(-1000));
     }
 
     @Test
     void ceilingGeneralTest() {
-        treeSet.add(30);
-        treeSet.add(25);
-        treeSet.add(1000);
-        treeSet.add(403);
-        treeSet.add(-647);
-        treeSet.add(5);
-        treeSet.add(6);
-        treeSet.add(66);
-        treeSet.add(-8);
-        treeSet.add(-78);
-        assertEquals((Integer)(30), treeSet.ceiling(26));
-        assertEquals((Integer)(25), treeSet.ceiling(25));
-        assertEquals((Integer)(-8), treeSet.ceiling(-77));
-        assertEquals((Integer)(403), treeSet.ceiling(100));
-        assertEquals((Integer)(30), treeSet.ceiling(30));
-        assertEquals((Integer)(5), treeSet.ceiling(0));
-        assertEquals((Integer)(-647), treeSet.ceiling(-647));
-        assertEquals((Integer)(-647), treeSet.ceiling(-1000));
-        assertEquals((Integer)(-78), treeSet.ceiling(-646));
-    }
-
-    @Test
-    void ceilingGreaterThenLastTest() {
-        treeSet.add(30);
-        treeSet.add(25);
-        treeSet.add(1000);
-        treeSet.add(403);
-        treeSet.add(-647);
-        treeSet.add(5);
-        treeSet.add(6);
-        treeSet.add(66);
-        treeSet.add(-8);
-        treeSet.add(-78);
-        assertNull( treeSet.ceiling(1001));
-        assertNull( treeSet.ceiling(10000));
+        assertNull(treeSet.floor(0));
+        treeSet.add(-3);
+        treeSet.add(2);
+        assertEquals((Integer)(-3), treeSet.ceiling(-3));
+        treeSet.remove(-3);
+        assertEquals((Integer)(2), treeSet.ceiling(-3));
+        assertEquals((Integer)(2), treeSet.ceiling(-2));
+        treeSet.add(-1);
+        treeSet.add(-4);
+        assertEquals((Integer)(-1), treeSet.ceiling(-2));
+        treeSet.add(2);
+        treeSet.add(-6);
+        assertEquals((Integer)(-6), treeSet.ceiling(-6));
+        assertEquals((Integer)(-6), treeSet.ceiling(-7));
+        treeSet.add(8);
+        treeSet.add(9);
+        assertEquals((Integer)(8), treeSet.ceiling(7));
+        treeSet.remove(8);
+        assertEquals((Integer)(9), treeSet.ceiling(7));
+        assertNotNull(treeSet.ceiling(9));
+        assertNull(treeSet.ceiling(1000));
     }
 
     @Test
