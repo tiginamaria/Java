@@ -9,13 +9,12 @@ import java.util.Iterator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 class BinarySearchTreeTest {
 
     private BinarySearchTree<Integer> treeSet;
 
     @BeforeEach
-    void initTrie() {
+    void initTreeSet() {
         treeSet = new BinarySearchTree<>();
     }
 
@@ -89,11 +88,11 @@ class BinarySearchTreeTest {
     void firstGeneralTest() {
         assertNull(treeSet.first());
         treeSet.add(3);
-        assertEquals((Integer)(3), treeSet.first());
+        assertEquals((Integer)3, treeSet.first());
         treeSet.add(2);
         treeSet.add(1);
         treeSet.add(4);
-        assertEquals((Integer)(1), treeSet.first());
+        assertEquals((Integer)1, treeSet.first());
         treeSet.add(-5);
         treeSet.add(-6);
         treeSet.add(-4);
@@ -343,6 +342,17 @@ class BinarySearchTreeTest {
     }
 
     @Test
+    void sizeTest() {
+        assertEquals(0, treeSet.size());
+        Integer[] firstArray = {-4, -1, 2, -3, 4, 1, -2, 3};
+        treeSet.addAll(Arrays.asList(firstArray));
+        assertEquals(firstArray.length, treeSet.size());
+        Integer[] secondArray = {10, 11, 9, -8};
+        treeSet.addAll(Arrays.asList(secondArray));
+        assertEquals(firstArray.length + secondArray.length, treeSet.size());
+    }
+
+    @Test
     void descendingIteratorTest() {
         Integer[] array = {-4, -1, 2, -3, 4, 1, -2, 3};
         treeSet.addAll(Arrays.asList(array));
@@ -355,7 +365,7 @@ class BinarySearchTreeTest {
     }
 
     @Test
-    void descendingSetTest() {
+    void descendingSetAddTest() {
         var descendingTreeSet = treeSet.descendingSet();
         Integer[] array = {-4, -1, 2, -3, 4, 1, -2, 3};
         treeSet.addAll(Arrays.asList(array));
@@ -368,6 +378,61 @@ class BinarySearchTreeTest {
     }
 
     @Test
-    void size() {
+    void descendingSetAddRemoveContainsTest() {
+        var descendingTreeSet = treeSet.descendingSet();
+        Integer[] array = {-4, -1, 2, -3, 4, 1, -2, 3};
+        descendingTreeSet.addAll(Arrays.asList(array));
+        assertTrue(treeSet.contains(1));
+        assertTrue(descendingTreeSet.contains(1));
+        treeSet.remove(1);
+        assertFalse(treeSet.contains(1));
+        assertFalse(descendingTreeSet.contains(1));
+        assertTrue(treeSet.contains(-4));
+        assertTrue(descendingTreeSet.contains(-4));
+        descendingTreeSet.remove(-4);
+        assertFalse(treeSet.contains(-4));
+        assertFalse(descendingTreeSet.contains(-4));
+    }
+
+    @Test
+    void descendingSetFirstLastTest() {
+        var descendingTreeSet = treeSet.descendingSet();
+        Integer[] array = {-4, -1, 2, -3, 4, 1, -2, 3};
+        descendingTreeSet.addAll(Arrays.asList(array));
+        assertEquals((Integer)(4), descendingTreeSet.first());
+        assertEquals((Integer)(-4), descendingTreeSet.last());
+    }
+
+    @Test
+    void descendingSetFloorCeilingTest() {
+        var descendingTreeSet = treeSet.descendingSet();
+        Integer[] array = {-4, -1, 2, -3, 4, 1, -2, 3};
+        descendingTreeSet.addAll(Arrays.asList(array));
+        assertEquals((Integer)(1), descendingTreeSet.floor(0));
+        assertEquals((Integer)(1), descendingTreeSet.floor(1));
+        assertEquals((Integer)(-1), descendingTreeSet.ceiling(0));
+        assertEquals((Integer)(-1), descendingTreeSet.floor(-1));
+    }
+
+    @Test
+    void descendingSetLowerHigherTest() {
+        var descendingTreeSet = treeSet.descendingSet();
+        Integer[] array = {-4, -1, 2, -3, 4, 1, -2, 3};
+        descendingTreeSet.addAll(Arrays.asList(array));
+        assertEquals((Integer)(1), descendingTreeSet.lower(0));
+        assertEquals((Integer)(2), descendingTreeSet.lower(1));
+        assertEquals((Integer)(-1), descendingTreeSet.higher(0));
+        assertEquals((Integer)(-2), descendingTreeSet.higher(-1));
+    }
+
+    @Test
+    void descendingSetSizeTest() {
+        var descendingTreeSet = treeSet.descendingSet();
+        Integer[] firstArray = {-4, -1, 2, -3, 4, 1, -2, 3};
+        treeSet.addAll(Arrays.asList(firstArray));
+        assertEquals(treeSet.size(), descendingTreeSet.size());
+        Integer[] secondArray = {10, 11, 9, -8};
+        descendingTreeSet.addAll(Arrays.asList(secondArray));
+        assertEquals(descendingTreeSet.size(), treeSet.size());
     }
 }

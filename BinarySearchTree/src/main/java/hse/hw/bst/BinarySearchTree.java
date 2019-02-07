@@ -803,21 +803,21 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
         @Override
         @Nullable
         public E lower(@NotNull E e) {
-            return ascendingVersion.ceiling(e);
+            return ascendingVersion.higher(e);
         }
 
         /** {@link BinarySearchTree#higher(E e)} **/
         @Override
         @Nullable
         public E higher(@NotNull E e) {
-            return ascendingVersion.floor(e);
+            return ascendingVersion.lower(e);
         }
 
         /** {@link BinarySearchTree#floor(E e)} **/
         @Override
         @Nullable
         public E floor(@NotNull E e) {
-            return ascendingVersion.higher(e);
+            return ascendingVersion.ceiling(e);
         }
 
 
@@ -825,7 +825,7 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
         @Override
         @Nullable
         public E ceiling(E e) {
-            return ascendingVersion.lower(e);
+            return ascendingVersion.floor(e);
         }
 
         /** {@link BinarySearchTree#descendingIterator()} **/
