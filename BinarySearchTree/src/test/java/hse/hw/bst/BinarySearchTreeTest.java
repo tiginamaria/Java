@@ -305,6 +305,27 @@ class BinarySearchTreeTest {
     }
 
     @Test
+    void floorNullTest() {
+        assertThrows(IllegalArgumentException.class, () -> treeSet.floor(null));
+    }
+
+    @Test
+    void ceilingNullTest() {
+        assertThrows(IllegalArgumentException.class, () -> treeSet.contains(null));
+    }
+
+    @Test
+    void floorNullTest() {
+        assertThrows(IllegalArgumentException.class, () -> treeSet.add(null));
+    }
+
+    @Test
+    void ceilingNullTest() {
+        assertThrows(IllegalArgumentException.class, () -> treeSet.contains(null));
+    }
+
+
+    @Test
     void iterator() {
     }
 

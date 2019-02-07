@@ -583,6 +583,10 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
         return new BinarySearchTreeIterator(false);
     }
 
+    /**
+     * returns size of set
+     * @return size
+     */
     @Override
     public int size() {
         return size;
@@ -700,7 +704,7 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
     }
 
     /**
-     * Find least element in set, which is not greater then given element
+     * find least element in set, which is not greater then given element
      * @param e given element
      * @return required element, if there is one, null otherwise
      */
@@ -815,11 +819,22 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
         }
     }
 
+    /**
+     * iterator which iterates set descending order
+     * @return descending iterator
+     */
     @Override
     public Iterator<E> descendingIterator() {
+        if (descendingVersion == null) {
+            descendingVersion = new DescendingBinarySearchTree(this);
+        }
         return descendingVersion.iterator();
     }
 
+    /**
+     * descending set has reversed order of elements and descending iterator
+     * @return descending set constructed from current set
+     */
     @Override
     public MyTreeSet<E> descendingSet() {
         if (descendingVersion == null) {
