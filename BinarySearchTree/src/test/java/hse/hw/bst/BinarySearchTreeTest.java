@@ -3,9 +3,7 @@ package hse.hw.bst;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -13,9 +11,16 @@ class BinarySearchTreeTest {
 
     private BinarySearchTree<Integer> treeSet;
 
+    private BinarySearchTree<String> comparableTreeSet;
+
     @BeforeEach
     void initTreeSet() {
         treeSet = new BinarySearchTree<>();
+    }
+
+    @BeforeEach
+    void initComparableTreeSet() {
+        comparableTreeSet = new BinarySearchTree<>(Comparator.comparingInt(String::length));
     }
 
     @Test
@@ -342,6 +347,21 @@ class BinarySearchTreeTest {
     }
 
     @Test
+    void iteratorInvalidationAddTest() {
+        var iterator = treeSet.iterator();
+        treeSet.add(0);
+        assertThrows(ConcurrentModificationException.class, iterator::hasNext);
+    }
+
+    @Test
+    void iteratorInvalidationRemoveTest() {
+        treeSet.add(0);
+        var iterator = treeSet.iterator();
+        treeSet.remove(0);
+        assertThrows(ConcurrentModificationException.class, iterator::next);
+    }
+
+    @Test
     void sizeTest() {
         assertEquals(0, treeSet.size());
         Integer[] firstArray = {-4, -1, 2, -3, 4, 1, -2, 3};
@@ -375,6 +395,29 @@ class BinarySearchTreeTest {
             assertEquals(array[index], integer);
             index++;
         }
+    }
+
+    @Test
+    void descendingOfDescendingSetTest() {
+        var descendingTreeSet = treeSet.descendingSet();
+        var ascendingTreeSet = descendingTreeSet.descendingSet();
+        Integer[] array = {-4, -1, 2, -3, 4, 1, -2, 3};
+        descendingTreeSet.addAll(Arrays.asList(array));
+        Arrays.sort(array);
+        var index = 0;
+        for (Integer integer : ascendingTreeSet) {
+            assertEquals(array[index], integer);
+            index++;
+        }
+    }
+
+    @Test
+    void descendingIteratorOfDescendingSetTest() {
+        var descendingTreeSet = treeSet.descendingSet();
+        Integer[] array = {-4, -1, 2, -3, 4, 1, -2, 3};
+        descendingTreeSet.addAll(Arrays.asList(array));
+        var ascendingIterator = descendingTreeSet.descendingIterator();
+        assertEquals((Integer)(-4), ascendingIterator.next());
     }
 
     @Test
@@ -434,5 +477,21 @@ class BinarySearchTreeTest {
         Integer[] secondArray = {10, 11, 9, -8};
         descendingTreeSet.addAll(Arrays.asList(secondArray));
         assertEquals(descendingTreeSet.size(), treeSet.size());
+    }
+
+    @Test
+    void comparatorGeneralTest() {
+        assertTrue(comparableTreeSet.add("aaa"));
+        assertTrue(comparableTreeSet.add("a"));
+        assertTrue(comparableTreeSet.contains("a"));
+        assertTrue(comparableTreeSet.add("aa"));
+        assertFalse(comparableTreeSet.add("aaa"));
+        assertTrue(comparableTreeSet.contains("aaa"));
+        assertTrue(comparableTreeSet.remove("a"));
+        assertFalse(comparableTreeSet.contains("a"));
+        assertTrue(comparableTreeSet.add("aaaa"));
+        assertEquals("aa", comparableTreeSet.lower("aaa"));
+        assertEquals("aaa", comparableTreeSet.floor("aaa"));
+        assertEquals("aa", comparableTreeSet.first());
     }
 }

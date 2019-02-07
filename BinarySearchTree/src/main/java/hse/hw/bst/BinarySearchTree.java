@@ -570,9 +570,10 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
         /**
          * check if there is next element in tree
          * @return true if there is next, false if it is the end of the tree
+         * @throws ConcurrentModificationException throws exception when set has been modified since iterator was constructed
          */
         @Override
-        public boolean hasNext() {
+        public boolean hasNext() throws ConcurrentModificationException {
             if (notValidIterator()) {
                 throw new ConcurrentModificationException();
             }
@@ -582,10 +583,14 @@ public class BinarySearchTree<E> extends AbstractSet<E> implements MyTreeSet<E> 
         /**
          * move iterator to next element
          * @return element which iterator point on
+         * @throws ConcurrentModificationException throws exception when set has been modified since iterator was constructed
          */
         @Override
         @Nullable
-        public E next() {
+        public E next() throws ConcurrentModificationException {
+            if (notValidIterator()) {
+                throw new ConcurrentModificationException();
+            }
             E next = hasNext() ? currentPointer.value : null;
             currentPointer = isDescending ? prevNode(currentPointer) : nextNode(currentPointer);
             return next;
