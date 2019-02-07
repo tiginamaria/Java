@@ -3,6 +3,10 @@ package hse.hw.bst;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -108,6 +112,7 @@ class BinarySearchTreeTest {
         assertEquals((Integer)1, treeSet.first());
         treeSet.remove(3);
         treeSet.remove(2);
+        assertEquals((Integer)1, treeSet.first());
         treeSet.remove(1);
         assertNull(treeSet.first());
         treeSet.add(-3);
@@ -153,6 +158,7 @@ class BinarySearchTreeTest {
         treeSet.add(1);
         assertEquals((Integer)2, treeSet.last());
         treeSet.remove(2);
+        assertEquals((Integer)1, treeSet.last());
         treeSet.remove(1);
         assertNull(treeSet.last());
         treeSet.add(-3);
@@ -305,36 +311,60 @@ class BinarySearchTreeTest {
     }
 
     @Test
+    void lowerNullTest() {
+        assertThrows(IllegalArgumentException.class, () -> treeSet.lower(null));
+    }
+
+    @Test
+    void higherNullTest() {
+        assertThrows(IllegalArgumentException.class, () -> treeSet.higher(null));
+    }
+
+    @Test
     void floorNullTest() {
         assertThrows(IllegalArgumentException.class, () -> treeSet.floor(null));
     }
 
     @Test
     void ceilingNullTest() {
-        assertThrows(IllegalArgumentException.class, () -> treeSet.contains(null));
+        assertThrows(IllegalArgumentException.class, () -> treeSet.ceiling(null));
     }
 
     @Test
-    void floorNullTest() {
-        assertThrows(IllegalArgumentException.class, () -> treeSet.add(null));
+    void iteratorTest() {
+        Integer[] array = {-4, -1, 2, -3, 4, 1, -2, 3};
+        treeSet.addAll(Arrays.asList(array));
+        Arrays.sort(array);
+        var index = 0;
+        for (Integer integer : treeSet) {
+            assertEquals(array[index], integer);
+            index++;
+        }
     }
 
     @Test
-    void ceilingNullTest() {
-        assertThrows(IllegalArgumentException.class, () -> treeSet.contains(null));
-    }
-
-
-    @Test
-    void iterator() {
-    }
-
-    @Test
-    void descendingIterator() {
+    void descendingIteratorTest() {
+        Integer[] array = {-4, -1, 2, -3, 4, 1, -2, 3};
+        treeSet.addAll(Arrays.asList(array));
+        Arrays.sort(array, Collections.reverseOrder());
+        var index = 0;
+        for (Iterator<Integer> iterator = treeSet.descendingIterator(); iterator.hasNext();) {
+            assertEquals(array[index], iterator.next());
+            index++;
+        }
     }
 
     @Test
-    void descendingSet() {
+    void descendingSetTest() {
+        var descendingTreeSet = treeSet.descendingSet();
+        Integer[] array = {-4, -1, 2, -3, 4, 1, -2, 3};
+        treeSet.addAll(Arrays.asList(array));
+        Arrays.sort(array, Collections.reverseOrder());
+        var index = 0;
+        for (Integer integer : descendingTreeSet) {
+            assertEquals(array[index], integer);
+            index++;
+        }
     }
 
     @Test
