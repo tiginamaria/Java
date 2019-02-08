@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>ru.hse.BinarySearchTree</groupId>
+
+    <groupId>hse.ru.BinarySearchTree</groupId>
     <artifactId>BinarySearchTree</artifactId>
     <version>1.0-SNAPSHOT</version>
+
     <build>
         <plugins>
             <plugin>
@@ -19,8 +20,6 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
                 <version>3.8.0</version>
                 <configuration>
                     <release>11</release>
-                    <source>10</source>
-                    <target>10</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -44,13 +43,13 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
                 </configuration>
             </plugin>
         </plugins>
-
     </build>
+
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.3.2</version>
+            <version>RELEASE</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -60,22 +59,11 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>RELEASE</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.jetbrains</groupId>
-            <artifactId>annotations-java5</artifactId>
-            <version>RELEASE</version>
+            <artifactId>annotations</artifactId>
+            <version>16.0.2</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>5.3.2</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
+
 </project>

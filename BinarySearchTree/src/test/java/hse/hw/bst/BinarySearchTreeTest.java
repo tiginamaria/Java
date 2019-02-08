@@ -113,7 +113,7 @@ class BinarySearchTreeTest {
         treeSet.add(3);
         treeSet.add(2);
         treeSet.add(1);
-        assertEquals((Integer)1, treeSet.first());
+        assertEquals((Integer)2, treeSet.first());
         treeSet.remove(3);
         treeSet.remove(2);
         assertEquals((Integer)1, treeSet.first());
@@ -442,7 +442,7 @@ class BinarySearchTreeTest {
         var descendingTreeSet = treeSet.descendingSet();
         Integer[] array = {-4, -1, 2, -3, 4, 1, -2, 3};
         descendingTreeSet.addAll(Arrays.asList(array));
-        assertEquals(4, descendingTreeSet.first());
+        assertEquals((Integer)4, descendingTreeSet.first());
         assertEquals((Integer)(-4), descendingTreeSet.last());
     }
 
