@@ -1,8 +1,0 @@
-language: java
-os:
-- linux
-jdk: 
-- oraclejdk11
-env:
-- PROJECT_DIR=BinarySearchTree
-script: cd $PROJECT_DIR && mvn install 
