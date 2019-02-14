@@ -6,4 +6,5 @@ jdk:
 env:
 - PROJECT_DIR=HashTable
 - PROJECT_DIR=Trie
+- PROJECT_DIR=BinarySearchTree
 script: cd $PROJECT_DIR && mvn install 
