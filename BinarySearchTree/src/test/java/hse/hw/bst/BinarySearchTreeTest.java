@@ -350,7 +350,7 @@ class BinarySearchTreeTest {
     void iteratorInvalidationAddTest() {
         var iterator = treeSet.iterator();
         treeSet.add(0);
-        assertThrows(ConcurrentModificationException.class, iterator::hasNext);
+        assertThrows(NoSuchElementException.class, iterator::hasNext);
     }
 
     @Test
@@ -358,7 +358,7 @@ class BinarySearchTreeTest {
         treeSet.add(0);
         var iterator = treeSet.iterator();
         treeSet.remove(0);
-        assertThrows(ConcurrentModificationException.class, iterator::next);
+        assertThrows(NoSuchElementException.class, iterator::next);
     }
 
     @Test
