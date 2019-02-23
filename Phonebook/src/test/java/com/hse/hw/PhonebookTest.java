@@ -119,18 +119,54 @@ class PhonebookTest {
     }
 
     @Test
-    void getUserList() {
+    void getUserList() throws SQLException {
+        phonebook.addContact("Mary", "01");
+        phonebook.addContact("Vikki", "02");
+        phonebook.addContact("Ann", "03");
+        phonebook.addContact("Ann", "02");
+        phonebook.addContact("Mary", "03");
+        assertEquals(new ArrayList<>(Arrays.asList("Ann", "Mary")), phonebook.getUsersFromPhone("03"));
     }
 
     @Test
-    void getPhoneList() {
+    void getPhoneList() throws SQLException {
+        phonebook.addContact("Mary", "01");
+        phonebook.addContact("Vikki", "02");
+        phonebook.addContact("Ann", "03");
+        phonebook.addContact("Ann", "02");
+        phonebook.addContact("Mary", "03");
+        assertEquals(new ArrayList<>(Arrays.asList("01", "03")), phonebook.getPhonesFromUser("Mary"));
     }
 
     @Test
-    void changeName() {
+    void getUserListFromUnknownPhone() throws SQLException {
+        phonebook.addContact("Mary", "01");
+        phonebook.addContact("Vikki", "02");
+        phonebook.addContact("Ann", "03");
+        assertTrue(phonebook.getUsersFromPhone("04").isEmpty());
     }
 
     @Test
-    void changePhone() {
+    void getPhoneListFromUnknownUser() throws SQLException {
+        phonebook.addContact("Mary", "01");
+        phonebook.addContact("Vikki", "02");
+        phonebook.addContact("Ann", "03");
+        assertTrue(phonebook.getPhonesFromUser("Alex").isEmpty());
+    }
+
+    @Test
+    void changeName() throws SQLException {
+        phonebook.addContact("Mary", "01");
+        phonebook.addContact("Vikki", "02");
+        phonebook.changeName("Vikki", "Mary", "01");
+        assertEquals(new ArrayList<>(Arrays.asList("01", "02")), phonebook.getPhonesFromUser("Vikki"));
+    }
+
+    @Test
+    void changePhone() throws SQLException {
+        phonebook.addContact("Mary", "01");
+        phonebook.addContact("Vikki", "02");
+        phonebook.changePhone("02", "Mary", "01");
+        assertEquals(new ArrayList<>(Arrays.asList("Mary", "Vikki")), phonebook.getUsersFromPhone("02"));
     }
 }

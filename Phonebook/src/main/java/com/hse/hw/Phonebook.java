@@ -9,30 +9,26 @@ public class Phonebook {
     private static final String OUTOFRANGE = "''";
 
     public Phonebook() throws SQLException {
-        try {
-            var connection = DriverManager.getConnection(DATABASE);
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(
-                    "CREATE TABLE IF NOT EXISTS users ("
-                    + " id          INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + " name        VARCHAR NOT NULL UNIQUE"
-                    + ")");
-            statement.executeUpdate(
-                    "CREATE TABLE IF NOT EXISTS phones ("
-                    + " id         INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + " phone      VARCHAR NOT NULL UNIQUE"
-                    + ")");
-            statement.executeUpdate(
-                    "CREATE TABLE IF NOT EXISTS phonebook ("
-                    + " users_id	INTEGER,"
-                    + " phones_id   INTEGER,"
-                    + " UNIQUE (users_id, phones_id),"
-                    + " FOREIGN KEY (users_id)  REFERENCES users(id),"
-                    + " FOREIGN KEY (phones_id) REFERENCES phones(id)"
-                    + ")");
-        } catch (Exception e) {
-
-        }
+        var connection = DriverManager.getConnection(DATABASE);
+        Statement statement = connection.createStatement();
+        statement.executeUpdate(
+                "CREATE TABLE IF NOT EXISTS users ("
+                + " id          INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + " name        VARCHAR NOT NULL UNIQUE"
+                + ")");
+        statement.executeUpdate(
+                "CREATE TABLE IF NOT EXISTS phones ("
+                + " id         INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + " phone      VARCHAR NOT NULL UNIQUE"
+                + ")");
+        statement.executeUpdate(
+                "CREATE TABLE IF NOT EXISTS phonebook ("
+                + " users_id	INTEGER,"
+                + " phones_id   INTEGER,"
+                + " UNIQUE (users_id, phones_id),"
+                + " FOREIGN KEY (users_id)  REFERENCES users(id),"
+                + " FOREIGN KEY (phones_id) REFERENCES phones(id)"
+                + ")");
     }
 
     private String getUserId(String name) throws SQLException {
@@ -145,6 +141,7 @@ public class Phonebook {
                 while (usersId.next()) {
                     userList.add(getUserName(usersId.getString("users_id")));
                 }
+                Collections.sort(userList);
                 return userList;
             }
         }
@@ -161,6 +158,7 @@ public class Phonebook {
                 while (phonesId.next()) {
                     phoneList.add(getPhoneNumber(phonesId.getString("phones_id")));
                 }
+                Collections.sort(phoneList);
                 return phoneList;
             }
         }
@@ -203,7 +201,6 @@ public class Phonebook {
                 while (usersId.next()) {
                     var user = getUserName(usersId.getString("users_id"));
                     var phoneList = getPhonesFromUser(user);
-                    Collections.sort(phoneList);
                     phonebook.put(user, phoneList);
                 }
                 return phonebook;

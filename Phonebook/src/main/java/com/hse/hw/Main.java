@@ -17,18 +17,6 @@ public class Main {
                 if ((command = in.nextLine()) == null) {
                     break;
                 }
-/*
-
-                0 - выйти
-                1 - добавить запись (имя и телефон)
-                2 - найти телефоны по имени
-                3 - найти имена по телефону
-                4 - удалить заданную пару имя-телефон
-                5 - у указанной пары "имя-телефон" поменять имя
-                6 - у указанной пары "имя-телефон" поменять телефон
-                7 - распечатать все пары имя-телефон в справочнике
-
-*/
                 switch (command) {
                     case "0": {
                         run = false;
@@ -92,7 +80,7 @@ public class Main {
                     }
                     case "7": {
                         System.out.printf("Your phonebook :\n");
-                        phonebook.toString();
+                        System.out.println(phonebook.getContacts());
                     }
                 }
             }
