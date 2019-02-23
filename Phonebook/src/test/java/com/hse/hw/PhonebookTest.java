@@ -91,6 +91,14 @@ class PhonebookTest {
     }
 
     @Test
+    void deleteNonexistentTest() throws SQLException {
+        phonebook.addContact("Mary", "01");
+        phonebook.deleteContact("Mary", "02");
+        var contacts = new HashMap<String, ArrayList<String>>();
+        contacts.put("Mary", new ArrayList<>(Arrays.asList("01")));
+    }
+
+    @Test
     void deleteDuplicatedNameContactTest() throws SQLException {
         phonebook.addContact("Mary", "01");
         phonebook.addContact("Mary", "02");
