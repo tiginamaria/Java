@@ -1,5 +1,8 @@
 package com.hse.hw;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.sql.*;
 import java.util.*;
 
@@ -44,7 +47,8 @@ public class Phonebook {
      * @return id of user or null, if there is no user with given name
      * @throws SQLException when accrued problems with database
      */
-    private String getUserId(String name) throws SQLException {
+    @Nullable
+    private String getUserId(@NotNull String name) throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
             try (var statement = connection.createStatement()) {
                 var userId = statement.executeQuery(
@@ -66,7 +70,8 @@ public class Phonebook {
      * @return id of phone or null, if there is no phone with given number
      * @throws SQLException when accrued problems with database
      */
-    private String getPhoneId(String phone) throws SQLException {
+    @Nullable
+    private String getPhoneId(@NotNull String phone) throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
             try (var statement = connection.createStatement()) {
                 var phoneId = statement.executeQuery(
@@ -106,7 +111,7 @@ public class Phonebook {
      * @return phone number or null, if there is no phone with given id
      * @throws SQLException when accrued problems with database
      */
-    private String getPhoneNumber(String id) throws SQLException {
+    private String getPhoneNumber(@NotNull String id) throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
             try (var statement = connection.createStatement()) {
                 return statement.executeQuery(
@@ -122,7 +127,7 @@ public class Phonebook {
      * @param name name of user to add
      * @throws SQLException when accrued problems with database
      */
-    private void addUser(String name) throws SQLException {
+    private void addUser(@NotNull String name) throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
             try (var statement = connection.createStatement()) {
                 statement.executeUpdate(
@@ -137,7 +142,7 @@ public class Phonebook {
      * @param phone phone number to add
      * @throws SQLException when accrued problems with database
      */
-    private void addPhone(String phone) throws SQLException {
+    private void addPhone(@NotNull String phone) throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
             try (var statement = connection.createStatement()) {
                 statement.executeUpdate(
@@ -153,7 +158,7 @@ public class Phonebook {
      * @param phone phone number in new contact
      * @throws SQLException when accrued problems with database
      */
-    public void addContact(String name, String phone)  throws SQLException {
+    public void addContact(@NotNull String name, @NotNull String phone)  throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
             try (var statement = connection.createStatement()) {
                 addUser(name);
@@ -189,8 +194,8 @@ public class Phonebook {
      * @return list of users with given phone (may be empty)
      * @throws SQLException when accrued problems with database
      */
-    public ArrayList<String> getUsersFromPhone(String phone) throws SQLException {
-        try (var connection = DriverManager.getConnection(Phonebook.DATABASE)) {
+    public ArrayList<String> getUsersFromPhone(@NotNull String phone) throws SQLException {
+        try (var connection = DriverManager.getConnection(DATABASE)) {
             try (var statement = connection.createStatement()) {
                 var userList = new ArrayList<String>();
                 var usersId = statement.executeQuery(
@@ -212,8 +217,8 @@ public class Phonebook {
      * @return list of phones with given user name (may be empty)
      * @throws SQLException when accrued problems with database
      */
-    public ArrayList<String> getPhonesFromUser(String name) throws SQLException {
-        try (var connection = DriverManager.getConnection(Phonebook.DATABASE)) {
+    public ArrayList<String> getPhonesFromUser(@NotNull String name) throws SQLException {
+        try (var connection = DriverManager.getConnection(DATABASE)) {
             try (var statement = connection.createStatement()) {
                 var phoneList = new ArrayList<String>();
                 var phonesId = statement.executeQuery(
@@ -236,7 +241,7 @@ public class Phonebook {
      * @param phone phone in changing contact
      * @throws SQLException when accrued problems with database
      */
-    public void changeName(String newName, String name, String phone) throws SQLException {
+    public void changeName(@NotNull String newName, @NotNull String name, @NotNull String phone) throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
             try (var statement = connection.createStatement()) {
                 addUser(newName);
@@ -256,7 +261,7 @@ public class Phonebook {
      * @param phone phone in changing contact
      * @throws SQLException when accrued problems with database
      */
-    public void changePhone(String newPhone, String name, String phone) throws SQLException {
+    public void changePhone(@NotNull String newPhone, @NotNull String name, @NotNull String phone) throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
             try (var statement = connection.createStatement()) {
                 addPhone(newPhone);
