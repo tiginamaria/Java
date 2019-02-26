@@ -8,85 +8,84 @@ public class Main {
         try {
             var phonebook = new Phonebook();
             Scanner in = new Scanner(System.in);
-
-            String command;
             boolean run = true;
-            System.out.printf("Welcome to Phonebook\n");
+            System.out.println("Welcome to Phonebook");
             while(run) {
-                System.out.printf("Enter command:\n");
-                if ((command = in.nextLine()) == null) {
+                System.out.println("Enter command:");
+                String command = in.next();
+                if (command == null) {
                     break;
                 }
                 switch (command) {
                     case "0": {
                         run = false;
-                        System.out.printf("Goodbye. See you in Phonebook.\n");
+                        System.out.println("Goodbye. See you in Phonebook.");
                         break;
                     }
                     case "1": {
-                        System.out.printf("Enter user name:\n");
+                        System.out.println("Enter user name:");
                         String name = in.next();
-                        System.out.printf("Enter phone number:\n");
+                        System.out.println("Enter phone number:");
                         String number = in.next();
                         phonebook.addContact(name, number);
-                        System.out.printf("Contact successfully created\n");
+                        System.out.println("Contact successfully created!");
                         break;
                     }
                     case "2": {
-                        System.out.printf("Enter user name:\n");
+                        System.out.println("Enter user name:");
                         String name = in.next();
                         var phoneList = phonebook.getPhonesFromUser(name);
                         System.out.println(phoneList);
                         break;
                     }
                     case "3": {
-                        System.out.printf("Enter phone number:\n");
+                        System.out.println("Enter phone number:");
                         String number = in.next();
                         var userList = phonebook.getUsersFromPhone(number);
                         System.out.println(userList);
                         break;
                     }
                     case "4": {
-                        System.out.printf("Enter user name:\n");
+                        System.out.println("Enter user name:");
                         String name = in.next();
-                        System.out.printf("Enter phone number:\n");
+                        System.out.println("Enter phone number:");
                         String number = in.next();
                         phonebook.deleteContact(name, number);
-                        System.out.printf("Contact successfully deleted\n");
+                        System.out.println("Contact successfully deleted!");
                         break;
                     }
                     case "5": {
-                        System.out.printf("Enter phone number to change :\n");
+                        System.out.println("Enter phone number to change:");
                         String number = in.next();
-                        System.out.printf("Enter old user name:\n");
+                        System.out.println("Enter old user name:");
                         String name = in.next();
-                        System.out.printf("Enter new user name:\n");
+                        System.out.println("Enter new user name:");
                         String newName = in.next();
                         phonebook.changeName(newName, name, number);
-                        System.out.printf("Name successfully changed\n");
+                        System.out.println("Name successfully changed!");
                         break;
                     }
 
                     case "6": {
-                        System.out.printf("Enter user name to change :\n");
+                        System.out.println("Enter user name to change:");
                         String name = in.next();
-                        System.out.printf("Enter old  phone number:\n");
+                        System.out.println("Enter old  phone number:");
                         String number = in.next();
-                        System.out.printf("Enter new  phone number:\n");
+                        System.out.println("Enter new  phone number:");
                         String newNumber = in.next();
                         phonebook.changePhone(newNumber, name, number);
-                        System.out.printf("Number successfully changed\n");
+                        System.out.println("Number successfully changed!");
                         break;
                     }
                     case "7": {
-                        System.out.printf("Your phonebook :\n");
+                        System.out.println("Your phonebook:");
                         System.out.println(phonebook.getContacts());
                     }
                 }
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 }

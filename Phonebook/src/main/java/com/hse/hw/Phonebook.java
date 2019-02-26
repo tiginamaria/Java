@@ -10,39 +10,41 @@ import java.util.*;
 public class Phonebook {
 
     /**
-     * name of database
+     * Name of database
      */
     private static final String DATABASE = "jdbc:sqlite:Phonebook.db";
 
     /**
-     * settle connection with sql database, create database with names, phones, and contacts
+     * Settle connection with sql database, create database with names, phones, and contacts.
      * @throws SQLException when problems accrued in building, opening and connecting to database
      */
     public Phonebook() throws SQLException {
-        var connection = DriverManager.getConnection(DATABASE);
-        Statement statement = connection.createStatement();
-        statement.executeUpdate(
-                "CREATE TABLE IF NOT EXISTS users ("
-                + " id          INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + " name        VARCHAR NOT NULL UNIQUE"
-                + ")");
-        statement.executeUpdate(
-                "CREATE TABLE IF NOT EXISTS phones ("
-                + " id         INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + " phone      VARCHAR NOT NULL UNIQUE"
-                + ")");
-        statement.executeUpdate(
-                "CREATE TABLE IF NOT EXISTS phonebook ("
-                + " users_id	INTEGER,"
-                + " phones_id   INTEGER,"
-                + " UNIQUE (users_id, phones_id),"
-                + " FOREIGN KEY (users_id)  REFERENCES users(id),"
-                + " FOREIGN KEY (phones_id) REFERENCES phones(id)"
-                + ")");
+        try (var connection = DriverManager.getConnection(DATABASE)) {
+            try (var statement = connection.createStatement()) {
+                statement.executeUpdate(
+                        "CREATE TABLE IF NOT EXISTS users ("
+                                + " id          INTEGER PRIMARY KEY AUTOINCREMENT,"
+                                + " name        VARCHAR NOT NULL UNIQUE"
+                                + ")");
+                statement.executeUpdate(
+                        "CREATE TABLE IF NOT EXISTS phones ("
+                                + " id         INTEGER PRIMARY KEY AUTOINCREMENT,"
+                                + " phone      VARCHAR NOT NULL UNIQUE"
+                                + ")");
+                statement.executeUpdate(
+                        "CREATE TABLE IF NOT EXISTS phonebook ("
+                                + " users_id	INTEGER,"
+                                + " phones_id   INTEGER,"
+                                + " UNIQUE (users_id, phones_id),"
+                                + " FOREIGN KEY (users_id)  REFERENCES users(id),"
+                                + " FOREIGN KEY (phones_id) REFERENCES phones(id)"
+                                + ")");
+            }
+        }
     }
 
     /**
-     * get user id in database users with given name
+     * Get user id in database users with given name.
      * @param name name of user to get id
      * @return id of user or null, if there is no user with given name
      * @throws SQLException when accrued problems with database
@@ -55,17 +57,15 @@ public class Phonebook {
                         "SELECT id"
                                 + " FROM users"
                                 + " WHERE name = '" + name +"'");
-                if (userId.next()) {
+                if (userId.next())
                     return userId.getString("id");
-                } else {
-                    return null;
-                }
+                return null;
             }
         }
     }
 
     /**
-     * get phone id in database phones with given phone number
+     * Get phone id in database phones with given phone number.
      * @param phone phone number to get id
      * @return id of phone or null, if there is no phone with given number
      * @throws SQLException when accrued problems with database
@@ -78,18 +78,15 @@ public class Phonebook {
                         "SELECT id"
                                 + " FROM phones"
                                 + " WHERE phone = '" + phone + "'");
-                if (phoneId.next()) {
-                    String id = phoneId.getString("id");
-                    return id;
-                } else {
-                    return null;
-                }
+                if (phoneId.next())
+                    return phoneId.getString("id");
+                return null;
             }
         }
     }
 
     /**
-     * get user name in database users with given id
+     * Get user name in database users with given id.
      * @param id id of user to get name
      * @return name of user or null, if there is no user with given id
      * @throws SQLException when accrued problems with database
@@ -97,16 +94,17 @@ public class Phonebook {
     private String getUserName(String id) throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
             try (var statement = connection.createStatement()) {
-                return statement.executeQuery(
+                var name =  statement.executeQuery(
                         "SELECT name"
                                 + " FROM users"
-                                + " WHERE id  = " + id).getString("name");
+                                + " WHERE id  = " + id);
+                return name.getString("name");
             }
         }
     }
 
     /**
-     * get phone number in database phones with given id
+     * Get phone number in database phones with given id.
      * @param id id of phone to get number
      * @return phone number or null, if there is no phone with given id
      * @throws SQLException when accrued problems with database
@@ -114,16 +112,17 @@ public class Phonebook {
     private String getPhoneNumber(@NotNull String id) throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
             try (var statement = connection.createStatement()) {
-                return statement.executeQuery(
+                var phone = statement.executeQuery(
                         "SELECT phone"
                                 + " FROM phones"
-                                + " WHERE id  = " + id).getString("phone");
+                                + " WHERE id  = " + id);
+                return phone.getString("phone");
             }
         }
     }
 
     /**
-     * add user with given name if there is no in uses database
+     * Add user with given name if there is no in uses database.
      * @param name name of user to add
      * @throws SQLException when accrued problems with database
      */
@@ -138,7 +137,7 @@ public class Phonebook {
     }
 
     /**
-     * add phone with given number if there is no in phones database
+     * Add phone with given number if there is no in phones database.
      * @param phone phone number to add
      * @throws SQLException when accrued problems with database
      */
@@ -153,7 +152,7 @@ public class Phonebook {
     }
 
     /**
-     * add contact with given name and number if there is no in phonebook database
+     * Add contact with given name and number if there is no in phonebook database.
      * @param name name of user in new contact
      * @param phone phone number in new contact
      * @throws SQLException when accrued problems with database
@@ -172,7 +171,7 @@ public class Phonebook {
     }
 
     /**
-     * delete contact with given name and number from phonebook database
+     * Delete contact with given name and number from phonebook database.
      * @param name name of user in contact to delete
      * @param phone phone number in contact to delete
      * @throws SQLException when accrued problems with database
@@ -189,12 +188,12 @@ public class Phonebook {
     }
 
     /**
-     * get sorted list of users with given phone from phonebook database
+     * Get sorted list of users with given phone from phonebook database.
      * @param phone to get users which own it
      * @return list of users with given phone (may be empty)
      * @throws SQLException when accrued problems with database
      */
-    public ArrayList<String> getUsersFromPhone(@NotNull String phone) throws SQLException {
+    public List<String> getUsersFromPhone(@NotNull String phone) throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
             try (var statement = connection.createStatement()) {
                 var userList = new ArrayList<String>();
@@ -212,12 +211,12 @@ public class Phonebook {
     }
 
     /**
-     * get sorted list of phones of given user name from phonebook database
+     * Get sorted list of phones of given user name from phonebook database.
      * @param name name of user to get his phones
      * @return list of phones with given user name (may be empty)
      * @throws SQLException when accrued problems with database
      */
-    public ArrayList<String> getPhonesFromUser(@NotNull String name) throws SQLException {
+    public List<String> getPhonesFromUser(@NotNull String name) throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
             try (var statement = connection.createStatement()) {
                 var phoneList = new ArrayList<String>();
@@ -235,7 +234,7 @@ public class Phonebook {
     }
 
     /**
-     * change name of user in given contact
+     * Change name of user in given contact.
      * @param newName new name to set
      * @param name name of user in changing contact
      * @param phone phone in changing contact
@@ -255,7 +254,7 @@ public class Phonebook {
     }
 
     /**
-     * change number of phone in given contact
+     * Change number of phone in given contact.
      * @param newPhone new phone number to set
      * @param name name of user in changing contact
      * @param phone phone in changing contact
@@ -275,13 +274,13 @@ public class Phonebook {
     }
 
     /**
-     * get map of all contacts in phonebook in format : key - name of user, value - list of all phones of this user
+     * Get map of all contacts in phonebook in format : key - name of user, value - list of all phones of this user.
      * @throws SQLException when accrued problems with database
      */
-    public Map<String, ArrayList<String>> getContacts() throws SQLException {
+    public Map<String, List<String>> getContacts() throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
             try (var statement = connection.createStatement()) {
-                var phonebook = new HashMap<String, ArrayList<String>>();
+                var phonebook = new HashMap<String, List<String>>();
                 var usersId = statement.executeQuery(
                         "SELECT users_id"
                                 + " FROM phonebook");
@@ -296,7 +295,7 @@ public class Phonebook {
     }
 
     /**
-     * clean names, phones and phonebook databases
+     * Clean names, phones and phonebook databases.
      * @throws SQLException when accrued problems with database
      */
     public void clean() throws SQLException {

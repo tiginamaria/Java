@@ -96,6 +96,7 @@ class PhonebookTest {
         phonebook.deleteContact("Mary", "02");
         var contacts = new HashMap<String, ArrayList<String>>();
         contacts.put("Mary", new ArrayList<>(Arrays.asList("01")));
+        assertEquals(contacts, phonebook.getContacts());
     }
 
     @Test
