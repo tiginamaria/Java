@@ -50,6 +50,7 @@ public class Injector {
         createdInstances.put(className, newInstance);
         toCreateInstances.remove(className);
 
+        return newInstance;
     }
 
     private static Object[] getParameters(Constructor<?> constructor) throws InjectionCycleException, NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
