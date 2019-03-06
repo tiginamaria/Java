@@ -17,7 +17,7 @@ public class Injector {
 
     private static ArrayList<Class<?>> implementations = new ArrayList<>();
 
-   // private HashMap<Class<?>>
+    // private HashMap<Class<?>>
 
     /**
      * Create and initialize object of `rootClassName` class using classes from
@@ -45,7 +45,7 @@ public class Injector {
 
         toCreateInstances.add(className);
 
-        var constructor = className.getConstructor(); //Constructor<?> constructor = className.getDeclaredConstructors()[0];
+        var constructor = className.getDeclaredConstructors()[0];
 
         var newInstance = constructor.newInstance(getParameters(constructor));
         createdInstances.put(className, newInstance);
@@ -58,9 +58,14 @@ public class Injector {
         ArrayList<Object> parameters = new ArrayList<>();
 
         for (Class<?> param : constructor.getParameterTypes()) {
-            var implementation = getImplementation(param);
-            parameters.add(create(implementation));
-
+            int paramModifiers = param.getModifiers();
+            if (Modifier.isInterface(paramModifiers) || Modifier.isAbstract(paramModifiers)) {
+                var implementation = getImplementation(param);
+                parameters.add(create(implementation));
+            }
+            else {
+                parameters.add(create(param));
+            }
         }
         return parameters.toArray();
     }
@@ -68,8 +73,9 @@ public class Injector {
     private static Class<?> getImplementation(Class<?> param)
             throws AmbiguousImplementationException, ImplementationNotFoundException {
         Class<?> implementation = null;
-        for (Class<?> currantImplementation : implementations) {
-            if (param.isAssignableFrom(implementation)) {
+        for (var currantImplementation : implementations) {
+            var modifiers = currantImplementation.getModifiers();
+            if (!Modifier.isInterface(modifiers) && !Modifier.isAbstract(modifiers) && param.isAssignableFrom(currantImplementation)) {
                 if (implementation != null) {
                     throw new AmbiguousImplementationException();
                 }
