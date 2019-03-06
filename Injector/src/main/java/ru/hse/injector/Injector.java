@@ -1,6 +1,8 @@
 package ru.hse.injector;
 
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,9 +10,9 @@ import java.util.List;
 
 public class Injector {
 
-    private static HashMap<Class<?>, Object> createdClasses = new HashMap<>();
+    private static HashMap<Class<?>, Object> createdInstances = new HashMap<>();
 
-    private static ArrayList<Class<?>> toCreateClasses = new ArrayList<>();
+    private static ArrayList<Class<?>> toCreateInstances = new ArrayList<>();
 
     private static ArrayList<Class<?>> implementations = new ArrayList<>();
 
@@ -30,19 +32,32 @@ public class Injector {
         return create(className);
     }
 
-    private static Object create(Class<?> className) throws InjectionCycleException, NoSuchMethodException {
+    private static Object create(Class<?> className) throws InjectionCycleException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
 
-        if (createdClasses.containsKey(className)) {
-            return createdClasses.get(className);
+        if (createdInstances.containsKey(className)) {
+            return createdInstances.get(className);
         }
 
-        if (toCreateClasses.contains(className)) {
+        if (toCreateInstances.contains(className)) {
             throw new InjectionCycleException();
         }
 
-        toCreateClasses.add(className);
+        toCreateInstances.add(className);
 
-        var constructor = className.getConstructor();
+        var constructor = className.getConstructor(); //Constructor<?> constructor = className.getDeclaredConstructors()[0];
 
+        var newInstance = constructor.newInstance(getParameters(constructor));
+        createdInstances.put(className, newInstance);
+        toCreateInstances.remove(className);
+
+    }
+
+    private static Object[] getParameters(Constructor<?> constructor) throws InjectionCycleException, NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
+        var parameters = new ArrayList<Object>();
+        for (var param : constructor.getParameterTypes()) {
+
+            parameters.add(create(param));
+        }
+        return parameters.toArray();
     }
 }
