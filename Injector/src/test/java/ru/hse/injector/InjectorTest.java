@@ -76,10 +76,9 @@ public class InjectorTest  {
         List<String> implementations = Arrays.asList(implsE);
 
 
-        /*assertThrows(InjectionCycleException, () -> Injector.initialize(
+        assertThrows(InjectionCycleException.class, () -> Injector.initialize(
                 "ru.hse.testClasses.E",
                 implementations
         ));
-        */
     }
 }
