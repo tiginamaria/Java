@@ -3,6 +3,7 @@ package ru.hse.injector;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +33,7 @@ public class Injector {
         return create(className);
     }
 
-    private static Object create(Class<?> className) throws InjectionCycleException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    private static Object create(Class<?> className) throws InjectionCycleException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, AmbiguousImplementationException, ImplementationNotFoundException {
 
         if (createdInstances.containsKey(className)) {
             return createdInstances.get(className);
@@ -53,12 +54,31 @@ public class Injector {
         return newInstance;
     }
 
-    private static Object[] getParameters(Constructor<?> constructor) throws InjectionCycleException, NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
-        var parameters = new ArrayList<Object>();
-        for (var param : constructor.getParameterTypes()) {
+    private static Object[] getParameters(Constructor<?> constructor) throws InjectionCycleException, NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException, AmbiguousImplementationException, ImplementationNotFoundException {
+        ArrayList<Object> parameters = new ArrayList<>();
 
-            parameters.add(create(param));
+        for (Class<?> param : constructor.getParameterTypes()) {
+            var implementation = getImplementation(param);
+            parameters.add(create(implementation));
+
         }
         return parameters.toArray();
+    }
+
+    private static Class<?> getImplementation(Class<?> param)
+            throws AmbiguousImplementationException, ImplementationNotFoundException {
+        Class<?> implementation = null;
+        for (Class<?> currantImplementation : implementations) {
+            if (param.isAssignableFrom(implementation)) {
+                if (implementation != null) {
+                    throw new AmbiguousImplementationException();
+                }
+                implementation = currantImplementation;
+            }
+        }
+        if (implementation == null) {
+            throw new ImplementationNotFoundException();
+        }
+        return implementation;
     }
 }
