@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-
+/** This class builds given class using affordable implementations*/
 public class Injector {
 
     private static HashMap<Class<?>, Object> createdInstances = new HashMap<>();
@@ -16,8 +16,6 @@ public class Injector {
     private static ArrayList<Class<?>> toCreateInstances = new ArrayList<>();
 
     private static ArrayList<Class<?>> implementations = new ArrayList<>();
-
-    // private HashMap<Class<?>>
 
     /**
      * Create and initialize object of `rootClassName` class using classes from

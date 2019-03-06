@@ -11,6 +11,8 @@ import ru.hse.testClasses.C;
 import ru.hse.testClasses.A;
 import ru.hse.testClasses.B;
 import ru.hse.testClasses.D;
+import ru.hse.testClasses.E;
+import ru.hse.testClasses.F;
 import ru.hse.testClasses.InterfaceImpl;
 
 import java.util.Arrays;
@@ -64,5 +66,20 @@ public class InjectorTest  {
         assertTrue(object instanceof A);
         A instance = (A) object;
         assertTrue(instance.c instanceof C);
+    }
+
+    @Test
+    public void injectorShouldInitializeCircleClass()
+            throws Exception {
+
+        String[] implsE = {"ru.hse.testClasses.F"};
+        List<String> implementations = Arrays.asList(implsE);
+
+
+        /*assertThrows(InjectionCycleException, () -> Injector.initialize(
+                "ru.hse.testClasses.E",
+                implementations
+        ));
+        */
     }
 }
