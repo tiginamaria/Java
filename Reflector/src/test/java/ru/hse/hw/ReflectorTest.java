@@ -1,53 +1,38 @@
 package ru.hse.hw;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.Writer;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import javax.tools.JavaCompiler;
+import javax.tools.ToolProvider;
+import java.io.*;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.FileSystems;
+import java.nio.file.Paths;
 
 class ReflectorTest {
 
     Reflector reflector = new Reflector();
 
-    public static class Printer<T> {
-        Printer() { }
+    private void compileSource(String fileName) {
+        var filePath = FileSystems.getDefault().getPath(fileName + ".java").toAbsolutePath();
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        compiler.run(null, null, null, filePath.toString());
     }
 
-    public static class PrettyPrinter<T> extends Printer<T> implements Serializable, Runnable {
-        public final static int version = 10;
-
-        private final T t = null;
-
-        private T data;
-
-        protected List<? extends T> memory;
-
-        void loadData(T newData) { }
-
-        List<T> getStoredData() { return null; }
-
-        public void printData() { }
-
-        PrettyPrinter() { }
-
-        PrettyPrinter(T data) { }
-
-        PrettyPrinter(List<T> list) { }
-
-        @Override
-        public void run() {
-
-        }
+    private void runClass(String fileName)
+            throws IOException, ClassNotFoundException {
+        var classesDir = Paths.get("").toAbsolutePath();
+        var classLoader = URLClassLoader.newInstance(new URL[]{classesDir.toFile().toURI().toURL()});
+        Class.forName(fileName, true, classLoader);
     }
+
 
     @Test
-    void printStructure() throws IOException {
+    void printStructure() throws IOException, ClassNotFoundException {
         reflector.printStructure(PrettyPrinter.class);
+        compileSource("PrettyPrinter");
+        runClass("PrettyPrinter");
     }
 
     @Test
