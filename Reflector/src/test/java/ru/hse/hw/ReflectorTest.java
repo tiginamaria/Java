@@ -15,21 +15,29 @@ class ReflectorTest {
     Reflector reflector = new Reflector();
 
     public static class Printer<T> {
-
+        Printer() { }
     }
 
     public static class PrettyPrinter<T> extends Printer<T> implements Serializable, Runnable {
         public final static int version = 10;
 
+        private final T t = null;
+
         private T data;
 
         protected List<? extends T> memory;
 
-        void loadData(T newData) {}
+        void loadData(T newData) { }
 
         List<T> getStoredData() { return null; }
 
-        public void printData() {}
+        public void printData() { }
+
+        PrettyPrinter() { }
+
+        PrettyPrinter(T data) { }
+
+        PrettyPrinter(List<T> list) { }
 
         @Override
         public void run() {

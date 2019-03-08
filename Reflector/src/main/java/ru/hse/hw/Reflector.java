@@ -32,54 +32,76 @@ public class Reflector {
 
     private static FileWriter out;
 
-    public static void printStructure(Class<?> someClass) throws IOException {
+    private static int tabs;
 
+    public static void printStructure(Class<?> someClass) throws IOException {
         try(FileWriter fileOutputStream = new FileWriter( someClass.getSimpleName() + ".java", false)) {
-            out = fileOutputStream;
-            printModifiers(someClass);
-            printClassName(someClass);
-            printTypeParameters(someClass);
-            printExtendedClass(someClass);
-            printImplementedInterfaces(someClass);
-            out.write("{\n");
-            for (var subclass : someClass.getDeclaredClasses()) {
-                printStructure(subclass);
-            }
-            printFields(someClass);
-            printMethods(someClass);
+            cascadePrintStructure(someClass, fileOutputStream, 0);
         }
+    }
+
+    public static void cascadePrintStructure(Class<?> someClass, FileWriter fileOutputStream, int tabulations) throws IOException {
+        out = fileOutputStream;
+        tabs = tabulations;
+        printModifiers(someClass.getModifiers());
+        printClassName(someClass);
+        printGenericTypeParameters(someClass);
+        printExtendedClass(someClass);
+        printImplementedInterfaces(someClass);
+        out.write("{\n");
+        for (var subclass : someClass.getDeclaredClasses()) {
+            cascadePrintStructure(subclass, out, tabulations + 1);
+        }
+        printFields(someClass);
+        printConstructors(someClass);
+        printMethods(someClass);
+        out.write("}");
     }
 
     private static void printFields(Class<?> someClass) throws IOException {
         Field[] fields = someClass.getDeclaredFields();
         for (var field : fields) {
+            printModifiers(field.getModifiers());
             out.write(Modifier.toString(field.getModifiers()) + " ");
             out.write(getTypeName(field.getGenericType()) + " ");
-            out.write(field.getName()+ "\n");
+            out.write(field.getName());
+            if (Modifier.isFinal(field.getModifiers())) {
+                out.write(" = " + defaultValue(field.getGenericType()));
+            }
+            out.write(";\n");
         }
+    }
+
+    private static String defaultValue(Type type) {
+        if (type instanceof Class) {
+            var typeClass = (Class<?>) type;
+            if (typeClass.isPrimitive()) {
+                var value = Array.newInstance((Class<?>) type, 1);
+                return Array.get(value, 0).toString();
+            }
+        }
+        return null;
     }
 
     private static void printMethods(Class<?> someClass) throws IOException {
         Method[] methods = someClass.getMethods();
         for (var method : methods) {
+            printModifiers(method.getModifiers());
             out.write(method.getReturnType().getName() + " ");
             out.write(method.getName() + "(");
-            Parameter[] parameters = method.getParameters();
-            if (parameters.length > 0) {
-                out.write(getTypeName(parameters[0].getType()) + " " + parameters[0].getName());
-                for (int i = 1; i < parameters.length; i++) {
-                    out.write(", " + getTypeName(parameters[i].getType()) + " " + parameters[i].getName());
-                }
-            }
+            printParameters(method.getGenericParameterTypes(), method.getParameters());
             out.write(") " + "{ }" + "\n");
         }
     }
 
-    private static void printModifiers(Class<?> someClass) throws IOException {
-        var mods = someClass.getModifiers();
-        out.write(Modifier.toString(mods));
-        if (mods != 0) {
-            out.write(" ");
+    private static void printConstructors(Class<?> someClass) throws IOException {
+        Constructor[] constructors = someClass.getDeclaredConstructors();
+        for (Constructor constructor : constructors) {
+            printModifiers(constructor.getModifiers());
+            out.write(constructor.getDeclaringClass().getSimpleName());
+            out.write("(");
+            printParameters(constructor.getGenericParameterTypes(), constructor.getParameters());
+            out.write(") " + "{ }" + "\n");
         }
     }
 
@@ -87,7 +109,7 @@ public class Reflector {
         out.write(someClass.getSimpleName());
     }
 
-    private static void printTypeParameters(Class<?> someClass) throws IOException {
+    private static void printGenericTypeParameters(Class<?> someClass) throws IOException {
         var typeParameters = someClass.getTypeParameters();
         if (typeParameters.length > 0) {
             out.write("<");
@@ -98,10 +120,6 @@ public class Reflector {
             out.write(">");
             out.write(" ");
         }
-    }
-
-    private static String getTypeName(Type type) {
-        return type.getTypeName().replace('$', '.');
     }
 
     private static void printImplementedInterfaces(Class<?> someClass) throws IOException {
@@ -122,6 +140,26 @@ public class Reflector {
             out.write("extends " + getTypeName(ancestor));
             out.write(" ");
         }
+    }
+
+    private static void printModifiers(int mods) throws IOException {
+        out.write(Modifier.toString(mods));
+        if (mods != 0) {
+            out.write(" ");
+        }
+    }
+
+    private static void printParameters(Type[] types, Parameter[] parameters) throws IOException {
+        if (parameters.length > 0) {
+            out.write(getTypeName(types[0]) + " " + parameters[0].getName());
+            for (int i = 1; i < parameters.length; i++) {
+                out.write(", " + getTypeName(types[i]) + " " + parameters[i].getName());
+            }
+        }
+    }
+
+    private static String getTypeName(Type type) {
+        return type.getTypeName().replace('$', '.');
     }
 
 
