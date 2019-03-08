@@ -20,7 +20,7 @@ public class Phonebook {
      * @throws SQLException when problems accrued in building, opening and connecting to database
      */
     public Phonebook(String database) throws SQLException {
-        DATABASE = "jdbc:sqlite:" + database + ".bd";
+        DATABASE = "jdbc:sqlite:" + database;
         try (var connection = DriverManager.getConnection(DATABASE)) {
             try (var statement = connection.createStatement()) {
                 statement.executeUpdate(
@@ -50,7 +50,7 @@ public class Phonebook {
      * @throws SQLException when problems accrued in building, opening and connecting to database
      */
     public Phonebook() throws SQLException {
-        this("Phonebook");
+        this("Phonebook.bd");
     }
 
     /**

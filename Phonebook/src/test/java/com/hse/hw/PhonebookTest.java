@@ -18,7 +18,7 @@ class PhonebookTest {
 
     @BeforeEach
     void initPhonebook() throws SQLException {
-        phonebook = new Phonebook("Tester");
+        phonebook = new Phonebook("Tester.bd");
     }
 
     @AfterEach
