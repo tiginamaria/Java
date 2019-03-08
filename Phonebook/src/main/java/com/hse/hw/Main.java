@@ -3,20 +3,41 @@ package com.hse.hw;
 import java.sql.SQLException;
 import java.util.Scanner;
 
+
+/**
+ * class implements the interaction with the users of phonebook
+ */
 public class Main {
+
+    /**
+     * implements the interaction with the users by command line
+     */
     public static void main(String[] args) {
         try {
             var phonebook = new Phonebook();
             Scanner in = new Scanner(System.in);
             boolean run = true;
-            System.out.println("Welcome to Phonebook");
+            System.out.println("Welcome to Phonebook!");
             while(run) {
-                System.out.println("Enter command:");
+                System.out.println("Enter command(press ? for help):");
                 String command = in.next();
                 if (command == null) {
                     break;
                 }
                 switch (command) {
+                    case "?": {
+                        System.out.print(
+                                "    ? - помощь\n" +
+                                "    0 - выйти\n" +
+                                "    1 - добавить запись (имя и телефон)\n" +
+                                "    2 - найти телефоны по имени\n" +
+                                "    3 - найти имена по телефону\n" +
+                                "    4 - удалить заданную пару имя-телефон\n" +
+                                "    5 - у указанной пары \"имя-телефон\" поменять имя\n" +
+                                "    6 - у указанной пары \"имя-телефон\" поменять телефон\n" +
+                                "    7 - распечатать все пары имя-телефон в справочнике\n");
+                        break;
+                    }
                     case "0": {
                         run = false;
                         System.out.println("Goodbye. See you in Phonebook.");
@@ -83,7 +104,6 @@ public class Main {
                     }
                 }
             }
-
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }

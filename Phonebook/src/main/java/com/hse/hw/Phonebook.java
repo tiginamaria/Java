@@ -12,13 +12,15 @@ public class Phonebook {
     /**
      * Name of database
      */
-    private static final String DATABASE = "jdbc:sqlite:Phonebook.db";
+    private String DATABASE;
 
     /**
-     * Settle connection with sql database, create database with names, phones, and contacts.
+     * Settle connection with sql given database, create database with names, phones, and contacts.
+     * @param database name of given database
      * @throws SQLException when problems accrued in building, opening and connecting to database
      */
-    public Phonebook() throws SQLException {
+    public Phonebook(String database) throws SQLException {
+        DATABASE = "jdbc:sqlite:" + database + ".bd";
         try (var connection = DriverManager.getConnection(DATABASE)) {
             try (var statement = connection.createStatement()) {
                 statement.executeUpdate(
@@ -44,6 +46,14 @@ public class Phonebook {
     }
 
     /**
+     * Settle connection with sql default database, create database with names, phones, and contacts.
+     * @throws SQLException when problems accrued in building, opening and connecting to database
+     */
+    public Phonebook() throws SQLException {
+        this("Phonebook");
+    }
+
+    /**
      * Get user id in database users with given name.
      * @param name name of user to get id
      * @return id of user or null, if there is no user with given name
@@ -52,13 +62,15 @@ public class Phonebook {
     @Nullable
     private String getUserId(@NotNull String name) throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
-            try (var statement = connection.createStatement()) {
-                var userId = statement.executeQuery(
-                        "SELECT id"
-                                + " FROM users"
-                                + " WHERE name = '" + name +"'");
-                if (userId.next())
+            String query = "SELECT id"
+                    + " FROM users"
+                    + " WHERE name = ?";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, name);
+                var userId = statement.executeQuery();
+                if (userId.next()) {
                     return userId.getString("id");
+                }
                 return null;
             }
         }
@@ -73,13 +85,15 @@ public class Phonebook {
     @Nullable
     private String getPhoneId(@NotNull String phone) throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
-            try (var statement = connection.createStatement()) {
-                var phoneId = statement.executeQuery(
-                        "SELECT id"
-                                + " FROM phones"
-                                + " WHERE phone = '" + phone + "'");
-                if (phoneId.next())
+            String query = "SELECT id"
+                    + " FROM phones"
+                    + " WHERE phone = ?";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, phone);
+                var phoneId = statement.executeQuery();
+                if (phoneId.next()) {
                     return phoneId.getString("id");
+                }
                 return null;
             }
         }
@@ -93,15 +107,17 @@ public class Phonebook {
      */
     private String getUserName(String id) throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
-            try (var statement = connection.createStatement()) {
-                var name =  statement.executeQuery(
-                        "SELECT name"
-                                + " FROM users"
-                                + " WHERE id  = " + id);
+            String query = "SELECT name"
+                    + " FROM users"
+                    + " WHERE id = ?";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, id);
+                var name = statement.executeQuery();
                 return name.getString("name");
             }
         }
     }
+
 
     /**
      * Get phone number in database phones with given id.
@@ -111,12 +127,13 @@ public class Phonebook {
      */
     private String getPhoneNumber(@NotNull String id) throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
-            try (var statement = connection.createStatement()) {
-                var phone = statement.executeQuery(
-                        "SELECT phone"
-                                + " FROM phones"
-                                + " WHERE id  = " + id);
-                return phone.getString("phone");
+            String query = "SELECT phone"
+                    + " FROM phones"
+                    + " WHERE id = ?";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, id);
+                var name = statement.executeQuery();
+                return name.getString("phone");
             }
         }
     }
@@ -128,10 +145,11 @@ public class Phonebook {
      */
     private void addUser(@NotNull String name) throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
-            try (var statement = connection.createStatement()) {
-                statement.executeUpdate(
-                        "INSERT OR IGNORE INTO users (name)"
-                                + " VALUES ('" + name + "')");
+            String query = "INSERT OR IGNORE INTO users (name)"
+                    + " VALUES (?)";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, name);
+                statement.executeUpdate();
             }
         }
     }
@@ -143,10 +161,11 @@ public class Phonebook {
      */
     private void addPhone(@NotNull String phone) throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
-            try (var statement = connection.createStatement()) {
-                statement.executeUpdate(
-                        "INSERT OR IGNORE INTO phones (phone)"
-                                + " VALUES ('" + phone + "')");
+            String query = "INSERT OR IGNORE INTO phones (phone)"
+                    + " VALUES (?)";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, phone);
+                statement.executeUpdate();
             }
         }
     }
@@ -159,13 +178,15 @@ public class Phonebook {
      */
     public void addContact(@NotNull String name, @NotNull String phone)  throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
-            try (var statement = connection.createStatement()) {
-                addUser(name);
-                addPhone(phone);
-                statement.executeUpdate(
-                        "INSERT OR IGNORE"
-                                + " INTO phonebook (users_id, phones_id)"
-                                + " VALUES (" + getUserId(name) + ", " + getPhoneId(phone) + ")");
+            addUser(name);
+            addPhone(phone);
+            String query = "INSERT OR IGNORE"
+                    + " INTO phonebook (users_id, phones_id)"
+                    + " VALUES (?, ?)";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, getUserId(name));
+                statement.setString(2, getPhoneId(phone));
+                statement.executeUpdate();
             }
         }
     }
@@ -178,11 +199,13 @@ public class Phonebook {
      */
     public void deleteContact(String name, String phone) throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
-            try (var statement = connection.createStatement()) {
-                statement.executeUpdate(
-                        "DELETE FROM phonebook"
-                                + " WHERE users_id = " + getUserId(name)
-                                + " AND phones_id = " + getPhoneId(phone));
+            String query = "DELETE FROM phonebook"
+                    + " WHERE users_id = ?"
+                    + " AND phones_id = ?";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, getUserId(name));
+                statement.setString(2, getPhoneId(phone));
+                statement.executeUpdate();
             }
         }
     }
@@ -195,12 +218,13 @@ public class Phonebook {
      */
     public List<String> getUsersFromPhone(@NotNull String phone) throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
-            try (var statement = connection.createStatement()) {
-                var userList = new ArrayList<String>();
-                var usersId = statement.executeQuery(
-                        "SELECT users_id"
-                                + " FROM phonebook"
-                                + " WHERE phones_id = " + getPhoneId(phone));
+            var userList = new ArrayList<String>();
+            String query = "SELECT users_id"
+                    + " FROM phonebook"
+                    + " WHERE phones_id = ?";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, getPhoneId(phone));
+                var usersId = statement.executeQuery();
                 while (usersId.next()) {
                     userList.add(getUserName(usersId.getString("users_id")));
                 }
@@ -218,12 +242,13 @@ public class Phonebook {
      */
     public List<String> getPhonesFromUser(@NotNull String name) throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
-            try (var statement = connection.createStatement()) {
-                var phoneList = new ArrayList<String>();
-                var phonesId = statement.executeQuery(
-                        "SELECT phones_id"
-                                + " FROM phonebook"
-                                + " WHERE users_id  = " + getUserId(name));
+            var phoneList = new ArrayList<String>();
+            String query = "SELECT phones_id"
+                            + " FROM phonebook"
+                            + " WHERE users_id  = ?";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, getUserId(name));
+                var phonesId = statement.executeQuery();
                 while (phonesId.next()) {
                     phoneList.add(getPhoneNumber(phonesId.getString("phones_id")));
                 }
@@ -232,6 +257,7 @@ public class Phonebook {
             }
         }
     }
+
 
     /**
      * Change name of user in given contact.
@@ -242,13 +268,16 @@ public class Phonebook {
      */
     public void changeName(@NotNull String newName, @NotNull String name, @NotNull String phone) throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
-            try (var statement = connection.createStatement()) {
-                addUser(newName);
-                statement.executeUpdate(
-                        "UPDATE phonebook "
-                                + " SET users_id = " + getUserId(newName)
-                                + " WHERE users_id = " + getUserId(name)
-                                + " AND phones_id =" + getPhoneId(phone));
+            addUser(newName);
+            String query = "UPDATE phonebook "
+                    + " SET users_id = ?"
+                    + " WHERE users_id = ?"
+                    + " AND phones_id = ?";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, getUserId(newName));
+                statement.setString(2, getUserId(name));
+                statement.setString(3, getPhoneId(phone));
+                statement.executeUpdate();
             }
         }
     }
@@ -262,13 +291,16 @@ public class Phonebook {
      */
     public void changePhone(@NotNull String newPhone, @NotNull String name, @NotNull String phone) throws SQLException {
         try (var connection = DriverManager.getConnection(DATABASE)) {
-            try (var statement = connection.createStatement()) {
-                addPhone(newPhone);
-                statement.executeUpdate(
-                        "UPDATE phonebook"
-                                + " SET phones_id = " + getPhoneId(newPhone)
-                                + " WHERE users_id = " + getUserId(name)
-                                + " AND phones_id =" + getPhoneId(phone));
+            addPhone(newPhone);
+            String query = "UPDATE phonebook"
+                    + " SET phones_id = ?"
+                    + " WHERE users_id = ?"
+                    + " AND phones_id = ?";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, getPhoneId(newPhone));
+                statement.setString(2, getUserId(name));
+                statement.setString(3, getPhoneId(phone));
+                statement.executeUpdate();
             }
         }
     }
@@ -278,7 +310,7 @@ public class Phonebook {
      * @throws SQLException when accrued problems with database
      */
     public Map<String, List<String>> getContacts() throws SQLException {
-        try (var connection = DriverManager.getConnection(DATABASE)) {
+         try (var connection = DriverManager.getConnection(DATABASE)) {
             try (var statement = connection.createStatement()) {
                 var phonebook = new HashMap<String, List<String>>();
                 var usersId = statement.executeQuery(

@@ -13,22 +13,23 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PhonebookTest {
 
-    Phonebook phonebook;
+    private Phonebook phonebook;
+
 
     @BeforeEach
-    private void initPhonebook() throws SQLException {
-        phonebook = new Phonebook();
+    void initPhonebook() throws SQLException {
+        phonebook = new Phonebook("Tester");
     }
 
     @AfterEach
-    private void cleanPhonebook() throws SQLException {
+    void cleanPhonebook() throws SQLException {
         phonebook.clean();
     }
 
 
     @Test
     void getContactsTest() throws SQLException {
-    var contacts = new HashMap<String, ArrayList<String>>();
+        var contacts = new HashMap<String, ArrayList<String>>();
         contacts.put("Mary", new ArrayList<>(Arrays.asList("01", "02", "03")));
         contacts.put("Vikki", new ArrayList<>(Arrays.asList("02", "04")));
         contacts.put("Ann", new ArrayList<>(Arrays.asList("01", "03")));
