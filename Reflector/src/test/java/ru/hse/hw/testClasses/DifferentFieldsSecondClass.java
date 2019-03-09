@@ -1,0 +1,12 @@
+package ru.hse.hw.testClasses;
+
+import java.util.List;
+
+public class DifferentFieldsSecondClass<T> {
+
+    public final static int version = 10; //different modifier
+
+    private final T t = null; //different name
+
+    protected List<Integer> memory; // different type
+}

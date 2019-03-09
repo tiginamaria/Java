@@ -7,9 +7,6 @@ import java.io.IOException;
 import java.lang.reflect.*;
 import java.util.*;
 
-import static java.lang.StrictMath.abs;
-
-
 /**
  * This class implements methods to obtain the full class structure by name and compare the two classes
  */
@@ -66,7 +63,7 @@ public class Reflector {
     /**
      * Print all declared fields of given class
      * @param someClass class to print fields
-     * @throws IOException
+     * @throws IOException when there are problems connecting to the output file
      */
     private static void printFields(@NotNull Class<?> someClass) throws IOException {
         Field[] fields = someClass.getDeclaredFields();
@@ -78,7 +75,7 @@ public class Reflector {
     /**
      * Print one field of given class, including modifiers, name and value(if the field is final)
      * @param field field to print
-     * @throws IOException
+     * @throws IOException when there are problems connecting to the output file
      */
     private static void printField(@NotNull Field field) throws IOException {
         printTabs();
@@ -110,7 +107,7 @@ public class Reflector {
     /**
      * Print all declared methods of given class
      * @param someClass class to print methods
-     * @throws IOException
+     * @throws IOException when there are problems connecting to the output file
      */
     private static void printMethods(@NotNull Class<?> someClass) throws IOException {
         Method[] methods = someClass.getDeclaredMethods();
@@ -122,7 +119,7 @@ public class Reflector {
     /**
      * Print one method of given class, including modifiers, name and parameters
      * @param method method to print
-     * @throws IOException
+     * @throws IOException when there are problems connecting to the output file
      */
     private static void printMethod(@NotNull Method method) throws IOException {
         printTabs();
@@ -144,7 +141,7 @@ public class Reflector {
     /**
      * Print all declared constructors of given class
      * @param someClass class to print constructors
-     * @throws IOException
+     * @throws IOException when there are problems connecting to the output file
      */
     private static void printConstructors(@NotNull Class<?> someClass) throws IOException {
         Constructor[] constructors = someClass.getDeclaredConstructors();
@@ -161,7 +158,7 @@ public class Reflector {
     /**
      * Print name of given class in right format
      * @param someClass class to print name
-     * @throws IOException
+     * @throws IOException when there are problems connecting to the output file
      */
     private static void printClassName(@NotNull Class<?> someClass) throws IOException {
         printTabs();
@@ -172,7 +169,7 @@ public class Reflector {
     /**
      * Print generic type parameters of given class
      * @param someClass class to print parameters
-     * @throws IOException
+     * @throws IOException when there are problems connecting to the output file
      */
     private static void printGenericTypeParameters(@NotNull Class<?> someClass) throws IOException {
         var typeParameters = someClass.getTypeParameters();
@@ -190,7 +187,7 @@ public class Reflector {
     /**
      * Print implemented interfaces of given class
      * @param someClass class to print interfaces
-     * @throws IOException
+     * @throws IOException when there are problems connecting to the output file
      */
     private static void printImplementedInterfaces(@NotNull Class<?> someClass) throws IOException {
         Type[] interfaces = someClass.getGenericInterfaces();
@@ -207,7 +204,7 @@ public class Reflector {
     /**
      * Print superclass of given class
      * @param someClass class to print interfaces
-     * @throws IOException
+     * @throws IOException when there are problems connecting to the output file
      */
     private static void printExtendedClass(@NotNull Class<?> someClass) throws IOException {
         Type ancestor = someClass.getGenericSuperclass();
@@ -220,7 +217,7 @@ public class Reflector {
     /**
      * Print modifies from given code number
      * @param mods encoded modifiers
-     * @throws IOException
+     * @throws IOException when there are problems connecting to the output file
      */
     private static void printModifiers(@NotNull int mods) throws IOException {
         out.write(Modifier.toString(mods));
@@ -229,6 +226,12 @@ public class Reflector {
         }
     }
 
+    /**
+     * Print type and name of parameters
+     * @param types array with types of parameters
+     * @param parameters array with names of parameters
+     * @throws IOException
+     */
     private static void printParameters(@NotNull Type[] types,@NotNull Parameter[] parameters) throws IOException {
         if (types.length > 0) {
             out.write(getTypeName(types[0]) + " " + parameters[0].getName());
@@ -238,22 +241,39 @@ public class Reflector {
         }
     }
 
+    /**
+     * Print tabs
+     * @throws IOException when there are problems connecting to the output file
+     */
     private static void printTabs() throws IOException {
         for (int i = 0; i < tabs; i++) {
-            out.write('\t');
+            out.write("\t");
         }
     }
 
+    /**
+     * Get type name in right format
+     * @param type type to get name
+     * @return typename
+     */
     @NotNull
     private static String getTypeName(@NotNull Type type) {
         return type.getTypeName().replace('$', '.');
     }
 
-    private static <T> List<T> diff(T[] aList, T[] bList, Comparator<T> comparator) {
+    /**
+     * Get elements from first given array, which has no copy in second given array
+     * @param aArray first given array
+     * @param bArray second given array
+     * @param comparator to compare element from arrays
+     * @param <T> type of element
+     * @return element from first array with no copy in second
+     */
+    private static <T> List<T> diff(T[] aArray, T[] bArray, Comparator<T> comparator) {
         var listDiff = new ArrayList<T>();
-        for (var a : aList) {
+        for (var a : aArray) {
             boolean found = false;
-            for (var b : bList) {
+            for (var b : bArray) {
                 if (comparator.compare(a, b) != 0) {
                     found = true;
                 }
@@ -265,31 +285,72 @@ public class Reflector {
         return listDiff;
     }
 
+    /**
+     * Comparator for names
+     * @param a first name
+     * @param b second name
+     * @return 0 if elements are equal, 1 if not
+     */
     private static int compareName(String a, String b) {
         return a.equals(b) ? 0 : 1;
     }
 
+    /**
+     * Comparator for modifiers
+     * @param a first encoded set of modifiers
+     * @param b second encoded set of modifiers
+     * @return 0 if modifiers are equal, 1 if not
+     */
     private static int compareModifiers(int a, int b) {
-        return abs(a - b);
+        return Modifier.toString(a).equals(Modifier.toString(b)) ? 0 : 1;
     }
 
+    /**
+     * Comparator for types
+     * @param a first type
+     * @param b second type
+     * @return 0 if types are equal, 1 if not
+     */
     private static int compareType(Type a, Type b) {
         return a.equals(b) ? 0 : 1;
     }
 
+    /**
+     * Comparator for types
+     * @param a first return type
+     * @param b second return type
+     * @return 0 if types are equal, 1 if not
+     */
     private static int compareReturnType(Type a, Type b) {
         return compareType(a, b);
     }
 
-    private static int compareParametersType(Type[] aTypes, Type[] bTypes) {
-        return aTypes.equals(bTypes) ? 0 : 1;
+    /**
+     * Comparator for parameters
+     * @param a first types array
+     * @param b second types array
+     * @return 0 if types are equal, 1 if not
+     */
+    private static int compareParametersType(Type[] a, Type[] b) {
+        return a.equals(b) ? 0 : 1;
     }
 
-    private static int compareExceptions(Type[] aTypes, Type[] bTypes) {
-        return aTypes.equals(bTypes) ? 0 : 1;
+    /**
+     * Comparator for exceptions
+     * @param a first types array
+     * @param b second types array
+     * @return 0 if types are equal, 1 if not
+     */
+    private static int compareExceptions(Type[] a, Type[] b) {
+        return a.equals(b) ? 0 : 1;
     }
 
-
+    /**
+     * Get list of fields, which are different in two given classes
+     * @param a first class
+     * @param b second class
+     * @return list of different fields
+     */
     private static List<Field> diffClassFields(Class<?> a, Class<?> b) {
         var diffFields = new ArrayList<Field>();
         Comparator<Field> comparator = (first, second) ->
@@ -301,6 +362,12 @@ public class Reflector {
         return diffFields;
     }
 
+    /**
+     * Get list of methods, which are different in two given classes
+     * @param a first class
+     * @param b second class
+     * @return list of different methods
+     */
     private List<Method> diffClassMethods(Class<?> a, Class<?> b) {
         var diffMethods = new ArrayList<Method>();
         Comparator<Method> comparator = (first, second) ->
@@ -314,6 +381,12 @@ public class Reflector {
         return diffMethods;
     }
 
+    /**
+     * Print fields and methods, which are different in two given classes
+     * @param a first class
+     * @param b second class
+     * @throws IOException when there are problems connecting to the output file
+     */
     void diffClasses(Class<?> a, Class<?> b) throws IOException {
         try(FileWriter fileOutputStream = new FileWriter( "diff" + a.getSimpleName() + b.getSimpleName() + ".txt", false)) {
             out = fileOutputStream;
