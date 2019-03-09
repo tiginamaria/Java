@@ -36,6 +36,9 @@ class ReflectorTest {
     }
 
     @Test
-    void diffClasses() {
+    void diffClasses() throws IOException {
+        reflector.diffClasses(Printer.class, Printer.class);
+        reflector.diffClasses(PrettyPrinter.class, PrettyPrinter.class);
+        reflector.diffClasses(PrettyPrinter.class, Printer.class);
     }
 }

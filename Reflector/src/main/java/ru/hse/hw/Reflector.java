@@ -5,12 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.*;
-import java.text.Format;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.function.BiPredicate;
+import java.util.*;
 
 import static java.lang.StrictMath.abs;
 
@@ -22,11 +17,11 @@ public class Reflector {
 
     public static void printStructure(Class<?> someClass) throws IOException {
         try(FileWriter fileOutputStream = new FileWriter( someClass.getSimpleName() + ".java", false)) {
-            cascadePrintStructure(someClass, fileOutputStream, 0);
+            PrintClass(someClass, fileOutputStream, 0);
         }
     }
 
-    public static void cascadePrintStructure(@NotNull Class<?> someClass, FileWriter fileOutputStream, int tabulations) throws IOException {
+    public static void PrintClass(@NotNull Class<?> someClass, FileWriter fileOutputStream, int tabulations) throws IOException {
         out = fileOutputStream;
         tabs = tabulations;
         printModifiers(someClass.getModifiers());
@@ -36,7 +31,7 @@ public class Reflector {
         printImplementedInterfaces(someClass);
         out.write("{\n");
         for (var subclass : someClass.getDeclaredClasses()) {
-            cascadePrintStructure(subclass, out, tabulations + 1);
+            PrintClass(subclass, out, tabulations + 1);
         }
         printFields(someClass);
         printConstructors(someClass);
@@ -49,16 +44,21 @@ public class Reflector {
     private static void printFields(@NotNull Class<?> someClass) throws IOException {
         Field[] fields = someClass.getDeclaredFields();
         for (var field : fields) {
-            printTabs();
-            printModifiers(field.getModifiers());
-            out.write(getTypeName(field.getGenericType()) + " ");
-            out.write(field.getName());
-            if (Modifier.isFinal(field.getModifiers())) {
-                out.write(" = " + defaultValue(field.getGenericType()));
-            }
-            out.write(";\n");
+            printField(field);
         }
     }
+
+    private static void printField(@NotNull Field field) throws IOException {
+        printTabs();
+        printModifiers(field.getModifiers());
+        out.write(getTypeName(field.getGenericType()) + " ");
+        out.write(field.getName());
+        if (Modifier.isFinal(field.getModifiers())) {
+            out.write(" = " + defaultValue(field.getGenericType()));
+        }
+        out.write(";\n");
+    }
+
 
     private static String defaultValue(Type type) {
         if (type instanceof Class) {
@@ -74,22 +74,27 @@ public class Reflector {
     private static void printMethods(@NotNull Class<?> someClass) throws IOException {
         Method[] methods = someClass.getDeclaredMethods();
         for (var method : methods) {
-            printTabs();
-            printModifiers(method.getModifiers());
-            out.write(method.getReturnType().getName() + " ");
-            out.write(method.getName() + "(");
-            printParameters(method.getGenericParameterTypes(), method.getParameters());
-            if (method.getReturnType() == void.class) {
-                out.write(") " + "{ }" + "\n");
-            } else {
-                out.write(") " + "{\n");
-                printTabs();
-                out.write("\treturn " + defaultValue(method.getReturnType()) + ";\n");
-                printTabs();
-                out.write("}\n");
-            }
+            printMethod(method);
         }
     }
+
+    private static void printMethod(@NotNull Method method) throws IOException {
+        printTabs();
+        printModifiers(method.getModifiers());
+        out.write(method.getGenericReturnType() + " ");
+        out.write(method.getName() + "(");
+        printParameters(method.getGenericParameterTypes(), method.getParameters());
+        if (method.getReturnType() == void.class) {
+            out.write(") " + "{ }" + "\n");
+        } else {
+            out.write(") " + "{\n");
+            printTabs();
+            out.write("\treturn " + defaultValue(method.getReturnType()) + ";\n");
+            printTabs();
+            out.write("}\n");
+        }
+    }
+
 
     private static void printConstructors(@NotNull Class<?> someClass) throws IOException {
         Constructor[] constructors = someClass.getDeclaredConstructors();
@@ -169,11 +174,11 @@ public class Reflector {
         return type.getTypeName().replace('$', '.');
     }
 
-    private static <T> List<T> diff(List<T> listA, List<T> listB, Comparator<T> comparator) {
+    private static <T> List<T> diff(T[] aList, T[] bList, Comparator<T> comparator) {
         var listDiff = new ArrayList<T>();
-        for (var a : listA) {
+        for (var a : aList) {
             boolean found = false;
-            for (var b : listB) {
+            for (var b : bList) {
                 if (comparator.compare(a, b) != 0) {
                     found = true;
                 }
@@ -197,24 +202,52 @@ public class Reflector {
         return a.equals(b) ? 0 : 1;
     }
 
-    private static void diffClassFields(Class<?> a, Class<?> b) {
-        var fieldsA = Arrays.asList(a.getDeclaredFields());
-        var fieldsB = Arrays.asList(b.getDeclaredFields());
-        var fieldDiff = new ArrayList<Field>();
+    private static int compareReturnType(Type a, Type b) {
+        return compareType(a, b);
+    }
+
+    private static int compareParametersType(Type[] aTypes, Type[] bTypes) {
+        return aTypes.equals(bTypes) ? 0 : 1;
+    }
+
+    private static int compareExceptions(Type[] aTypes, Type[] bTypes) {
+        return aTypes.equals(bTypes) ? 0 : 1;
+    }
+
+
+    private static List<Field> diffClassFields(Class<?> a, Class<?> b) {
+        var diffFields = new ArrayList<Field>();
         Comparator<Field> comparator = (first, second) ->
                 compareName(first.getName(), second.getName())
                         + compareModifiers(first.getModifiers(), second.getModifiers())
                         + compareType(first.getGenericType(), second.getGenericType());
-        fieldDiff.addAll(diff(fieldsA, fieldsB, comparator));
-        fieldDiff.addAll(diff(fieldsB, fieldsA, comparator));
+        diffFields.addAll(diff(a.getDeclaredFields(), b.getDeclaredFields(), comparator));
+        diffFields.addAll(diff(b.getDeclaredFields(), a.getDeclaredFields(), comparator));
+        return diffFields;
     }
 
-    private List<String> diffClassMethods(Class<?> a, Class<?> b) {
-        return null;
+    private List<Method> diffClassMethods(Class<?> a, Class<?> b) {
+        var diffMethods = new ArrayList<Method>();
+        Comparator<Method> comparator = (first, second) ->
+                compareName(first.getName(), second.getName())
+                        + compareModifiers(first.getModifiers(), second.getModifiers())
+                        + compareParametersType(first.getGenericParameterTypes(), second.getGenericParameterTypes())
+                        + compareReturnType(first.getGenericReturnType(), second.getGenericReturnType())
+                        + compareExceptions(first.getGenericExceptionTypes(), second.getGenericExceptionTypes());
+        diffMethods.addAll(diff(a.getDeclaredMethods(), b.getDeclaredMethods(), comparator));
+        diffMethods.addAll(diff(b.getDeclaredMethods(), a.getDeclaredMethods(), comparator));
+        return diffMethods;
     }
 
-    void diffClasses(Class<?> a, Class<?> b) {
-        diffClassFields(a, b);
-        diffClassMethods(a, b);
+    void diffClasses(Class<?> a, Class<?> b) throws IOException {
+        try(FileWriter fileOutputStream = new FileWriter( "diff" + a.getSimpleName() + b.getSimpleName() + ".txt", false)) {
+            out = fileOutputStream;
+            for (var field : diffClassFields(a, b)) {
+                printField(field);
+            }
+            for (var method : diffClassMethods(a, b)) {
+                printMethod(method);
+            }
+        }
     }
 }
