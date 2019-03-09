@@ -9,18 +9,40 @@ import java.util.*;
 
 import static java.lang.StrictMath.abs;
 
+
+/**
+ * This class implements methods to obtain the full class structure by name and compare the two classes
+ */
 public class Reflector {
 
+    /**
+     * Output File Stream
+     */
     private static FileWriter out;
 
+    /**
+     * Tabs to print pretty structure of class
+     */
     private static int tabs;
 
+    /**
+     * Print the structure of given classes, including inner and nested classes, fields, constructor, methods
+     * @param someClass given class to print
+     * @throws IOException when there are problems connecting to the output file
+     */
     public static void printStructure(Class<?> someClass) throws IOException {
         try(FileWriter fileOutputStream = new FileWriter( someClass.getSimpleName() + ".java", false)) {
             PrintClass(someClass, fileOutputStream, 0);
         }
     }
 
+    /**
+     * Recursively print the structure of given class
+     * @param someClass given class to print
+     * @param fileOutputStream file to write structure of file
+     * @param tabulations current number of tabs to print pretty structure of class
+     * @throws IOException when there are problems connecting to the output file
+     */
     public static void PrintClass(@NotNull Class<?> someClass, FileWriter fileOutputStream, int tabulations) throws IOException {
         out = fileOutputStream;
         tabs = tabulations;
@@ -41,6 +63,11 @@ public class Reflector {
         out.write("}");
     }
 
+    /**
+     * Print all declared fields of given class
+     * @param someClass class to print fields
+     * @throws IOException
+     */
     private static void printFields(@NotNull Class<?> someClass) throws IOException {
         Field[] fields = someClass.getDeclaredFields();
         for (var field : fields) {
@@ -48,6 +75,11 @@ public class Reflector {
         }
     }
 
+    /**
+     * Print one field of given class, including modifiers, name and value(if the field is final)
+     * @param field field to print
+     * @throws IOException
+     */
     private static void printField(@NotNull Field field) throws IOException {
         printTabs();
         printModifiers(field.getModifiers());
@@ -59,7 +91,11 @@ public class Reflector {
         out.write(";\n");
     }
 
-
+    /**
+     * Get default value of given type
+     * @param type type to get default value
+     * @return default value
+     */
     private static String defaultValue(Type type) {
         if (type instanceof Class) {
             var typeClass = (Class<?>) type;
@@ -71,6 +107,11 @@ public class Reflector {
         return null;
     }
 
+    /**
+     * Print all declared methods of given class
+     * @param someClass class to print methods
+     * @throws IOException
+     */
     private static void printMethods(@NotNull Class<?> someClass) throws IOException {
         Method[] methods = someClass.getDeclaredMethods();
         for (var method : methods) {
@@ -78,6 +119,11 @@ public class Reflector {
         }
     }
 
+    /**
+     * Print one method of given class, including modifiers, name and parameters
+     * @param method method to print
+     * @throws IOException
+     */
     private static void printMethod(@NotNull Method method) throws IOException {
         printTabs();
         printModifiers(method.getModifiers());
@@ -95,7 +141,11 @@ public class Reflector {
         }
     }
 
-
+    /**
+     * Print all declared constructors of given class
+     * @param someClass class to print constructors
+     * @throws IOException
+     */
     private static void printConstructors(@NotNull Class<?> someClass) throws IOException {
         Constructor[] constructors = someClass.getDeclaredConstructors();
         for (Constructor constructor : constructors) {
@@ -108,12 +158,22 @@ public class Reflector {
         }
     }
 
+    /**
+     * Print name of given class in right format
+     * @param someClass class to print name
+     * @throws IOException
+     */
     private static void printClassName(@NotNull Class<?> someClass) throws IOException {
         printTabs();
         out.write("class " + someClass.getSimpleName());
         ++tabs;
     }
 
+    /**
+     * Print generic type parameters of given class
+     * @param someClass class to print parameters
+     * @throws IOException
+     */
     private static void printGenericTypeParameters(@NotNull Class<?> someClass) throws IOException {
         var typeParameters = someClass.getTypeParameters();
         if (typeParameters.length > 0) {
@@ -127,6 +187,11 @@ public class Reflector {
         }
     }
 
+    /**
+     * Print implemented interfaces of given class
+     * @param someClass class to print interfaces
+     * @throws IOException
+     */
     private static void printImplementedInterfaces(@NotNull Class<?> someClass) throws IOException {
         Type[] interfaces = someClass.getGenericInterfaces();
         if (interfaces.length > 0) {
@@ -139,6 +204,11 @@ public class Reflector {
         }
     }
 
+    /**
+     * Print superclass of given class
+     * @param someClass class to print interfaces
+     * @throws IOException
+     */
     private static void printExtendedClass(@NotNull Class<?> someClass) throws IOException {
         Type ancestor = someClass.getGenericSuperclass();
         if (ancestor != null) {
@@ -147,6 +217,11 @@ public class Reflector {
         }
     }
 
+    /**
+     * Print modifies from given code number
+     * @param mods encoded modifiers
+     * @throws IOException
+     */
     private static void printModifiers(@NotNull int mods) throws IOException {
         out.write(Modifier.toString(mods));
         if (mods != 0) {
