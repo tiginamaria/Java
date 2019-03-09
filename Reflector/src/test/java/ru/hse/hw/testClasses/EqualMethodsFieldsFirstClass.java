@@ -1,9 +1,9 @@
 package ru.hse.hw.testClasses;
 
-import java.util.Collections;
 import java.util.List;
 
-public class EqualMethodsFiealsFirstClass<T> {
+public class EqualMethodsFieldsFirstClass<T> {
+
     public final static int version = 1; //different value
 
     private final T type = null;

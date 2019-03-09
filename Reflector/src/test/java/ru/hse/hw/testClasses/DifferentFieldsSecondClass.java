@@ -4,7 +4,7 @@ import java.util.List;
 
 public class DifferentFieldsSecondClass<T> {
 
-    public final static int version = 10; //different modifier
+    public final int version = 10; //different modifier
 
     private final T t = null; //different name
 

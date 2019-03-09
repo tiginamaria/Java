@@ -274,7 +274,7 @@ public class Reflector {
         for (var a : aArray) {
             boolean found = false;
             for (var b : bArray) {
-                if (comparator.compare(a, b) != 0) {
+                if (comparator.compare(a, b) == 0) {
                     found = true;
                 }
             }
@@ -388,7 +388,7 @@ public class Reflector {
      * @throws IOException when there are problems connecting to the output file
      */
     void diffClasses(Class<?> a, Class<?> b) throws IOException {
-        try(FileWriter fileOutputStream = new FileWriter( "diff" + a.getSimpleName() + b.getSimpleName() + ".txt", false)) {
+        try(FileWriter fileOutputStream = new FileWriter( "Diff" + a.getSimpleName() + b.getSimpleName(), false)) {
             out = fileOutputStream;
             for (var field : diffClassFields(a, b)) {
                 printField(field);

@@ -1,9 +1,9 @@
 package ru.hse.hw.testClasses;
 
-import java.util.Collections;
 import java.util.List;
 
 public class EqualMethodsFieldsSecondClass<T> {
+
     public final static int version = 2; //different value
 
     private final T type = null;
