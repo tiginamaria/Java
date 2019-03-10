@@ -21,27 +21,24 @@ public class ForkJoinQuickSortTask<T extends Comparable<? super T>> extends Recu
 
     @Override
     protected void compute() {
-        if (left >= right + 1) {
+        if (left > right + 1) {
             return;
         }
+
         int pivotIndex = partition(a, left, right);
-
         var t1 = new ForkJoinQuickSortTask<>(a, left, pivotIndex).fork();
-
         new ForkJoinQuickSortTask<>(a, pivotIndex + 1, right).compute();
-
-        if (t1 != null) {
-            t1.join();
-        }
+        t1.join();
     }
 
     private static <T extends Comparable<? super T>> int partition(T[] a, int left, int right) {
         T pivotValue = a[middleIndex(left, right)];
-        while (true) {
+        while (left < right) {
             while (a[left].compareTo(pivotValue) < 0) {
                 left++;
             }
-            while (a[right].compareTo(pivotValue) < 0) {
+
+            while (a[right].compareTo(pivotValue) > 0) {
                 right--;
             }
 
@@ -49,13 +46,14 @@ public class ForkJoinQuickSortTask<T extends Comparable<? super T>> extends Recu
                 T tmp = a[left];
                 a[left] = a[right];
                 a[right] = tmp;
-            } else {
-                return right;
+                left++;
+                right--;
             }
         }
+        return right;
     }
 
     private static int middleIndex(int left, int right) {
-        return left + (right - left) / 2;
+        return left + (right - left + 1) / 2;
     }
 }

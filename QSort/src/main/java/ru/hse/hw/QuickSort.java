@@ -9,9 +9,8 @@ public class QuickSort {
      * @param a array to sort
      * @return sorted array
      */
-    public static <T extends Comparable<? super T>> T[] forkJoinQuickSort(T[] a) {
-        ForkJoinPool pool = ForkJoinPool.commonPool();
+    public static <T extends Comparable<? super T>> void forkJoinQuickSort(T[] a) {
+        ForkJoinPool pool = new ForkJoinPool();
         pool.invoke(new ForkJoinQuickSortTask<>(a));
-        return a;
     }
 }
