@@ -2,7 +2,7 @@ package ru.hse.hw.testClasses;
 
 import java.util.List;
 
-public class EqualMethodsFieldsFirstClass<T> {
+public class MethodsFieldsClassB<T> {
 
     public final static int version = 1; //different value
 

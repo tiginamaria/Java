@@ -1,0 +1,17 @@
+public class ComplexGenericClass<T> extends ru.hse.hw.testClasses.SimpleGenericClass<T> implements java.io.Serializable, java.lang.Runnable {
+	public static final int version = 0;
+	private final T t = null;
+	private T data;
+	protected java.util.List<? extends T> memory;
+	protected ComplexGenericClass(java.util.List<T> arg0) { }
+	public ComplexGenericClass() throws java.io.IOException { }
+	private ComplexGenericClass(T arg0) { }
+	public void printData() { }
+	private void setData(T arg0, int arg1, java.util.List<? extends T> arg2, T arg3) { }
+	void loadData(T arg0) { }
+	java.util.List<T> getStoredData() throws java.lang.IllegalAccessException {
+		return null;
+	}
+	public void run() { }
+	private void setMemory(java.util.List<? extends T> arg0) { }
+}

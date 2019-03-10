@@ -1,10 +1,10 @@
 package ru.hse.hw.testClasses;
 
+import java.io.IOException;
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
 
-public class FullOptionsGenericClass<T> extends SimpleGenericClass<T> implements Serializable, Runnable {
+public class ComplexGenericClass<T> extends SimpleGenericClass<T> implements Serializable, Runnable {
 
     public final static int version = 10;
 
@@ -16,7 +16,7 @@ public class FullOptionsGenericClass<T> extends SimpleGenericClass<T> implements
 
     void loadData(T newData) { }
 
-    List<T> getStoredData() { return null; }
+    List<T> getStoredData() throws IllegalAccessException { return null; }
 
     private void setMemory(List<? extends T> memory) { }
 
@@ -24,11 +24,11 @@ public class FullOptionsGenericClass<T> extends SimpleGenericClass<T> implements
 
     public void printData() { }
 
-    public FullOptionsGenericClass() { }
+    public ComplexGenericClass() throws IOException { }
 
-    private FullOptionsGenericClass(T data) { }
+    private ComplexGenericClass(T data) { }
 
-    protected FullOptionsGenericClass(List<T> list) { }
+    protected ComplexGenericClass(List<T> list) { }
 
     @Override
     public void run() { }

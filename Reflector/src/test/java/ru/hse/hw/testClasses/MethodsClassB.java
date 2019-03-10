@@ -2,7 +2,7 @@ package ru.hse.hw.testClasses;
 
 import java.util.List;
 
-public class DifferentMethodsSecondClass<T> {
+public class MethodsClassB<T> {
 
     List<Integer> getStoredData() { return null; } //fixed list parameter type
 

@@ -1,0 +1,10 @@
+public class ClassWithSubclasses<T> {
+	protected class InnerClass<T> {
+		final ru.hse.hw.testClasses.ClassWithSubclasses this$0 = null;
+		InnerClass(ru.hse.hw.testClasses.ClassWithSubclasses arg0) { }
+	}
+	private static class NestedClass<T> {
+		NestedClass() { }
+	}
+	public ClassWithSubclasses() { }
+}

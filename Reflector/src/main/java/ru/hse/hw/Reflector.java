@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.lang.reflect.*;
 import java.util.*;
 
+import static java.lang.Math.min;
+
 /**
  * This class implements methods to obtain the full class structure by name and compare the two classes
  */
@@ -27,9 +29,9 @@ public class Reflector {
      * @param someClass given class to print
      * @throws IOException when there are problems connecting to the output file
      */
-    public static void printStructure(Class<?> someClass) throws IOException {
+    public static void printStructure(@NotNull Class<?> someClass) throws IOException {
         try(FileWriter fileOutputStream = new FileWriter( someClass.getSimpleName() + ".java", false)) {
-            PrintClass(someClass, fileOutputStream, 0);
+            printClass(someClass, fileOutputStream, 0);
         }
     }
 
@@ -40,24 +42,66 @@ public class Reflector {
      * @param tabulations current number of tabs to print pretty structure of class
      * @throws IOException when there are problems connecting to the output file
      */
-    public static void PrintClass(@NotNull Class<?> someClass, FileWriter fileOutputStream, int tabulations) throws IOException {
+    private static void printClass(@NotNull Class<?> someClass, @NotNull FileWriter fileOutputStream, int tabulations) throws IOException {
         out = fileOutputStream;
         tabs = tabulations;
-        printModifiers(someClass.getModifiers());
         printClassName(someClass);
         printGenericTypeParameters(someClass);
         printExtendedClass(someClass);
         printImplementedInterfaces(someClass);
         out.write("{\n");
         for (var subclass : someClass.getDeclaredClasses()) {
-            PrintClass(subclass, out, tabulations + 1);
+            printClass(subclass, out, tabulations + 1);
         }
         printFields(someClass);
         printConstructors(someClass);
         printMethods(someClass);
         --tabs;
         printTabs();
-        out.write("}");
+        out.write("}\n");
+    }
+
+    /**
+     * Print name of given class in right format
+     * @param someClass class to print name
+     * @throws IOException when there are problems connecting to the output file
+     */
+    private static void printClassName(@NotNull Class<?> someClass) throws IOException {
+        printTabs();
+        printModifiers(someClass.getModifiers());
+        out.write("class " + someClass.getSimpleName());
+        ++tabs;
+    }
+
+    /**
+     * Print generic type parameters of given class
+     * @param someClass class to print parameters
+     * @throws IOException when there are problems connecting to the output file
+     */
+    private static void printGenericTypeParameters(@NotNull Class<?> someClass) throws IOException {
+        printTypeParameters(someClass.getTypeParameters(), "<", ", ", "> ");
+    }
+
+    /**
+     * Print implemented interfaces of given class
+     * @param someClass class to print interfaces
+     * @throws IOException when there are problems connecting to the output file
+     */
+    private static void printImplementedInterfaces(@NotNull Class<?> someClass) throws IOException {
+        printTypeParameters(someClass.getGenericInterfaces(), "implements ", ", ", " ");
+    }
+
+    /**
+     * Print superclass of given class
+     * @param someClass class to print interfaces
+     * @throws IOException when there are problems connecting to the output file
+     */
+    private static void printExtendedClass(@NotNull Class<?> someClass) throws IOException {
+        Type ancestor = someClass.getGenericSuperclass();
+        if (ancestor != null && ancestor != Object.class) {
+            out.write("extends " + getTypeName(ancestor));
+            out.write(" ");
+        }
     }
 
     /**
@@ -89,22 +133,6 @@ public class Reflector {
     }
 
     /**
-     * Get default value of given type
-     * @param type type to get default value
-     * @return default value
-     */
-    private static String defaultValue(Type type) {
-        if (type instanceof Class) {
-            var typeClass = (Class<?>) type;
-            if (typeClass.isPrimitive()) {
-                var value = Array.newInstance((Class<?>) type, 1);
-                return Array.get(value, 0).toString();
-            }
-        }
-        return null;
-    }
-
-    /**
      * Print all declared methods of given class
      * @param someClass class to print methods
      * @throws IOException when there are problems connecting to the output file
@@ -126,11 +154,13 @@ public class Reflector {
         printModifiers(method.getModifiers());
         out.write(method.getGenericReturnType() + " ");
         out.write(method.getName() + "(");
-        printParameters(method.getGenericParameterTypes(), method.getParameters());
+        printArguments(method.getGenericParameterTypes(), method.getParameters());
+        out.write(") ");
+        printExceptions(method.getExceptionTypes());
         if (method.getReturnType() == void.class) {
-            out.write(") " + "{ }" + "\n");
+            out.write("{ }\n");
         } else {
-            out.write(") " + "{\n");
+            out.write("{\n");
             printTabs();
             out.write("\treturn " + defaultValue(method.getReturnType()) + ";\n");
             printTabs();
@@ -150,68 +180,20 @@ public class Reflector {
             printModifiers(constructor.getModifiers());
             out.write(constructor.getDeclaringClass().getSimpleName());
             out.write("(");
-            printParameters(constructor.getGenericParameterTypes(), constructor.getParameters());
-            out.write(") " + "{ }" + "\n");
+            printArguments(constructor.getGenericParameterTypes(), constructor.getParameters());
+            out.write(") ");
+            printExceptions(constructor.getGenericExceptionTypes());
+            out.write("{ }" + "\n");
         }
     }
 
     /**
-     * Print name of given class in right format
-     * @param someClass class to print name
+     * Print exceptions
+     * @param exceptions array of exceptions to print
      * @throws IOException when there are problems connecting to the output file
      */
-    private static void printClassName(@NotNull Class<?> someClass) throws IOException {
-        printTabs();
-        out.write("class " + someClass.getSimpleName());
-        ++tabs;
-    }
-
-    /**
-     * Print generic type parameters of given class
-     * @param someClass class to print parameters
-     * @throws IOException when there are problems connecting to the output file
-     */
-    private static void printGenericTypeParameters(@NotNull Class<?> someClass) throws IOException {
-        var typeParameters = someClass.getTypeParameters();
-        if (typeParameters.length > 0) {
-            out.write("<");
-            out.write(typeParameters[0].getName());
-            for (int i = 1; i < typeParameters.length; i++) {
-                out.write(", " + typeParameters[i].getName());
-            }
-            out.write(">");
-            out.write(" ");
-        }
-    }
-
-    /**
-     * Print implemented interfaces of given class
-     * @param someClass class to print interfaces
-     * @throws IOException when there are problems connecting to the output file
-     */
-    private static void printImplementedInterfaces(@NotNull Class<?> someClass) throws IOException {
-        Type[] interfaces = someClass.getGenericInterfaces();
-        if (interfaces.length > 0) {
-            out.write("implements ");
-            out.write(getTypeName(interfaces[0]));
-            for (int i = 1; i < interfaces.length; i++) {
-                out.write(", " + getTypeName(interfaces[i]));
-            }
-            out.write(" ");
-        }
-    }
-
-    /**
-     * Print superclass of given class
-     * @param someClass class to print interfaces
-     * @throws IOException when there are problems connecting to the output file
-     */
-    private static void printExtendedClass(@NotNull Class<?> someClass) throws IOException {
-        Type ancestor = someClass.getGenericSuperclass();
-        if (ancestor != null) {
-            out.write("extends " + getTypeName(ancestor));
-            out.write(" ");
-        }
+    private static void printExceptions(@NotNull Type[] exceptions) throws IOException {
+        printTypeParameters(exceptions, "throws ", ", ", " ");
     }
 
     /**
@@ -227,18 +209,53 @@ public class Reflector {
     }
 
     /**
+     * Print given array types
+     * @param parameters types to print
+     * @param prefix to print before types
+     * @param separator to print between types
+     * @param suffix to print after types
+     * @throws IOException when there are problems connecting to the output file
+     */
+    private static void printTypeParameters(@NotNull Type[] parameters, @NotNull String prefix, @NotNull String separator, @NotNull String suffix) throws IOException {
+        if (parameters.length > 0) {
+            out.write(prefix);
+            out.write(parameters[0].getTypeName());
+            for (int i = 1; i < parameters.length; i++) {
+                out.write(separator + parameters[i].getTypeName());
+            }
+            out.write(suffix);
+        }
+    }
+
+    /**
      * Print type and name of parameters
      * @param types array with types of parameters
      * @param parameters array with names of parameters
      * @throws IOException
      */
-    private static void printParameters(@NotNull Type[] types,@NotNull Parameter[] parameters) throws IOException {
+    private static void printArguments(@NotNull Type[] types,@NotNull Parameter[] parameters) throws IOException {
         if (types.length > 0) {
             out.write(getTypeName(types[0]) + " " + parameters[0].getName());
             for (int i = 1; i < types.length; i++) {
                 out.write(", " + getTypeName(types[i]) + " " + parameters[i].getName());
             }
         }
+    }
+
+    /**
+     * Get default value of given type
+     * @param type type to get default value
+     * @return default value
+     */
+    private static String defaultValue(@NotNull Type type) {
+        if (type instanceof Class) {
+            var typeClass = (Class<?>) type;
+            if (typeClass.isPrimitive()) {
+                var value = Array.newInstance((Class<?>) type, 1);
+                return Array.get(value, 0).toString();
+            }
+        }
+        return null;
     }
 
     /**
@@ -269,12 +286,13 @@ public class Reflector {
      * @param <T> type of element
      * @return element from first array with no copy in second
      */
-    private static <T> List<T> diff(T[] aArray, T[] bArray, Comparator<T> comparator) {
+    private static <T> List<T> diff(@NotNull T[] aArray, @NotNull T[] bArray, @NotNull Comparator<T> comparator) {
         var listDiff = new ArrayList<T>();
         for (var a : aArray) {
             boolean found = false;
             for (var b : bArray) {
-                if (comparator.compare(a, b) == 0) {
+                var c = comparator.compare(a, b);
+                if (c == 0) {
                     found = true;
                 }
             }
@@ -291,7 +309,7 @@ public class Reflector {
      * @param b second name
      * @return 0 if elements are equal, 1 if not
      */
-    private static int compareName(String a, String b) {
+    private static int compareName(@NotNull String a, @NotNull String b) {
         return a.equals(b) ? 0 : 1;
     }
 
@@ -302,7 +320,25 @@ public class Reflector {
      * @return 0 if modifiers are equal, 1 if not
      */
     private static int compareModifiers(int a, int b) {
-        return Modifier.toString(a).equals(Modifier.toString(b)) ? 0 : 1;
+        return a == b ? 0 : 1;
+    }
+
+    /**
+     * Comparator for array of types
+     * @param aTypes first type
+     * @param bTypes second type
+     * @return 0 if all types is two arrays are equal, 1 if not
+     */
+    private static boolean compareTypes(@NotNull Type[] aTypes, @NotNull Type[] bTypes) {
+        if (aTypes.length == 0 && bTypes.length == 0) {
+            return true;
+        }
+
+        var isEqual = true;
+        for (int i = 0; i < min(aTypes.length, bTypes.length); i++) {
+            isEqual &= compareType(aTypes[i], bTypes[i]);
+        }
+        return isEqual && aTypes.length == bTypes.length;
     }
 
     /**
@@ -311,8 +347,49 @@ public class Reflector {
      * @param b second type
      * @return 0 if types are equal, 1 if not
      */
-    private static int compareType(Type a, Type b) {
-        return a.equals(b) ? 0 : 1;
+    private static boolean compareType(@NotNull Type a, @NotNull Type b) {
+        if (a instanceof Class && b instanceof Class) {
+            var aType = (Class<?>)a;
+            var bType = (Class<?>)b;
+            if (aType.isArray() && bType.isArray()) {
+                return compareType(aType.getComponentType(), bType.getComponentType());
+            }
+            return aType.getSimpleName().equals(bType.getSimpleName());
+        } else if (a instanceof TypeVariable && b instanceof TypeVariable) {
+            var aType = (TypeVariable<?>)a;
+            var bType = (TypeVariable<?>)b;
+            return aType.getName().equals(bType.getName());
+        } else if (a instanceof WildcardType && ! (b instanceof WildcardType)) {
+            var aType = (WildcardType) a;
+            if (aType.getUpperBounds().length != 0) {
+                return compareType(aType.getUpperBounds()[0], b);
+            }
+            return compareType(aType.getLowerBounds()[0], b);
+        } else if (!(a instanceof WildcardType) && b instanceof WildcardType) {
+            var bType = (WildcardType) b;
+            if (bType.getUpperBounds().length != 0) {
+                return compareType(a, bType.getUpperBounds()[0]);
+            }
+            return compareType(a, bType.getLowerBounds()[0]);
+        } else if (a instanceof WildcardType && b instanceof WildcardType) {
+            var aType = (WildcardType) a;
+            var bType = (WildcardType) b;
+            if (bType.getUpperBounds().length != 0 && aType.getUpperBounds().length != 0) {
+                return compareType(aType.getUpperBounds()[0], bType.getUpperBounds()[0]);
+            } else if (bType.getLowerBounds().length != 0 && aType.getLowerBounds().length != 0) {
+                return compareType(aType.getLowerBounds()[0], bType.getLowerBounds()[0]);
+            }
+            return false;
+        } else if (a instanceof ParameterizedType && b instanceof ParameterizedType) {
+            var aType = (ParameterizedType)a;
+            var bType = (ParameterizedType)b;
+            return compareType(aType.getRawType(), bType.getRawType()) && compareTypes(aType.getActualTypeArguments(), bType.getActualTypeArguments());
+        } else if (a instanceof GenericArrayType && b instanceof GenericArrayType) {
+            var aType = (GenericArrayType)a;
+            var bType = (GenericArrayType)b;
+            return compareType(aType.getGenericComponentType(), bType.getGenericComponentType());
+        }
+        return false;
     }
 
     /**
@@ -321,8 +398,8 @@ public class Reflector {
      * @param b second return type
      * @return 0 if types are equal, 1 if not
      */
-    private static int compareReturnType(Type a, Type b) {
-        return compareType(a, b);
+    private static int compareReturnType(@NotNull Type a, @NotNull Type b) {
+        return compareType(a, b) ? 0 : 1;
     }
 
     /**
@@ -331,8 +408,13 @@ public class Reflector {
      * @param b second types array
      * @return 0 if types are equal, 1 if not
      */
-    private static int compareParametersType(Type[] a, Type[] b) {
-        return a.equals(b) ? 0 : 1;
+    private static int compareParametersType(@NotNull Type[] a, @NotNull Type[] b) {
+        for (int i = 0; i < min(a.length, b.length); i++) {
+            if (!compareType(a[i], b[i])) {
+                return 1;
+            }
+        }
+        return a.length == b.length ? 0 : 1;
     }
 
     /**
@@ -341,8 +423,8 @@ public class Reflector {
      * @param b second types array
      * @return 0 if types are equal, 1 if not
      */
-    private static int compareExceptions(Type[] a, Type[] b) {
-        return a.equals(b) ? 0 : 1;
+    private static int compareExceptions(@NotNull Type[] a, @NotNull Type[] b) {
+        return compareParametersType(a, b);
     }
 
     /**
@@ -351,12 +433,12 @@ public class Reflector {
      * @param b second class
      * @return list of different fields
      */
-    private static List<Field> diffClassFields(Class<?> a, Class<?> b) {
+    private static List<Field> diffClassFields(@NotNull Class<?> a, @NotNull Class<?> b) {
         var diffFields = new ArrayList<Field>();
         Comparator<Field> comparator = (first, second) ->
                 compareName(first.getName(), second.getName())
                         + compareModifiers(first.getModifiers(), second.getModifiers())
-                        + compareType(first.getGenericType(), second.getGenericType());
+                        + (compareType(first.getGenericType(), second.getGenericType()) ? 0 : 1);
         diffFields.addAll(diff(a.getDeclaredFields(), b.getDeclaredFields(), comparator));
         diffFields.addAll(diff(b.getDeclaredFields(), a.getDeclaredFields(), comparator));
         return diffFields;
@@ -368,7 +450,7 @@ public class Reflector {
      * @param b second class
      * @return list of different methods
      */
-    private List<Method> diffClassMethods(Class<?> a, Class<?> b) {
+    private List<Method> diffClassMethods(@NotNull Class<?> a, @NotNull Class<?> b) {
         var diffMethods = new ArrayList<Method>();
         Comparator<Method> comparator = (first, second) ->
                 compareName(first.getName(), second.getName())
@@ -387,8 +469,8 @@ public class Reflector {
      * @param b second class
      * @throws IOException when there are problems connecting to the output file
      */
-    void diffClasses(Class<?> a, Class<?> b) throws IOException {
-        try(FileWriter fileOutputStream = new FileWriter( "Diff" + a.getSimpleName() + b.getSimpleName(), false)) {
+    void diffClasses(@NotNull Class<?> a, @NotNull Class<?> b) throws IOException {
+        try(FileWriter fileOutputStream = new FileWriter( "Diff" + "_" + a.getSimpleName() + "_" + b.getSimpleName(), false)) {
             out = fileOutputStream;
             for (var field : diffClassFields(a, b)) {
                 printField(field);

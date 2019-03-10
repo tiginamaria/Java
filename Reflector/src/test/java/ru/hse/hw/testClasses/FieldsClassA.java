@@ -2,7 +2,7 @@ package ru.hse.hw.testClasses;
 
 import java.util.List;
 
-public class DifferentFieldsSecondClass<T> {
+public class FieldsClassA<T> {
 
     public final int version = 10; //different modifier
 
