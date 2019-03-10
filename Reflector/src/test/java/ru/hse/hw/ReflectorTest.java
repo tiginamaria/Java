@@ -16,6 +16,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ReflectorTest {
 
+    /**
+     * path for directory with tests
+     */
     private final static String answerPath = "src/test/java/ru/hse/hw/answersForTests/";
 
     private Reflector reflector = new Reflector();
