@@ -345,7 +345,7 @@ public class Reflector {
      * Comparator for types
      * @param a first type
      * @param b second type
-     * @return 0 if types are equal, 1 if not
+     * @return true if types are equal, false if not
      */
     private static boolean compareType(@NotNull Type a, @NotNull Type b) {
         if (a instanceof Class && b instanceof Class) {
