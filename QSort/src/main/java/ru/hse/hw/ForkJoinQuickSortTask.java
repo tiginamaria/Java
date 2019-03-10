@@ -1,13 +1,16 @@
 package ru.hse.hw;
 
-import java.util.concurrent.ForkJoinTask;
+import java.util.Random;
 import java.util.concurrent.RecursiveAction;
+
+import static java.lang.Math.abs;
 
 public class ForkJoinQuickSortTask<T extends Comparable<? super T>> extends RecursiveAction {
 
     private T[] a;
     private final int left;
     private final int right;
+    private static Random randomize = new Random();
 
     public ForkJoinQuickSortTask(T[] a) {
         this(a, 0, a.length - 1);
@@ -21,7 +24,7 @@ public class ForkJoinQuickSortTask<T extends Comparable<? super T>> extends Recu
 
     @Override
     protected void compute() {
-        if (left > right + 1) {
+        if (left >= right) {
             return;
         }
 
@@ -54,6 +57,6 @@ public class ForkJoinQuickSortTask<T extends Comparable<? super T>> extends Recu
     }
 
     private static int middleIndex(int left, int right) {
-        return left + (right - left + 1) / 2;
+        return left + randomize.nextInt(right - left);
     }
 }
