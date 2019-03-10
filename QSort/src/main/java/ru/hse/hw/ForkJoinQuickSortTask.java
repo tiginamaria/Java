@@ -5,7 +5,7 @@ import java.util.concurrent.RecursiveAction;
 
 public class ForkJoinQuickSortTask<T extends Comparable<? super T>> extends RecursiveAction {
 
-    private static T[] a;
+    private T[] a;
     private final int left;
     private final int right;
 
@@ -24,21 +24,18 @@ public class ForkJoinQuickSortTask<T extends Comparable<? super T>> extends Recu
         if (left >= right + 1) {
             return;
         }
-        int pivotIndex = partition(left, right);
-        ForkJoinTask t1 = null;
+        int pivotIndex = partition(a, left, right);
 
-        if (left < pivotIndex)
-            t1 = new ForkJoinQuickSortTask<T>(a, left, pivotIndex).fork();
+        var t1 = new ForkJoinQuickSortTask<>(a, left, pivotIndex).fork();
 
-        if (pivotIndex + 1 < right)
-            new ForkJoinQuickSortTask<T>(a, pivotIndex + 1, right).compute();
+        new ForkJoinQuickSortTask<>(a, pivotIndex + 1, right).compute();
 
         if (t1 != null) {
             t1.join();
         }
     }
 
-    private static int partition(int left, int right) {
+    private static <T extends Comparable<? super T>> int partition(T[] a, int left, int right) {
         T pivotValue = a[middleIndex(left, right)];
         while (true) {
             while (a[left].compareTo(pivotValue) < 0) {
