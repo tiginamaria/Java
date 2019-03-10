@@ -38,7 +38,7 @@ class PhonebookTest {
                 phonebook.addContact(name, phone);
             }
         }
-        assertEquals(phonebook.getContacts(), contacts);
+        assertEquals(contacts, phonebook.getContacts());
     }
 
     @Test

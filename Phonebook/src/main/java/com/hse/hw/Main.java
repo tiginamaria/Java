@@ -5,12 +5,12 @@ import java.util.Scanner;
 
 
 /**
- * class implements the interaction with the users of phonebook
+ * Class implements the interaction with the users of phonebook
  */
 public class Main {
 
     /**
-     * implements the interaction with the users by command line
+     * Implements the interaction with the users by command line
      */
     public static void main(String[] args) {
         try {
