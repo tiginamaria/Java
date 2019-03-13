@@ -1,31 +1,15 @@
 package ru.hse.test3;
 
-import java.util.AbstractMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class LinkedHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
 
-    private class ListNode {
-        private ListNode nextNode;
-        private ListNode prevNode;
-        private Data<K, V> data;
-
-        ListNode(Data data) {
-            this.data = data;
-        }
-    }
-
-    private ListNode tail;
-
-    private ListNode head;
-
     private int size;
     private int capacity;
-    private LinkedList<K, ListNode>[] table;
+    private LinkedList<K, V>[] table;
 
 
-    private LinkedList<K, ListNode> listOrder;
+    private LinkedList<K, V> listOrder;
 
 
     /**
@@ -42,7 +26,7 @@ public class LinkedHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
      */
     public LinkedHashMap(int capacity) {
         this.capacity = capacity;
-        table = (LinkedList<K, ListNode>[]) new LinkedList[capacity];
+        table = (LinkedList<K, V>[]) new LinkedList[capacity];
         for (int i = 0; i < capacity; i++) {
             table[i] = new LinkedList<>();
         }
@@ -59,7 +43,8 @@ public class LinkedHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
         return super.containsKey(key);
     }
 
-    public int getSize() {
+    @Override
+    public int size() {
         return size;
     }
 
@@ -90,7 +75,7 @@ public class LinkedHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
      * @return hash for given key
      * @throws IllegalArgumentException - throws exception then given key is null
      */
-    private int getHash(K key, int mod) throws IllegalArgumentException {
+    private int getHash(Object key, int mod) throws IllegalArgumentException {
         if (key == null) {
             throw new IllegalArgumentException("key can not be null!");
         }
@@ -111,18 +96,23 @@ public class LinkedHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
         return get(key) != null;
     }
 
+    @Override
     /**
      * Get the value of element with given key from LinkedHashTable if it exists
      * @param key key of element, from which the desired value can be got
      * @return value of the element with given key or null if it does not exist
      * @throws IllegalArgumentException - throws exception then given key is null
      */
-    public V get( key) throws IllegalArgumentException {
+    public V get(Object key) throws IllegalArgumentException {
         if (key == null) {
             throw new IllegalArgumentException("key can not be null!");
         }
 
-        return table[getHash(key, capacity)].get(key);
+        var data = table[getHash(key, capacity)].get(key);
+        if (data == null) {
+            return null;
+        }
+        return data.getValue();
     }
 
     @Override
@@ -133,7 +123,7 @@ public class LinkedHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
      * @return Previous value of the element with given key or null if it does not exist
      * @throws IllegalArgumentException throws exception then given key is or value is null
      */
-    public Data<K, V> put(K key, V value) throws IllegalArgumentException {
+    public V put(K key, V value) throws IllegalArgumentException {
         if (key == null) {
             throw new IllegalArgumentException("key can not be null!");
         }
@@ -144,13 +134,19 @@ public class LinkedHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
         var oldData = table[getHash(key, capacity)].put(key, value);
         if (oldData == null) {
             size++;
+            listOrder.put(key, value);
+            return null;
+        } else {
+            listOrder.remove(oldData.getKey());
+            listOrder.put(key, value);
         }
         if (size >= capacity) {
             extend();
         }
-        return oldData;
+        return oldData.getValue();
     }
 
+    @Override
     /**
      * Remove element with given key from LinkedHashTable if it exists
      * @param key key to remove
@@ -165,8 +161,9 @@ public class LinkedHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
         var oldData = table[getHash(key, capacity)].remove(key);
         if (oldData != null) {
             size--;
+            return oldData.getValue();
         }
-        return oldData;
+        return null;
     }
 
     /**
@@ -175,7 +172,7 @@ public class LinkedHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
     public void clear() {
         size = 0;
         capacity = 1;
-        table = new LinkedList[capacity];
+        table = (LinkedList<K, V>[]) new LinkedList[capacity];
         for (int i = 0; i < capacity; i++) {
             table[i] = new LinkedList<>();
         }
@@ -186,4 +183,19 @@ public class LinkedHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
         return null;
     }
 
+    private class LinkedHashMapInerator implements Iterator<Entry<K, V>> {
+
+        Iterator<Data<K, V>> currentPointer = listOrder.iterator();
+
+        @Override
+        public boolean hasNext() {
+            return currentPointer.hasNext();
+        }
+
+        @Override
+        public Entry<K, V> next() {
+            var next = currentPointer.next();
+            return (Entry<K, V>) next;
+        }
+    }
 }
