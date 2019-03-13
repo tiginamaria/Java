@@ -1,5 +1,7 @@
 package ru.hse.test3;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 
 public class LinkedHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
@@ -180,10 +182,83 @@ public class LinkedHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
 
     @Override
     public Set<Entry<K, V>> entrySet() {
-        return null;
+        return new Set<Entry<K, V>>() {
+            @Override
+            public int size() {
+                return size;
+            }
+
+            @Override
+            public boolean isEmpty() {
+                return size == 0;
+            }
+
+            @Override
+            public boolean contains(Object o) {
+                return false;
+            }
+
+            @NotNull
+            @Override
+            public Iterator<Entry<K, V>> iterator() {
+                return new LinkedHashMapIterator();
+            }
+
+            @NotNull
+            @Override
+            public Object[] toArray() {
+                return new Object[0];
+            }
+
+            @NotNull
+            @Override
+            public <T> T[] toArray(@NotNull T[] a) {
+                return null;
+            }
+
+            @Override
+            public boolean add(Entry<K, V> kvEntry) {
+                return false;
+            }
+
+            @Override
+            public boolean remove(Object o) {
+                return false;
+            }
+
+            @Override
+            public boolean containsAll(@NotNull Collection<?> c) {
+                return false;
+            }
+
+            @Override
+            public boolean addAll(@NotNull Collection<? extends Entry<K, V>> c) {
+                return false;
+            }
+
+            @Override
+            public boolean retainAll(@NotNull Collection<?> c) {
+                return false;
+            }
+
+            @Override
+            public boolean removeAll(@NotNull Collection<?> c) {
+                return false;
+            }
+
+            @Override
+            public void clear() {
+
+            }
+        };
     }
 
-    private class LinkedHashMapInerator implements Iterator<Entry<K, V>> {
+
+    public Iterator<Entry<K, V>> iterator() {
+        return new LinkedHashMapIterator();
+    }
+
+    private class LinkedHashMapIterator implements Iterator<Entry<K, V>> {
 
         Iterator<Data<K, V>> currentPointer = listOrder.iterator();
 
@@ -195,7 +270,7 @@ public class LinkedHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
         @Override
         public Entry<K, V> next() {
             var next = currentPointer.next();
-            return (Entry<K, V>) next;
+            return next;
         }
     }
 }
