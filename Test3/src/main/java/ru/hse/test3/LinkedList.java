@@ -36,6 +36,7 @@ public class LinkedList<K, V> {
      */
     public LinkedList() {
         head = null;
+        tail = null;
     }
 
     /**
@@ -136,8 +137,9 @@ public class LinkedList<K, V> {
             }
             if (node.next != null) {
                 node.next.prev = node.prev;
-            } else {
-                tail = node.prev;
+            }
+            if (node.equals(tail)) {
+                tail = tail.prev;
             }
             if (node.equals(head)) {
                 head = head.next;
