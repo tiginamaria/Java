@@ -1,10 +1,15 @@
 package ru.hse.hw;
 
+import java.util.Comparator;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+
+/**
+ * Implement sort of array, in original order or according to comparator
+ */
 public class QuickSort {
 
     /**
@@ -12,17 +17,29 @@ public class QuickSort {
      */
     private static Random randomize = new Random();
 
-    /**
-     * Pool of threads
-     */
-    private static ExecutorService threadPool;
+    private static class GeneralTaskTools<T> {
+        /**
+         * Pool of threads
+         */
+        private ExecutorService threadPool;
 
+        /**
+         * Current total number of uncompleted thread tasks
+         */
+        private AtomicInteger taskCounter;
 
-    /**
-     * Current total number of uncompleted thread tasks
-     */
-    private static AtomicInteger taskCounter;
+        private Comparator<? super T> comparator;
 
+        /**
+         * Constructor sets common for all threads comparator, thead pool and number of current tasks;
+         * @param threadPool
+         * @param taskCounter
+         */
+        private GeneralTaskTools(ExecutorService threadPool, AtomicInteger taskCounter) {
+            this.threadPool = threadPool;
+            this.taskCounter = taskCounter;
+        }
+    }
 
     /**
      * Task to sort interval from l to r index of given array
@@ -46,25 +63,32 @@ public class QuickSort {
         private final int right;
 
         /**
+         * Hold general information about tall tasks in qsort
+         */
+        private GeneralTaskTools tools;
+
+        /**
          * Primitive constructor for qSort task
          *
          * @param a
          * @param left
          * @param right
          */
-        private QuickSortTask(T[] a, int left, int right) {
+        private QuickSortTask(T[] a, int left, int right, GeneralTaskTools tools) {
             this.a = a;
             this.left = left;
             this.right = right;
+            this.tools = tools;
         }
 
         /**
          * Constructor for first task
          *
          * @param a array to sort
+         * @param tools number of threads
          */
-        public QuickSortTask(T[] a) {
-            this(a, 0, a.length - 1);
+        public QuickSortTask(T[] a, GeneralTaskTools tools) {
+            this(a, 0, a.length - 1, tools);
         }
 
         /**
@@ -72,18 +96,17 @@ public class QuickSort {
          */
         @Override
         public void run() {
-            if (left >= right) {
-                return;
+
+            if (left < right) {
+                int pivotIndex = partition(a, left, right);
+                tools.taskCounter.addAndGet(2);
+                tools.threadPool.execute(new QuickSortTask<>(a, left, pivotIndex, tools));
+                tools.threadPool.execute(new QuickSortTask<>(a, pivotIndex + 1, right, tools));
             }
 
-            int pivotIndex = partition(a, left, right);
-
-            taskCounter.addAndGet(2);
-            threadPool.execute(new QuickSortTask<>(a, left, pivotIndex));
-            threadPool.execute(new QuickSortTask<>(a, pivotIndex + 1, right));
-            if (taskCounter.decrementAndGet() == 0) {
-                synchronized (taskCounter) {
-                    taskCounter.notify();
+            if (tools.taskCounter.decrementAndGet() == 0) {
+                synchronized (tools.taskCounter) {
+                    tools.taskCounter.notify();
                 }
             }
         }
@@ -120,7 +143,7 @@ public class QuickSort {
     }
 
     private static int middleIndex(int left, int right) {
-        return left + randomize.nextInt(right - left);
+        return left + randomize.nextInt(right - left + 1);
     }
 
     /**
@@ -138,9 +161,10 @@ public class QuickSort {
      * @return sorted array
      */
     public static <T extends Comparable<? super T>> void quickSort(T[] a, int threadCounter) throws InterruptedException {
-        threadPool = Executors.newFixedThreadPool(threadCounter);
-        taskCounter = new AtomicInteger(1);
-        threadPool.execute(new QuickSortTask<>(a));
+        var threadPool = Executors.newFixedThreadPool(threadCounter);
+        var taskCounter = new AtomicInteger(1);
+        var tools = new GeneralTaskTools<T>(threadPool, taskCounter);
+        threadPool.execute(new QuickSortTask<>(a, tools));
         synchronized (taskCounter) {
             while (taskCounter.get() > 0) {
                 taskCounter.wait();
