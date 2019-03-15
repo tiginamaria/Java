@@ -22,6 +22,7 @@ public class QuickSort {
      * @param <T> type of sorted elements
      */
     private static class GeneralTaskTools<T> {
+
         /**
          * Pool of threads
          */
@@ -73,7 +74,7 @@ public class QuickSort {
         /**
          * Hold general information about tall tasks in qsort
          */
-        private GeneralTaskTools<T> tools;
+        private final GeneralTaskTools<T> tools;
 
         /**
          * Primitive constructor for qSort task
@@ -96,7 +97,7 @@ public class QuickSort {
          * @param tools general tools for multithreaded sort
          */
         public QuickSortTask(T[] a, GeneralTaskTools tools) {
-            this(a, 0, a.length - 1, tools);
+            this(a, 0, a.length, tools);
         }
 
         /**
@@ -105,11 +106,11 @@ public class QuickSort {
         @Override
         public void run() {
 
-            if (left < right) {
+            if (right - left > 1) {
                 int pivotIndex = partition(a, left, right, tools.comparator);
                 tools.taskCounter.addAndGet(2);
                 tools.threadPool.execute(new QuickSortTask<>(a, left, pivotIndex, tools));
-                tools.threadPool.execute(new QuickSortTask<>(a, pivotIndex + 1, right, tools));
+                tools.threadPool.execute(new QuickSortTask<>(a, pivotIndex, right, tools));
             }
 
             if (tools.taskCounter.decrementAndGet() == 0) {
@@ -130,7 +131,8 @@ public class QuickSort {
      */
     private static <T> int partition(T[] a, int left, int right, Comparator<? super T> comparator) {
         T pivotValue = a[middleIndex(left, right)];
-        while (left < right) {
+        right--;
+        while (left <= right) {
             while (comparator.compare(a[left], pivotValue) < 0) {
                 left++;
             }
@@ -139,7 +141,7 @@ public class QuickSort {
                 right--;
             }
 
-            if (left < right) {
+            if (left <= right) {
                 T tmp = a[left];
                 a[left] = a[right];
                 a[right] = tmp;
@@ -147,7 +149,7 @@ public class QuickSort {
                 right--;
             }
         }
-        return right;
+        return left;
     }
 
     /**
@@ -165,7 +167,8 @@ public class QuickSort {
      * @param a array to sort
      */
     public static <T extends Comparable<? super T>> void quickSort(T[] a) throws InterruptedException {
-        quickSort(a, Comparator.naturalOrder(), Runtime.getRuntime().availableProcessors());
+        quickSort(a, Comparator.naturalOrder(), 1);
+        //quickSort(a, Comparator.naturalOrder(), Runtime.getRuntime().availableProcessors());
     }
 
     /**
@@ -186,9 +189,9 @@ public class QuickSort {
         var taskCounter = new AtomicInteger(1);
         var tools = new GeneralTaskTools<T>(threadPool, taskCounter, comparator);
         threadPool.execute(new QuickSortTask<>(a, tools));
-        synchronized (taskCounter) {
-            while (taskCounter.get() > 0) {
-                taskCounter.wait();
+        synchronized (tools.taskCounter) {
+            while (tools.taskCounter.get() > 0) {
+                tools.taskCounter.wait();
             }
         }
         threadPool.shutdown();
