@@ -25,7 +25,7 @@ public class QuickSort {
         /**
          * Pool of threads
          */
-        private ExecutorService threadPool;
+        private final ExecutorService threadPool;
 
         /**
          * Current total number of uncompleted thread tasks
@@ -35,7 +35,7 @@ public class QuickSort {
         /**
          * Comparator for elements in sorted array
          */
-        private Comparator<? super T> comparator;
+        private final Comparator<? super T> comparator;
 
         /**
          * Constructor sets common for all threads comparator, thead pool and number of current tasks

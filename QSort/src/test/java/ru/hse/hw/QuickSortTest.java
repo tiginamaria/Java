@@ -11,7 +11,7 @@ class QuickSortTest {
     @Test
     void quickSortTest() throws InterruptedException {
         var a = new Integer[]{5, 3, 5, 4 , 1};
-        quickSort(a, Comparator.reverseOrder());
+        quickSort(a);
         for (var x : a) {
             System.out.println(x);
         }
