@@ -88,7 +88,7 @@ public class QuickSort {
          * @param right right bound of sorting interval of array
          * @param tools general tools for multithreaded sort
          */
-        private QuickSortTask(T[] a, int left, int right, GeneralTaskTools tools) {
+        private QuickSortTask(T[] a, int left, int right, GeneralTaskTools<T> tools) {
             this.a = a;
             this.left = left;
             this.right = right;
