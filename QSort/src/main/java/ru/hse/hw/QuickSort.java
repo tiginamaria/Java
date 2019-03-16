@@ -100,7 +100,7 @@ public class QuickSort {
          * @param a array to sort
          * @param tools general tools for multithreaded sort
          */
-        public QuickSortTask(T[] a, GeneralTaskTools tools) {
+        public QuickSortTask(T[] a, GeneralTaskTools<T> tools) {
             this(a, 0, a.length, tools);
         }
 
