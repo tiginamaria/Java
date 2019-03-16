@@ -167,8 +167,7 @@ public class QuickSort {
      * @param a array to sort
      */
     public static <T extends Comparable<? super T>> void quickSort(T[] a) throws InterruptedException {
-        quickSort(a, Comparator.naturalOrder(), 1);
-        //quickSort(a, Comparator.naturalOrder(), Runtime.getRuntime().availableProcessors());
+        quickSort(a, Comparator.naturalOrder(), Runtime.getRuntime().availableProcessors());
     }
 
     /**
