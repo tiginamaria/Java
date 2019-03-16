@@ -96,9 +96,8 @@ class QuickSortTest {
         while (right - left > 1) {
             int middle = (right + left) / 2;
             var arrayMultiThread = new Integer[middle];
-            var arraySingleThread = new Integer[middle];
             setRandomIntegerElements(arrayMultiThread);
-            arraySingleThread = Arrays.copyOf(arrayMultiThread, arrayMultiThread.length);
+            var arraySingleThread = arrayMultiThread.clone();
 
             start = System.currentTimeMillis();
             quickSort(arrayMultiThread);
