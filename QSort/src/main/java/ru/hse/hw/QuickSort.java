@@ -15,7 +15,7 @@ public class QuickSort {
     /**
      * Length of array which is not rational to sort using more then one thread
      */
-    private final static int MULTITHREADMINLENGTH = 3000;
+    private final static int MULTI_THREAD_MIN_LENGTH = 3000;
 
     /**
      * Generator for random value
@@ -109,7 +109,7 @@ public class QuickSort {
          */
         @Override
         public void run() {
-            if (right - left < MULTITHREADMINLENGTH) {
+            if (right - left < MULTI_THREAD_MIN_LENGTH) {
                 singleThreadQuickSort(a, left, right, tools.comparator);
             } else if (right - left > 1) {
                 int pivotIndex = partition(a, left, right, tools.comparator);
