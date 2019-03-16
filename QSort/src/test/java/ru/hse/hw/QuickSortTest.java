@@ -11,7 +11,7 @@ import static ru.hse.hw.QuickSort.*;
 
 class QuickSortTest {
 
-    private static final int MAXSIZE = 100000;
+    private static final int MAX_SIZE = 100000;
 
     /**
      * Generator for random double
@@ -70,7 +70,7 @@ class QuickSortTest {
 
     @Test
     void quickSortBigIntegerTest() throws InterruptedException {
-        var a = new Integer[MAXSIZE];
+        var a = new Integer[MAX_SIZE];
         setRandomIntegerElements(a);
         quickSort(a);
         assertTrue(checkSorted(a, Comparator.naturalOrder()));
@@ -90,7 +90,7 @@ class QuickSortTest {
     @Test
     void findMultiThreadMinimumLength() throws InterruptedException {
         int left = 0;
-        int right = MAXSIZE;
+        int right = MAX_SIZE;
         long start;
         long end;
         while (right - left > 1) {
