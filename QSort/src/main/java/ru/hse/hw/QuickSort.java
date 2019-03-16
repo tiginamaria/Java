@@ -13,6 +13,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class QuickSort {
 
     /**
+     * Length of array which is not rational to sort using more then one thread
+     */
+    private final static int MULTITHREADMINLENGTH = 3000;
+
+    /**
      * Generator for random value
      */
     private static Random randomize = new Random();
@@ -78,7 +83,6 @@ public class QuickSort {
 
         /**
          * Primitive constructor for qSort task
-         *
          * @param a array to sort
          * @param left left bound of sorting interval of array
          * @param right right bound of sorting interval of array
@@ -105,8 +109,9 @@ public class QuickSort {
          */
         @Override
         public void run() {
-
-            if (right - left > 1) {
+            if (right - left < MULTITHREADMINLENGTH) {
+                singleThreadQuickSort(a, left, right, tools.comparator);
+            } else if (right - left > 1) {
                 int pivotIndex = partition(a, left, right, tools.comparator);
                 tools.taskCounter.addAndGet(2);
                 tools.threadPool.execute(new QuickSortTask<>(a, left, pivotIndex, tools));
@@ -119,6 +124,22 @@ public class QuickSort {
                 }
             }
         }
+    }
+
+    /**
+     * Sorts this array using one thread
+     * @param a array to sort
+     * @param left left bound of sorting interval of array
+     * @param right right bound of sorting interval of array
+     * @param comparator comparator for elements in array
+     */
+    private static <T> void singleThreadQuickSort(T[] a, int left, int right, Comparator<? super T> comparator) {
+        if (right - left <= 1) {
+            return;
+        }
+        int pivotIndex = partition(a, left, right, comparator);
+        singleThreadQuickSort(a, left, pivotIndex, comparator);
+        singleThreadQuickSort(a, pivotIndex, right, comparator);
     }
 
     /**
@@ -163,28 +184,36 @@ public class QuickSort {
     }
 
     /**
+     * Runs a QuickSortTask for whole given array using one thread.
+     * @param a array to sort
+     */
+    public static <T extends Comparable<? super T>> void singleThreadQuickSort(T[] a) {
+        singleThreadQuickSort(a, 0, a.length, Comparator.naturalOrder());
+    }
+
+    /**
      * Runs a QuickSortTask for whole given array.
      * @param a array to sort
      */
     public static <T extends Comparable<? super T>> void quickSort(T[] a) throws InterruptedException {
-        quickSort(a, Comparator.naturalOrder(), Runtime.getRuntime().availableProcessors());
+        quickSortStarter(a, Comparator.naturalOrder());
     }
 
     /**
-     * Runs a QuickSortTask for whole given array and set tre comparator.
+     * Runs a QuickSortTask for whole given array and set the comparator.
      * @param a array to sort
      * @param comparator for elements in array
      */
     public static <T> void quickSort(T[] a, Comparator<? super T> comparator) throws InterruptedException {
-        quickSort(a, comparator, Runtime.getRuntime().availableProcessors());
+        quickSortStarter(a, comparator);
     }
 
     /**
      * Sets the maximum number of threads and runs a QuickSortTask for whole given array.
      * @param a array to sort
      */
-    private static <T> void quickSort(T[] a, Comparator<? super T> comparator, int threadCounter) throws InterruptedException {
-        var threadPool = Executors.newFixedThreadPool(threadCounter);
+    private static <T> void quickSortStarter(T[] a, Comparator<? super T> comparator) throws InterruptedException {
+        var threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         var taskCounter = new AtomicInteger(1);
         var tools = new GeneralTaskTools<T>(threadPool, taskCounter, comparator);
         threadPool.execute(new QuickSortTask<>(a, tools));
