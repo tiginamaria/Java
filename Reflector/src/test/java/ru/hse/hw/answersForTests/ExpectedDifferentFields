@@ -1,0 +1,6 @@
+public static final int version = 0;
+private final T p = null;
+protected java.util.List<? extends T> memory;
+public final int version = 0;
+private final T t = null;
+protected java.util.List<java.lang.Integer> memory;
