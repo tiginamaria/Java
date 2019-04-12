@@ -8,4 +8,5 @@ env:
 - PROJECT_DIR=Trie
 - PROJECT_DIR=BinarySearchTree
 - PROJECT_DIR=QSort
+- PROJECT_DIR=Phonebook
 script: cd $PROJECT_DIR && mvn install 
