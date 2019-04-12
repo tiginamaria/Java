@@ -7,4 +7,5 @@ env:
 - PROJECT_DIR=HashTable
 - PROJECT_DIR=Trie
 - PROJECT_DIR=BinarySearchTree
+- PROJECT_DIR=Phonebook
 script: cd $PROJECT_DIR && mvn install 
