@@ -28,6 +28,13 @@ public class ThreadPoolImpl {
     private Executor[] threadPool;
 
     /**
+     * Count current active working threads
+     */
+    public int countActiveThreads() {
+        return  Thread.activeCount();
+    }
+
+    /**
      * Constructor of thread pool
      * @param threadCounter number of available threads
      */
@@ -146,7 +153,7 @@ public class ThreadPoolImpl {
         /**
          * Occurred exception
          */
-        private Exception exception;
+        private volatile Exception exception;
 
         /**
          * Flag, which if true, when task has already been calculated
