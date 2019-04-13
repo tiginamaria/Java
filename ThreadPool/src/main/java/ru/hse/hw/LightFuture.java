@@ -1,7 +1,6 @@
 package ru.hse.hw;
 
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * Interface for tasks in ThreadPool
@@ -17,7 +16,7 @@ public interface LightFuture<T> {
      * Get calculated tasks result
      * @return result of task
      */
-    T get();
+    T get() throws InterruptedException, LightExecutionException;
 
     /**
      * Create a new task by applying given function to current task
