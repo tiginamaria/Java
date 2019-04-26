@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ThreadPoolImplTest {
 
     private static final int THREAD_COUNTER = 20;
-    private static final int TASK_COUNTER = 100;
+    private static final int TASK_COUNTER = 1000;
     private ThreadPoolImpl threadPool;
 
     @BeforeEach
@@ -129,12 +129,13 @@ class ThreadPoolImplTest {
     }
 
     @Test
-    void lightFutureExeptionThreadPoolTest() {
+    void lightFutureExceptionThreadPoolTest() {
         Supplier<Integer> supplier = () -> null;
         LightFuture<Integer> result = threadPool.execute(supplier);
         Function<Integer, Integer> function = (x) -> 2 * x;
         LightFuture<Integer> totalResult = result.thenApply(function);
         assertThrows(LightExecutionException.class, totalResult::get);
+        threadPool.shutdown();
     }
 
     @Test
