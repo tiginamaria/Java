@@ -46,7 +46,6 @@ public class ScorchedEarch extends Application {
             game.moveTankToSide(RIGHT);
         }
         if(isPressed(KeyCode.SPACE)) {
-            //game.makeFire();
         }
     }
 
