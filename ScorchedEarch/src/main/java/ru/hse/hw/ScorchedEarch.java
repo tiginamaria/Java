@@ -1,6 +1,5 @@
 package ru.hse.hw;
 
-import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
@@ -17,64 +16,96 @@ import static javafx.geometry.Side.*;
 
 public class ScorchedEarch extends Application {
 
-    private HashMap<KeyCode,Boolean> keys = new HashMap<>(); //нажатые клавиши
-    private static Pane appRoot = new Pane(); //корневой узел
-    private static Pane gameRoot = new Pane(); //для всех элементов игры
+    private static final double sceneWidth = 700;
+    private static final double sceneHeight = 600;
 
-    private Game game;
+    private static Pane gameRoot = new Pane();
 
-    private GameUI gameUI;
+    private List<Mountain> mountains = new ArrayList<>();
+    private List<BulletView> bulletViews = new ArrayList<>();
+    private TargetView targetView;
+    private TankView tankView;
 
     private void initContent() throws FileNotFoundException {
-        gameUI = new GameUI(gameRoot);
-        game = new Game(gameUI);
+        tankView = new TankView(0, 400);
+        gameRoot.getChildren().addAll(tankView);
         createBackGround();
-        appRoot.getChildren().addAll(gameRoot);
+        createTarget(10);
     }
 
-    private void update() {
-        if (isPressed(KeyCode.UP)) {
-            game.moveBarrelToSide(TOP);
-        }
-        if (isPressed(KeyCode.DOWN)) {
-            game.moveBarrelToSide(BOTTOM);
-        }
-        if (isPressed(KeyCode.LEFT)) {
-            game.moveTankToSide(LEFT);
-        }
-        if(isPressed(KeyCode.RIGHT)) {
-            game.moveTankToSide(RIGHT);
-        }
-        if(isPressed(KeyCode.SPACE)) {
+    private BulletView createBullet(double size) {
+        var bulletView = new BulletView(tankView.getX(), tankView.getY(), size);
+        gameRoot.getChildren().addAll(bulletView);
+        bulletViews.add(bulletView);
+        return bulletView;
+    }
+
+    private void createTarget(double size) { ;
+        targetView = new TargetView(20, 20, size);
+        gameRoot.getChildren().addAll(targetView);
+    }
+
+    private void update(KeyCode keyCode) {
+        switch (keyCode) {
+            case UP:
+                tankView.makeBarrelMove(TOP);
+                break;
+
+            case DOWN:
+                tankView.makeBarrelMove(BOTTOM);
+                break;
+
+            case LEFT:
+                tankView.setOrientation(LEFT);
+                tankView.makeTankMove(mountains, LEFT);
+                break;
+
+            case RIGHT:
+                tankView.setOrientation(RIGHT);
+                tankView.makeTankMove(mountains,RIGHT);
+                break;
+
+            case SPACE:
+                var bullet = createBullet(5);
+                new Thread(new bulletBehavior(bullet)).start();
+                if (targetView.isDone()) {
+                    endGame();
+                }
+                gameRoot.getChildren().remove(bullet);
+                break;
         }
     }
 
-    private boolean isPressed(KeyCode key) {
-        return keys.getOrDefault(key,false);
+    private void endGame() {
+
     }
 
-    @Override
-    public void start(Stage primaryStage) throws FileNotFoundException {
-        initContent();
-        Scene scene = new Scene(appRoot, 700, 600);
-        scene.setOnKeyPressed(event-> keys.put(event.getCode(), true));
-        scene.setOnKeyReleased(event -> {
-            keys.put(event.getCode(), false);
-        });
-        primaryStage.setTitle("ScorchedEarth");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-        AnimationTimer gameTimer = new AnimationTimer() {
-            @Override
-            public void handle(long now) {
-                update();
+    private class bulletBehavior implements Runnable {
+
+        private BulletView bulletView;
+
+        public bulletBehavior(BulletView bulletView) {
+            this.bulletView = bulletView;
+        }
+
+        @Override
+        public void run() {
+            System.out.println("hello");
+            bulletView.fire(0.1, tankView.getBarrelAngle());
+            bulletView.makeBulletMove();
+            while (bulletView.onScene(sceneWidth, sceneHeight)) {
+                if (bulletView.hit(mountains)) {
+                    return;
+                }
+                if (targetView.contains(bulletView)) {
+                    targetView.markDone();
+                    return;
+                }
             }
-        };
-        gameTimer.start();
+        }
     }
 
     private void createBackGround() {
-        List<Mountain> mountains = new ArrayList<>();
         mountains.add(new Mountain(0, 400, 75, 300));
         gameRoot.getChildren().addAll(new Line(0, 400, 75, 300));
         mountains.add(new Mountain(75, 300, 150, 350));
@@ -93,7 +124,16 @@ public class ScorchedEarch extends Application {
         gameRoot.getChildren().addAll(new Line(500, 175, 600, 300));
         mountains.add(new Mountain(600, 300, 700, 200));
         gameRoot.getChildren().addAll(new Line(600, 300, 700, 200));
-        game.addMountains(mountains);
+    }
+
+    @Override
+    public void start(Stage primaryStage) throws FileNotFoundException {
+        initContent();
+        Scene scene = new Scene(gameRoot, sceneWidth, sceneHeight);
+        scene.setOnKeyPressed(event -> update(event.getCode()));
+        primaryStage.setTitle("ScorchedEarth");
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 
     public static void main(String[] args) {

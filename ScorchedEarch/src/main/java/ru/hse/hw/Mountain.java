@@ -19,6 +19,10 @@ public class Mountain {
         return x < x2 && x >= x1;
     }
 
+    public boolean hitted(double x, double y) {
+        return contains(x) && mountainFunction(x) <= y;
+    }
+
     public double getAngle() {
         return (y2 - y1) /(x2 - x1);
     }

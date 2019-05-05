@@ -89,6 +89,12 @@ public class TankView extends Pane {
         return tank.getY();
     }
 
+    public double getBarrelAngle() {
+        return tank.getBarrelAngle();
+    }
+
+
+
     public void makeTankMove(List<Mountain> mountains, Side side) {
         tank.move(mountains, side);
         setX(tank.getX());

@@ -1,21 +1,29 @@
 package ru.hse.hw;
 
-import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
+import javafx.geometry.Point2D;
 
-public class Target extends Pane {
 
-    private Circle circle;
+public class Target {
+    private boolean done = false;
+    private double x;
+    private double y;
+    private double radios;
 
-    public Target(double x, double y, double r) {
-        circle = new Circle(r);
-        circle.setFill(Color.RED);
-        circle.setCenterX(x);
-        circle.setCenterY(y);
+    public Target(double x, double y, double radios) {
+        this.x = x;
+        this.y = y;
+        this.radios = radios;
     }
 
-    public boolean contains(double x, double y) {
-        return circle.contains(x, y);
+    public boolean contains(Point2D point) {
+        return (point.getX() - x) * (point.getX() - x) + (point.getY() - y) * (point.getY() - y) <= radios * radios;
+    }
+
+    public void markDone() {
+        done = true;
+    }
+
+    public boolean isDone() {
+        return done;
     }
 }
