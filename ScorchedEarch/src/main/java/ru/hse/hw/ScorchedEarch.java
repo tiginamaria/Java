@@ -1,10 +1,13 @@
 package ru.hse.hw;
 
 import javafx.application.Application;
+import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 import java.io.FileNotFoundException;
@@ -34,8 +37,8 @@ public class ScorchedEarch extends Application {
     }
 
     private BulletView createBullet(double size) {
-        var bulletView = new BulletView(tankView.getX(), tankView.getY(), size);
-        gameRoot.getChildren().addAll(bulletView);
+        BulletView bulletView = new BulletView(tankView.getX(), tankView.getY(), size);
+        gameRoot.getChildren().add(bulletView);
         bulletViews.add(bulletView);
         return bulletView;
     }
@@ -66,12 +69,13 @@ public class ScorchedEarch extends Application {
                 break;
 
             case SPACE:
-                var bullet = createBullet(5);
-                new Thread(new bulletBehavior(bullet)).start();
+                tankView.setOrientation(BOTTOM);
+                var bulletBehavior = new bulletBehavior();
+                Thread fire = new Thread(bulletBehavior);
+                fire.start();
                 if (targetView.isDone()) {
                     endGame();
                 }
-                gameRoot.getChildren().remove(bullet);
                 break;
         }
     }
@@ -80,28 +84,25 @@ public class ScorchedEarch extends Application {
 
     }
 
-    private class bulletBehavior implements Runnable {
+    private class bulletBehavior extends Task {
 
         private BulletView bulletView;
 
-        public bulletBehavior(BulletView bulletView) {
-            this.bulletView = bulletView;
+        public bulletBehavior() {
+            bulletView = new BulletView(tankView.getX(), tankView.getY(), 5);
+            gameRoot.getChildren().addAll(bulletView);
         }
 
         @Override
-        public void run() {
-            System.out.println("hello");
-            bulletView.fire(0.1, tankView.getBarrelAngle());
-            bulletView.makeBulletMove();
-            while (bulletView.onScene(sceneWidth, sceneHeight)) {
-                if (bulletView.hit(mountains)) {
-                    return;
-                }
-                if (targetView.contains(bulletView)) {
-                    targetView.markDone();
-                    return;
-                }
+        protected Object call() throws Exception {
+            System.out.println(90 - tankView.getBarrelAngle());
+            bulletView.fire(20, 90 - tankView.getBarrelAngle());
+            while(bulletView.onScene(sceneWidth, sceneHeight)) {
+                bulletView.makeBulletMove();
+                Thread.sleep(100);
             }
+            gameRoot.getChildren().remove(bulletView);
+            return null;
         }
     }
 

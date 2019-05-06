@@ -36,8 +36,8 @@ public class Bullet {
     public void move() {
         position = new Point2D(
                 position.getX() + time * speed * Math.cos(angle),
-                position.getY() + time * speed * Math.sin(angle) - G * time * time / 2);
-        time++;
+                position.getY() - time * speed * Math.sin(angle) + G * time * time / 2);
+        time += 0.1;
     }
 
     public boolean hit(List<Mountain> mountains) {

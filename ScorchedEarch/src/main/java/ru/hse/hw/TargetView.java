@@ -4,11 +4,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
-import java.awt.geom.Point2D;
-
 public class TargetView extends Pane {
     private Circle circle;
-    Target target;
+    private Target target;
     public TargetView(double x, double y, double r) {
         target = new Target(x, y, r);
         circle = new Circle(r);

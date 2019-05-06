@@ -7,19 +7,15 @@ import javafx.scene.shape.Circle;
 
 import java.util.List;
 
-public class BulletView extends Pane {
+public class BulletView extends Circle {
 
     Bullet bullet;
 
-    private static final Circle circle = new Circle();
-
     public BulletView(double x, double y, double r) {
-        bullet = new Bullet( new Point2D(x, y));
-        circle.setRadius(r);
-        circle.setCenterX(x);
-        circle.setCenterY(y);
-        circle.setFill(Color.BLACK);
-        getChildren().add(circle);
+        super(r);
+        setX(x); setY(y);
+        bullet = new Bullet(new Point2D(x, y));
+        setFill(Color.BLACK);
     }
 
     public void fire(double speed, double angle) {
@@ -28,8 +24,24 @@ public class BulletView extends Pane {
 
     public void makeBulletMove() {
         bullet.move();
-        circle.setCenterX(bullet.getX());
-        circle.setCenterY(bullet.getY());
+        setCenterX(bullet.getX());
+        setCenterY(bullet.getY());
+    }
+
+    public double getX() {
+        return getCenterX();
+    }
+
+    public double getY() {
+        return getCenterY();
+    }
+
+    public void setX(double x) {
+        setCenterX(x);
+    }
+
+    public void setY(double y) {
+        setCenterY(y);
     }
 
     public Point2D getPosition() {
@@ -37,7 +49,7 @@ public class BulletView extends Pane {
     }
 
     public boolean onScene(double width, double height) {
-        return getTranslateX() > 0 && getTranslateX() < width && getTranslateY() > 0 && getTranslateY() < height;
+        return getX() > 0 && getX() < width && getY() > 0 && getY() < height;
     }
 
     public boolean hit(List<Mountain> mountains) {
