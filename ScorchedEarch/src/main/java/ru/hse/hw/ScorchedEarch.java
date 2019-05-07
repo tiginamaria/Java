@@ -1,23 +1,38 @@
 package ru.hse.hw;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.geometry.Point2D;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import static javafx.geometry.Side.*;
 
 public class ScorchedEarch extends Application {
+
+    private Image explosionImage = new Image(new FileInputStream("src/main/resources/images/boom.png"));
+    private ImageView explosionView = new ImageView();
 
     private static final double sceneWidth = 700;
     private static final double sceneHeight = 600;
@@ -25,25 +40,28 @@ public class ScorchedEarch extends Application {
     private static Pane gameRoot = new Pane();
 
     private List<Mountain> mountains = new ArrayList<>();
-    private List<BulletView> bulletViews = new ArrayList<>();
     private TargetView targetView;
     private TankView tankView;
+    private double currentBulletSize;
+    private Circle currentBulletView;
+
+    private final Timeline boom = new Timeline(
+            new KeyFrame(Duration.seconds(0), new KeyValue(explosionView.imageProperty(), explosionImage)),
+            new KeyFrame(Duration.seconds(2), new KeyValue(explosionView.imageProperty(), null)));
+
+    public ScorchedEarch() throws FileNotFoundException {
+    }
 
     private void initContent() throws FileNotFoundException {
         tankView = new TankView(0, 400);
-        gameRoot.getChildren().addAll(tankView);
         createBackGround();
         createTarget(10);
+        explosionView.setFitHeight(100);
+        explosionView.setFitWidth(100);
+        gameRoot.getChildren().addAll(tankView, explosionView);
     }
 
-    private BulletView createBullet(double size) {
-        BulletView bulletView = new BulletView(tankView.getX(), tankView.getY(), size);
-        gameRoot.getChildren().add(bulletView);
-        bulletViews.add(bulletView);
-        return bulletView;
-    }
-
-    private void createTarget(double size) { ;
+    private void createTarget(double size) {
         targetView = new TargetView(20, 20, size);
         gameRoot.getChildren().addAll(targetView);
     }
@@ -73,15 +91,14 @@ public class ScorchedEarch extends Application {
                 var bulletBehavior = new bulletBehavior();
                 Thread fire = new Thread(bulletBehavior);
                 fire.start();
-                if (targetView.isDone()) {
-                    endGame();
-                }
+                endGame();
                 break;
         }
     }
 
     private void endGame() {
-
+        if (targetView.isDone()) {
+        }
     }
 
     private class bulletBehavior extends Task {
@@ -89,20 +106,28 @@ public class ScorchedEarch extends Application {
         private BulletView bulletView;
 
         public bulletBehavior() {
-            bulletView = new BulletView(tankView.getX(), tankView.getY(), 5);
-            gameRoot.getChildren().addAll(bulletView);
+            bulletView = new BulletView(tankView.getBarrelPosition(), tankView.getBarrelAngle(), 5, 10);
+            Platform.runLater(() -> gameRoot.getChildren().add(bulletView));
         }
 
         @Override
         protected Object call() throws Exception {
-            System.out.println(90 - tankView.getBarrelAngle());
-            bulletView.fire(20, 90 - tankView.getBarrelAngle());
-            while(bulletView.onScene(sceneWidth, sceneHeight)) {
+            while(bulletView.onScene(sceneWidth, sceneHeight) && !bulletView.hit(mountains) && !targetView.isDone()) {
+                if (targetView.contains(bulletView.getPosition())) {
+                    targetView.markDone();
+                }
+                Thread.sleep(30);
                 bulletView.makeBulletMove();
-                Thread.sleep(100);
             }
-            gameRoot.getChildren().remove(bulletView);
+            explosion(bulletView.getPosition());
+            Platform.runLater(() -> gameRoot.getChildren().remove(bulletView));
             return null;
+        }
+
+        private void explosion(Point2D position) {
+            explosionView.setTranslateX(position.getX() - explosionView.getFitWidth() / 2);
+            explosionView.setTranslateY(position.getY() - explosionView.getFitHeight() / 2);
+            boom.play();
         }
     }
 
@@ -132,6 +157,25 @@ public class ScorchedEarch extends Application {
         initContent();
         Scene scene = new Scene(gameRoot, sceneWidth, sceneHeight);
         scene.setOnKeyPressed(event -> update(event.getCode()));
+
+        currentBulletView = new Circle(3);
+        currentBulletView.setCenterX(sceneWidth - 30);
+        currentBulletView.setCenterY(sceneHeight - 200);
+        gameRoot.getChildren().add(currentBulletView);
+
+        VBox bulletButtons = new VBox(5);
+        bulletButtons.setTranslateX(sceneWidth - 30);
+        bulletButtons.setTranslateY(sceneHeight - 180);
+        for (int i = 0; i < 5; i++) {
+            var bulletButton = new Button(String.valueOf(i));
+            var size = i;
+            bulletButton.setOnAction(event -> {
+                currentBulletSize = (size + 1) * 4;
+                currentBulletView.setRadius(currentBulletSize);
+            });
+            bulletButtons.getChildren().add(bulletButton);
+        }
+        gameRoot.getChildren().addAll(bulletButtons);
         primaryStage.setTitle("ScorchedEarth");
         primaryStage.setScene(scene);
         primaryStage.show();

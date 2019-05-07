@@ -12,13 +12,10 @@ public class Bullet {
     private double angle;
     private double time;
 
-    public Bullet(Point2D position) {
+    public Bullet(Point2D position, double angle, double speed) {
         this.position = position;
-    }
-
-    public void setMoveParameters(double speed, double angle) {
+        this.angle = Math.toRadians(90 - angle);
         this.speed = speed;
-        this.angle = angle;
     }
 
     public Point2D getPosition() {
@@ -34,22 +31,19 @@ public class Bullet {
     }
 
     public void move() {
+        System.out.println(position.getX() + " " + position.getY());
         position = new Point2D(
                 position.getX() + time * speed * Math.cos(angle),
                 position.getY() - time * speed * Math.sin(angle) + G * time * time / 2);
-        time += 0.1;
+        time += 0.2;
     }
 
     public boolean hit(List<Mountain> mountains) {
         for (var mountain : mountains) {
-            if (mountain.hitted(position.getX(), position.getY())) {
+            if (mountain.contains(position.getX(), position.getY())) {
                 return true;
             }
         }
         return false;
-    }
-
-    public boolean hit(TargetView targetView) {
-        return targetView.contains(position);
     }
 }

@@ -11,7 +11,7 @@ import static javafx.geometry.Side.RIGHT;
 public class Tank {
 
     private Point2D position;
-    private final static double step = 0.5;
+    private final static double step = 0.8;
     private final static int barrelRotateAngle = 1;
     private double barrelAngle;
     private double tankAngle;
@@ -35,6 +35,10 @@ public class Tank {
 
     public void setY(double y) {
         position = new Point2D(position.getX(), y);
+    }
+
+    public void setPosition(Point2D position) {
+        this.position = position;
     }
 
     public Point2D getPosition() {
@@ -68,7 +72,7 @@ public class Tank {
     public void move(List<Mountain> mountains, Side side) {
         double newX = position.getX() + (side == RIGHT ? step : -step);
         for (var mountain : mountains) {
-            if (mountain.contains(newX)) {
+            if (mountain.isOnMountain(newX)) {
                 position = new Point2D(newX, mountain.mountainFunction(newX));
                 tankAngle = mountain.getAngle();
             }

@@ -1,5 +1,6 @@
 package ru.hse.hw;
 
+import javafx.geometry.Point2D;
 import javafx.geometry.Side;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -23,13 +24,13 @@ public class TankView extends Pane {
     private ImageView tankViewLeft = new ImageView(tankImageLeft);
     private ImageView tankViewRight = new ImageView(tankImageRight);
     private ImageView tankViewStay = new ImageView(tankImageStay);
-    private ImageView tankViewBarrel = new ImageView(tankImageBarrel);
-    private ImageView currentView = tankViewLeft;
+    private ImageView barrelView = new ImageView(tankImageBarrel);
+    private ImageView currentTankView = tankViewLeft;
 
     private final static int offsetX = 25;
     private final static int offsetY = 25;
-    private final static int offsetBarrelX = -15;
-    private final static int offsetBarrelY = 17;
+    private final static int offsetBarrelX = 10;
+    private final static int offsetBarrelY = 45;
 
 
     public TankView(double x, double y) throws FileNotFoundException {
@@ -38,88 +39,73 @@ public class TankView extends Pane {
     }
 
     public void setOrientation(Side side) {
-        if (currentView == tankViewStay) {
-            getChildren().remove(tankViewBarrel);
+        if (currentTankView == tankViewStay) {
+            getChildren().remove(barrelView);
         }
-        getChildren().remove(currentView);
+        getChildren().remove(currentTankView);
 
         switch (side) {
             case RIGHT:
-                currentView = tankViewRight;
+                currentTankView = tankViewRight;
                 getChildren().add(tankViewRight);
                 break;
             case LEFT:
-                currentView = tankViewLeft;
+                currentTankView = tankViewLeft;
                 getChildren().add(tankViewLeft);
                 break;
             case BOTTOM:
-                currentView = tankViewStay;
+                currentTankView = tankViewStay;
                 getChildren().add(tankViewStay);
-                getChildren().add(tankViewBarrel);
+                getChildren().add(barrelView);
                 setBarrelOrientation();
                 break;
         }
-        setX(tank.getX());
-        setY(tank.getY());
-        rotate(tank.getTankAngle());
+        setTankPosition(tank.getPosition());
+        rotateTank(tank.getTankAngle());
     }
 
     private void setBarrelOrientation() {
-        tankViewBarrel.setTranslateX(tankViewStay.getTranslateX() - offsetBarrelX);
-        tankViewBarrel.setTranslateY(tankViewStay.getTranslateY() - offsetBarrelY);
-        tankViewBarrel.setFitHeight(30);
-        tankViewBarrel.setFitWidth(18);
+        barrelView.setTranslateX(tank.getX() - offsetBarrelX);
+        barrelView.setTranslateY(tank.getY() - offsetBarrelY);
+        barrelView.setFitWidth(18);
+        barrelView.setFitHeight(30);
     }
 
-    public void setX(double x) {
-        tank.setX(x);
-        setTranslateX(x - offsetX);
-    }
-
-    public void setY(double y) {
-        tank.setY(y);
-        setTranslateY(y - offsetY);
-    }
-
-    public double getX() {
-        return tank.getX();
-    }
-
-    public double getY() {
-        return tank.getY();
+    public void setTankPosition(Point2D position) {
+        tank.setPosition(position);
+        currentTankView.setTranslateX(position.getX() - offsetX);
+        currentTankView.setTranslateY(position.getY() - offsetY);
     }
 
     public double getBarrelAngle() {
         return tank.getBarrelAngle();
     }
 
-
+    public Point2D getBarrelPosition() {
+        return new Point2D(barrelView.getTranslateX() + barrelView.getFitWidth() / 2, barrelView.getTranslateY());
+    }
 
     public void makeTankMove(List<Mountain> mountains, Side side) {
         tank.move(mountains, side);
-        setX(tank.getX());
-        setY(tank.getY());
-        setRotate(tank.getTankAngle());
+        setTankPosition(tank.getPosition());
+        rotateTank(tank.getTankAngle());
     }
 
     public void makeBarrelMove(Side side) {
-        if (currentView != tankViewStay) {
+        if (currentTankView != tankViewStay) {
             setOrientation(BOTTOM);
         }
-        getChildren().remove(tankViewBarrel);
+        setBarrelOrientation();
         var angle = tank.moveBarrel(side);
-        tankViewBarrel.getTransforms().add(new Rotate(angle,
-                tankViewBarrel.getX() + tankViewBarrel.getFitWidth() / 2,
-                tankViewBarrel.getY() + tankViewBarrel.getFitHeight()));
-        getChildren().add(tankViewBarrel);
+        barrelView.getTransforms().add(new Rotate(angle, barrelView.getFitWidth() / 2, barrelView.getFitHeight()));
     }
 
-    public void rotate(double angle) {
-        if (currentView == tankViewStay) {
-            currentView.setRotate(0);
+    public void rotateTank(double angle) {
+        if (currentTankView == tankViewStay) {
+            currentTankView.setRotate(0);
             return;
         }
-        currentView.setRotate(Math.toDegrees(Math.atan(angle)));
+        currentTankView.setRotate(Math.toDegrees(Math.atan(angle)));
     }
 }
 

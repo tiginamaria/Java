@@ -21,6 +21,7 @@ public class TargetView extends Pane {
     }
 
     public void markDone() {
+        System.out.println("done");
         target.markDone();
     }
 
