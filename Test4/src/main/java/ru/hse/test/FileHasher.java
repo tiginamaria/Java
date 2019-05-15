@@ -36,22 +36,20 @@ public class FileHasher {
      * @throws NoSuchAlgorithmException if ann arrow occur in getting md5 algorithm
      */
     public static byte[] singleThreadHasher(@NotNull File file) throws IOException, NoSuchAlgorithmException {
-        final var messageDigest = MessageDigest.getInstance("MD5");
-        return hash(file, messageDigest);
+        return hash(file);
     }
 
     /**
      * Calculates the hash for given file/directory using algorithm md5 and many threads
      * @param file file to get hash of
      * @return hash for given file in format of sequence of bytes
-     * @throws NoSuchAlgorithmException
      */
-    public static byte[] multiThreadHasher(@NotNull File file) throws NoSuchAlgorithmException {
-        final var messageDigest = MessageDigest.getInstance("MD5");
-        return pool.invoke(new HashTask(file, messageDigest));
+    public static byte[] multiThreadHasher(@NotNull File file)  {
+        return pool.invoke(new HashTask(file));
     }
 
-    private static byte[] hash(File file, MessageDigest messageDigest) throws IOException, NoSuchAlgorithmException {
+    private static byte[] hash(File file) throws IOException, NoSuchAlgorithmException {
+        final var messageDigest = MessageDigest.getInstance("MD5");
         if (file.isDirectory()) {
             hashDirectory(file, messageDigest);
         }
@@ -70,16 +68,17 @@ public class FileHasher {
         return messageDigest.digest();
     }
 
-    private static void hashDirectory(@NotNull File directory, MessageDigest messageDigest) throws IOException, NoSuchAlgorithmException {
+    private static byte[] hashDirectory(@NotNull File directory, MessageDigest messageDigest) throws IOException, NoSuchAlgorithmException {
         messageDigest.update(directory.getName().getBytes());
         var entries = directory.listFiles(); //list of inner files
         if (entries != null) {
             for (var entry : entries) {
                 if (entry.isFile() || entry.isDirectory()) {
-                    messageDigest.update(hash(entry, messageDigest));
+                    messageDigest.update(hash(entry));
                 }
             }
         }
+        return messageDigest.digest();
     }
 
     /**
@@ -91,18 +90,18 @@ public class FileHasher {
          */
         private final File file;
 
-        /**
-         * hashing algorithm
-         */
-        MessageDigest messageDigest;
-
-        public HashTask(@NotNull File file, MessageDigest messageDigest) {
+        public HashTask(@NotNull File file) {
             this.file = file;
-            this.messageDigest = messageDigest;
         }
 
         @Override
         protected byte[] compute() {
+            MessageDigest messageDigest = null;
+            try {
+                messageDigest = MessageDigest.getInstance("MD5");
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
             if (file.isDirectory()) {
                 messageDigest.update(file.getName().getBytes());
                 var entries = file.listFiles();
@@ -111,7 +110,7 @@ public class FileHasher {
                 if (entries != null) {
                     for (var entry : entries) {
                         if (entry.isFile() || entry.isDirectory()) {
-                            HashTask task = new HashTask(entry, messageDigest);
+                            HashTask task = new HashTask(entry);
                             tasks.add(task);
                             task.fork();
                         }

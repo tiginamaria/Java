@@ -26,14 +26,7 @@ class FileHasherTest {
         var file = Main.createFileTree();
         byte[] multiThreadAnswer = FileHasher.multiThreadHasher(file);
         byte[] singleThreadAnswer = FileHasher.multiThreadHasher(file);
-        for (var b : singleThreadAnswer) {
-            System.out.print(b);
-        }
-        System.out.println();
-        for (var b : multiThreadAnswer) {
-            System.out.print(b);
-        }
-        //assertTrue(Arrays.equals(singleThreadAnswer, multiThreadAnswer));
+        assertArrayEquals(singleThreadAnswer, multiThreadAnswer);
     }
 
     @Test
@@ -41,7 +34,7 @@ class FileHasherTest {
         var file = Main.createFileTree();
         byte[] singleThreadAnswer1 = FileHasher.singleThreadHasher(file);
         byte[] singleThreadAnswer2 = FileHasher.singleThreadHasher(file);
-        assertTrue(Arrays.equals(singleThreadAnswer1, singleThreadAnswer2));
+        assertArrayEquals(singleThreadAnswer1, singleThreadAnswer2);
     }
 
     @Test
@@ -49,6 +42,6 @@ class FileHasherTest {
         var file = Main.createFileTree();
         byte[] multiThreadAnswer1 = FileHasher.singleThreadHasher(file);
         byte[] multiThreadAnswer2 = FileHasher.singleThreadHasher(file);
-        assertTrue(Arrays.equals(multiThreadAnswer1, multiThreadAnswer2));
+        assertArrayEquals(multiThreadAnswer1, multiThreadAnswer2);
     }
 }
