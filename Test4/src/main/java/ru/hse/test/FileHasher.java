@@ -86,8 +86,16 @@ public class FileHasher {
      * Task for thread, in which calculates a hash for one file/directory
      */
     private static class HashTask extends RecursiveTask<byte[]> {
+        /**
+         * file to hash
+         */
         private final File file;
+
+        /**
+         * hashing algorithm
+         */
         MessageDigest messageDigest;
+
         public HashTask(@NotNull File file, MessageDigest messageDigest) {
             this.file = file;
             this.messageDigest = messageDigest;
