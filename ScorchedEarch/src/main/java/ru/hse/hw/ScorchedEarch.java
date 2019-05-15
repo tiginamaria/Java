@@ -5,8 +5,6 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
@@ -14,10 +12,8 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -43,7 +39,6 @@ public class ScorchedEarch extends Application {
     private TargetView targetView;
     private TankView tankView;
     private double currentBulletSize;
-    private Circle currentBulletView;
 
     private final Timeline boom = new Timeline(
             new KeyFrame(Duration.seconds(0), new KeyValue(explosionView.imageProperty(), explosionImage)),
@@ -54,6 +49,7 @@ public class ScorchedEarch extends Application {
 
     private void initContent() throws FileNotFoundException {
         tankView = new TankView(0, 400);
+        currentBulletSize = 5;
         createBackGround();
         createTarget(10);
         explosionView.setFitHeight(100);
@@ -88,8 +84,8 @@ public class ScorchedEarch extends Application {
 
             case SPACE:
                 tankView.setOrientation(BOTTOM);
-                var bulletBehavior = new bulletBehavior();
-                Thread fire = new Thread(bulletBehavior);
+                var BulletBehavior = new BulletBehavior();
+                Thread fire = new Thread(BulletBehavior);
                 fire.start();
                 endGame();
                 break;
@@ -101,17 +97,14 @@ public class ScorchedEarch extends Application {
         }
     }
 
-    private class bulletBehavior extends Task {
+    private class BulletBehavior extends Task {
 
         private BulletView bulletView;
 
-        public bulletBehavior() {
-            bulletView = new BulletView(tankView.getBarrelPosition(), tankView.getBarrelAngle(), 5, 10);
-            Platform.runLater(() -> gameRoot.getChildren().add(bulletView));
-        }
-
         @Override
         protected Object call() throws Exception {
+            bulletView = new BulletView(tankView.getBarrelPosition(), tankView.getBarrelAngle(), currentBulletSize, 60 / currentBulletSize);
+            Platform.runLater(() -> gameRoot.getChildren().add(bulletView));
             while(bulletView.onScene(sceneWidth, sceneHeight) && !bulletView.hit(mountains) && !targetView.isDone()) {
                 if (targetView.contains(bulletView.getPosition())) {
                     targetView.markDone();
@@ -158,22 +151,16 @@ public class ScorchedEarch extends Application {
         Scene scene = new Scene(gameRoot, sceneWidth, sceneHeight);
         scene.setOnKeyPressed(event -> update(event.getCode()));
 
-        currentBulletView = new Circle(3);
-        currentBulletView.setCenterX(sceneWidth - 30);
-        currentBulletView.setCenterY(sceneHeight - 200);
-        gameRoot.getChildren().add(currentBulletView);
-
-        VBox bulletButtons = new VBox(5);
+        VBox bulletButtons = new VBox(3);
+        bulletButtons.setFocusTraversable(false);
         bulletButtons.setTranslateX(sceneWidth - 30);
         bulletButtons.setTranslateY(sceneHeight - 180);
-        for (int i = 0; i < 5; i++) {
-            var bulletButton = new Button(String.valueOf(i));
+        for (int i = 0; i < 3; i++) {
+            var bulletButton = new Button(String.valueOf(i + 1));
             var size = i;
-            bulletButton.setOnAction(event -> {
-                currentBulletSize = (size + 1) * 4;
-                currentBulletView.setRadius(currentBulletSize);
-            });
+            bulletButton.setOnMouseClicked(event -> currentBulletSize = (size + 1) * 4);
             bulletButtons.getChildren().add(bulletButton);
+            bulletButton.setFocusTraversable(false);
         }
         gameRoot.getChildren().addAll(bulletButtons);
         primaryStage.setTitle("ScorchedEarth");

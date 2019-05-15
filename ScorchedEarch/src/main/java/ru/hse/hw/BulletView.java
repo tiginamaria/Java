@@ -1,18 +1,14 @@
 package ru.hse.hw;
 
 import javafx.geometry.Point2D;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
-import java.io.FileInputStream;
 import java.util.List;
 
 public class BulletView extends Circle {
 
-    Bullet bullet;
-
+    private Bullet bullet;
     public BulletView(Point2D position, double angle, double radius, double speed) {
         super(radius);
         setPosition(position);
@@ -26,13 +22,6 @@ public class BulletView extends Circle {
         setCenterY(bullet.getY());
     }
 
-    public double getX() {
-        return getCenterX();
-    }
-
-    public double getY() {
-        return getCenterY();
-    }
 
     public void setPosition(Point2D position) {
         setCenterX(position.getX());
@@ -44,8 +33,8 @@ public class BulletView extends Circle {
     }
 
     public boolean onScene(double width, double height) {
-        System.out.println(getX() > 0 && getX() < width && getY() > 0 && getY() < height);
-        return getX() > 0 && getX() < width && getY() > 0 && getY() < height;
+        System.out.println(getCenterX() > 0 && getCenterX() < width && getCenterY() > 0 && getCenterY() < height);
+        return getCenterX() > 0 && getCenterX() < width && getCenterY() > 0 && getCenterY() < height;
     }
 
     public boolean hit(List<Mountain> mountains) {

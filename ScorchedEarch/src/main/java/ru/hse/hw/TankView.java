@@ -5,6 +5,7 @@ import javafx.geometry.Side;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Circle;
 import javafx.scene.transform.Rotate;
 
 import java.io.FileInputStream;
@@ -16,25 +17,26 @@ import static javafx.geometry.Side.BOTTOM;
 public class TankView extends Pane {
 
     private Tank tank;
+    private final ImageView tankViewLeft = new ImageView(new Image(new FileInputStream("src/main/resources/images/tankL.png")));
+    private final ImageView tankViewRight = new ImageView(new Image(new FileInputStream("src/main/resources/images/tankR.png")));
+    private final ImageView tankViewStay = new ImageView(new Image(new FileInputStream("src/main/resources/images/tankS.png")));
+    private final ImageView barrelView = new ImageView(new Image(new FileInputStream("src/main/resources/images/tankF.png")));
+    private ImageView currentTankView = tankViewStay;
 
-    private Image tankImageLeft = new Image(new FileInputStream("src/main/resources/images/tankL.png"));
-    private Image tankImageRight = new Image(new FileInputStream("src/main/resources/images/tankR.png"));
-    private Image tankImageStay = new Image(new FileInputStream("src/main/resources/images/tankS.png"));
-    private Image tankImageBarrel = new Image(new FileInputStream("src/main/resources/images/tankF.png"));
-    private ImageView tankViewLeft = new ImageView(tankImageLeft);
-    private ImageView tankViewRight = new ImageView(tankImageRight);
-    private ImageView tankViewStay = new ImageView(tankImageStay);
-    private ImageView barrelView = new ImageView(tankImageBarrel);
-    private ImageView currentTankView = tankViewLeft;
-
-    private final static int offsetX = 25;
-    private final static int offsetY = 25;
-    private final static int offsetBarrelX = 10;
-    private final static int offsetBarrelY = 45;
+    private final static int offsetBarrelX = 7;
+    private final static int offsetBarrelY = 40;
+    private static double offsetX;
+    private static double offsetY;
 
 
     public TankView(double x, double y) throws FileNotFoundException {
         tank = new Tank(x, y);
+        tankViewLeft.setFitWidth(60);
+        tankViewLeft.setFitHeight(30);
+        tankViewRight.setFitWidth(60);
+        tankViewRight.setFitHeight(30);
+        tankViewStay.setFitWidth(40);
+        tankViewStay.setFitHeight(40);
         setOrientation(BOTTOM);
     }
 
@@ -65,24 +67,37 @@ public class TankView extends Pane {
     }
 
     private void setBarrelOrientation() {
-        barrelView.setTranslateX(tank.getX() - offsetBarrelX);
-        barrelView.setTranslateY(tank.getY() - offsetBarrelY);
-        barrelView.setFitWidth(18);
-        barrelView.setFitHeight(30);
+        barrelView.setX(tank.getX() - offsetBarrelX);
+        barrelView.setY(tank.getY() - offsetBarrelY);
+        barrelView.setFitWidth(15);
+        barrelView.setFitHeight(28);
     }
 
-    public void setTankPosition(Point2D position) {
+    private void calculateOffset() {
+        double alpha = Math.toDegrees(Math.atan(currentTankView.getFitHeight() / currentTankView.getFitWidth()));
+        double betta = currentTankView == tankViewStay ? 0 : tank.getTankAngle();
+        double gamma = alpha - betta;
+        double diagonal = Math.sqrt(Math.pow(currentTankView.getFitHeight()/ 2, 2) + Math.pow(currentTankView.getFitWidth() / 2, 2));
+        offsetX = Math.cos(Math.toRadians(gamma)) * diagonal;
+        offsetY = Math.sin(Math.toRadians(gamma)) * diagonal;
+    }
+
+    private void setTankPosition(Point2D position) {
         tank.setPosition(position);
-        currentTankView.setTranslateX(position.getX() - offsetX);
-        currentTankView.setTranslateY(position.getY() - offsetY);
+        calculateOffset();
+        currentTankView.setX(position.getX() - offsetX);
+        currentTankView.setY(position.getY() - offsetY);
+    }
+
+    public Point2D getBarrelPosition() {
+        calculateOffset();
+        return new Point2D(
+                barrelView.getX() + barrelView.getFitWidth() / 2 + barrelView.getFitHeight() * Math.sin(Math.toRadians(tank.getBarrelAngle())),
+                barrelView.getY() + (barrelView.getFitHeight() - barrelView.getFitHeight() * Math.cos(Math.toRadians(tank.getBarrelAngle()))));
     }
 
     public double getBarrelAngle() {
         return tank.getBarrelAngle();
-    }
-
-    public Point2D getBarrelPosition() {
-        return new Point2D(barrelView.getTranslateX() + barrelView.getFitWidth() / 2, barrelView.getTranslateY());
     }
 
     public void makeTankMove(List<Mountain> mountains, Side side) {
@@ -95,17 +110,17 @@ public class TankView extends Pane {
         if (currentTankView != tankViewStay) {
             setOrientation(BOTTOM);
         }
+        barrelView.getTransforms().clear();
         setBarrelOrientation();
-        var angle = tank.moveBarrel(side);
-        barrelView.getTransforms().add(new Rotate(angle, barrelView.getFitWidth() / 2, barrelView.getFitHeight()));
+        tank.moveBarrel(side);
+        barrelView.getTransforms().add(new Rotate(tank.getBarrelAngle(), barrelView.getX() + barrelView.getFitWidth() / 2, barrelView.getY() + barrelView.getFitHeight()));
     }
 
-    public void rotateTank(double angle) {
-        if (currentTankView == tankViewStay) {
-            currentTankView.setRotate(0);
-            return;
+    private void rotateTank(double angle) {
+        if (currentTankView != tankViewStay) {
+            currentTankView.getTransforms().clear();
+            currentTankView.getTransforms().add(new Rotate(Math.toDegrees(Math.atan(angle)), tank.getX(), tank.getY()));
         }
-        currentTankView.setRotate(Math.toDegrees(Math.atan(angle)));
     }
 }
 
