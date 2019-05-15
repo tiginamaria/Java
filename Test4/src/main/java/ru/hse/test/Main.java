@@ -1,5 +1,7 @@
 package ru.hse.test;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,7 +14,7 @@ public class Main {
 
     private final static int BUFFER_SIZE = 1024;
 
-    private static void fillRandomFile(File file) throws IOException {
+    private static void fillRandomFile(@NotNull File file) throws IOException {
         Random rand = new Random(currentTimeMillis());
         byte[] buffer = new byte[BUFFER_SIZE];
         try (FileOutputStream fos = new FileOutputStream(file.getName())) {

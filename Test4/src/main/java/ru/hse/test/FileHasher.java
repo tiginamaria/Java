@@ -1,5 +1,7 @@
 package ru.hse.test;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -33,7 +35,7 @@ public class FileHasher {
      * @throws IOException if an arrow occur while opening or reading
      * @throws NoSuchAlgorithmException if ann arrow occur in getting md5 algorithm
      */
-    public static byte[] singleThreadHasher(File file) throws IOException, NoSuchAlgorithmException {
+    public static byte[] singleThreadHasher(@NotNull File file) throws IOException, NoSuchAlgorithmException {
         final var messageDigest = MessageDigest.getInstance("MD5");
         return hash(file, messageDigest);
     }
@@ -44,7 +46,7 @@ public class FileHasher {
      * @return hash for given file in format of sequence of bytes
      * @throws NoSuchAlgorithmException
      */
-    public static byte[] multiThreadHasher(File file) throws NoSuchAlgorithmException {
+    public static byte[] multiThreadHasher(@NotNull File file) throws NoSuchAlgorithmException {
         final var messageDigest = MessageDigest.getInstance("MD5");
         return pool.invoke(new HashTask(file, messageDigest));
     }
@@ -60,7 +62,7 @@ public class FileHasher {
         return messageDigest.digest();
     }
 
-    private static byte[] hashFile(File file, MessageDigest messageDigest) throws IOException {
+    private static byte[] hashFile(@NotNull File file, MessageDigest messageDigest) throws IOException {
         try (DigestInputStream dis = new DigestInputStream(new FileInputStream(file), messageDigest)) {
             var byteArray = new byte[BUFFER_SIZE];
             while (dis.read(byteArray) != -1) ; //empty loop to clear the data
@@ -68,7 +70,7 @@ public class FileHasher {
         return messageDigest.digest();
     }
 
-    private static void hashDirectory(File directory, MessageDigest messageDigest) throws IOException, NoSuchAlgorithmException {
+    private static void hashDirectory(@NotNull File directory, MessageDigest messageDigest) throws IOException, NoSuchAlgorithmException {
         messageDigest.update(directory.getName().getBytes());
         var entries = directory.listFiles(); //list of inner files
         if (entries != null) {
@@ -86,7 +88,7 @@ public class FileHasher {
     private static class HashTask extends RecursiveTask<byte[]> {
         private final File file;
         MessageDigest messageDigest;
-        public HashTask(File file, MessageDigest messageDigest) {
+        public HashTask(@NotNull File file, MessageDigest messageDigest) {
             this.file = file;
             this.messageDigest = messageDigest;
         }
