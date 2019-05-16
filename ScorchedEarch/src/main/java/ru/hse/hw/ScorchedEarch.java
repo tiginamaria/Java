@@ -172,8 +172,8 @@ public class ScorchedEarch extends Application {
         var textLabel = "END GAME\nYour socre is " + score;
         var endGameLabel = new Label(textLabel);
         endGameLabel.setFont(Font.font("Cambria", 30));
-        endGameLabel.setLayoutX(sceneWidth / 3);
-        endGameLabel.setLayoutY(sceneHeight / 5);
+        endGameLabel.setLayoutX(sceneWidth / 3.0);
+        endGameLabel.setLayoutY(sceneHeight / 5.0);
         endGameLabel.setTextAlignment(TextAlignment.CENTER);
         gameRoot.getChildren().add(endGameLabel);
     }

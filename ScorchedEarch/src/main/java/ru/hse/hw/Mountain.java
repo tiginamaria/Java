@@ -48,7 +48,7 @@ public class Mountain {
     }
 
     /**
-     * Check if mountain line contains point (x, y)
+     * Check if mountain line is under point (x, y)
      * @param x position on OX axes
      * @param y position on OY axes
      * @return true if mountain line contains given point, false otherwise
