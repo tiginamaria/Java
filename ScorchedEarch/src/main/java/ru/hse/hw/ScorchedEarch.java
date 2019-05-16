@@ -28,24 +28,70 @@ import java.util.Random;
 
 import static javafx.geometry.Side.*;
 
+/**
+ *  Game ScorchedEarch:
+ *  There is an image of the tank, and target. You have only one minute to kill as many targets as you can.
+ *  Press the keys:
+ *      left-right - to make the gun move left-right and climb up the mountains if necessary
+ *      up-down    - to make the barrel of the tank goes left-right
+ *      Enter      - to make tank
+ */
 public class ScorchedEarch extends Application {
 
     private Image explosionImage = new Image(new FileInputStream("src/main/resources/images/boom.png"));
     private ImageView backgroundView = new ImageView(new Image(new FileInputStream("src/main/resources/images/mountains.jpg")));
     private ImageView explosionView = new ImageView();
 
-    private static final int sceneWidth = 700;
-    private static final int sceneHeight = 600;
-    private int score;
 
-    private static Pane gameRoot = new Pane();
+    /**
+     * Scene of the game mode
+     */
     private Scene scene;
 
+    /**
+     * Sizes of scene
+     */
+    private static final int sceneWidth = 700;
+    private static final int sceneHeight = 600;
+
+    /**
+     * Current number of killed targets
+     */
+    private int score;
+
+    /**
+     * Game panel
+     */
+    private static Pane gameRoot = new Pane();
+
+    /**
+     * List of mountains
+     */
     private List<Mountain> mountains = new ArrayList<>();
+
+    /**
+     * View of target
+     */
     private TargetView targetView;
+
+    /**
+     * View of tank
+     */
     private TankView tankView = new TankView(0, 400);
+
+    /**
+     * Current bullet size
+     */
     private int currentBulletSize = 6;
 
+    /**
+     * Flag to freeze the screen
+     */
+    private boolean gameOver;
+
+    /**
+     * Process of bullet explosion
+     */
     private final Timeline boom = new Timeline(
             new KeyFrame(Duration.seconds(0), new KeyValue(explosionView.imageProperty(), explosionImage)),
             new KeyFrame(Duration.seconds(2), new KeyValue(explosionView.imageProperty(), null)));
@@ -53,7 +99,9 @@ public class ScorchedEarch extends Application {
     public ScorchedEarch() throws FileNotFoundException {
     }
 
-
+    /**
+     * Set target on a random position under the mountains
+     */
     private void getRandomTarget() {
         double x, y;
         Random random = new Random(System.currentTimeMillis());
@@ -69,6 +117,9 @@ public class ScorchedEarch extends Application {
         gameRoot.getChildren().addAll(targetView);
     }
 
+    /**
+     * Create environment of the game
+     */
     private void initContent() {
         createBackGround();
         getRandomTarget();
@@ -77,7 +128,14 @@ public class ScorchedEarch extends Application {
         gameRoot.getChildren().addAll(tankView, explosionView);
     }
 
+    /**
+     * Evaluate pressed keys to action according to game rules
+     * @param keyCode pressed key on keyboard
+     */
     private void update(KeyCode keyCode) {
+        if (gameOver) {
+            return;
+        }
         switch (keyCode) {
             case UP:
                 tankView.makeBarrelMove(TOP);
@@ -106,10 +164,17 @@ public class ScorchedEarch extends Application {
         }
     }
 
+    /**
+     * Show the game result
+     */
     private void endGame() {
-        var textLabel = String.valueOf(score);
+        gameOver = true;
+        var textLabel = "END GAME\nYour socre is " + score;
         var endGameLabel = new Label(textLabel);
-        endGameLabel.setTextAlignment(TextAlignment.JUSTIFY);
+        endGameLabel.setFont(Font.font("Cambria", 30));
+        endGameLabel.setLayoutX(sceneWidth / 3);
+        endGameLabel.setLayoutY(sceneHeight / 5);
+        endGameLabel.setTextAlignment(TextAlignment.CENTER);
         gameRoot.getChildren().add(endGameLabel);
     }
 
@@ -241,7 +306,7 @@ public class ScorchedEarch extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws FileNotFoundException {
+    public void start(Stage primaryStage) {
         initContent();
         scene = new Scene(gameRoot, sceneWidth, sceneHeight);
         scene.setOnKeyPressed(event -> update(event.getCode()));
