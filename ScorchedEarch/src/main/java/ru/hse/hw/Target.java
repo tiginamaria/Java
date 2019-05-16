@@ -1,22 +1,33 @@
 package ru.hse.hw;
 
-import javafx.geometry.Point2D;
-
 
 public class Target {
     private boolean done = false;
     private double x;
     private double y;
-    private double radios;
+    private double smallRadius;
+    private double bigRadius;
 
-    public Target(double x, double y, double radios) {
+    public Target(double x, double y, double smallRadius, double bigRaius) {
         this.x = x;
         this.y = y;
-        this.radios = radios;
+        this.smallRadius = smallRadius;
+        this.bigRadius = bigRaius;
     }
 
-    public boolean contains(Point2D point) {
-        return (point.getX() - x) * (point.getX() - x) + (point.getY() - y) * (point.getY() - y) <= radios * radios;
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public double getR(double size) {
+        if (size < 3) {
+            return smallRadius;
+        }
+        return bigRadius;
     }
 
     public void markDone() {

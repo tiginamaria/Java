@@ -62,7 +62,7 @@ public class ScorchedEarch extends Application {
         y = targetMountain.getRandomOverMountainY(random, x, sceneHeight);
         System.out.println("target " + n + " " + x + " " + y);
         try {
-            targetView = new TargetView(x, y, 10);
+            targetView = new TargetView(x, y);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -128,10 +128,7 @@ public class ScorchedEarch extends Application {
         protected Object call() throws Exception {
             bulletView = new BulletView(tankView.getBarrelPosition(), tankView.getBarrelAngle(), currentBulletSize, 50 / currentBulletSize);
             Platform.runLater(() -> gameRoot.getChildren().add(bulletView));
-            while(bulletView.onScene(sceneWidth, sceneHeight) && !bulletView.hit(mountains) && !targetView.isDone()) {
-                if (targetView.containsBullet(bulletView)) {
-                    targetView.markDone();
-                }
+            while(bulletView.onScene(sceneWidth, sceneHeight) && !bulletView.hitMountains(mountains) && !bulletView.hitTarget(targetView)) {
                 Thread.sleep(30);
                 bulletView.makeBulletMove();
             }

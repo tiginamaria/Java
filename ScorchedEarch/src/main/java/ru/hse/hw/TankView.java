@@ -61,7 +61,7 @@ public class TankView extends Pane {
                 setBarrelOrientation();
                 break;
         }
-        setTankPosition(tank.getPosition());
+        updateTankView();
         rotateTank(tank.getTankAngle());
     }
 
@@ -81,11 +81,10 @@ public class TankView extends Pane {
         offsetY = Math.sin(Math.toRadians(gamma)) * diagonal;
     }
 
-    private void setTankPosition(Point2D position) {
-        tank.setPosition(position);
+    private void updateTankView() {
         calculateOffset();
-        currentTankView.setX(position.getX() - offsetX);
-        currentTankView.setY(position.getY() - offsetY);
+        currentTankView.setX(tank.getX() - offsetX);
+        currentTankView.setY(tank.getY() - offsetY);
     }
 
     public Point2D getBarrelPosition() {
@@ -101,7 +100,7 @@ public class TankView extends Pane {
 
     public void makeTankMove(List<Mountain> mountains, Side side) {
         tank.move(mountains, side);
-        setTankPosition(tank.getPosition());
+        updateTankView();
         rotateTank(tank.getTankAngle());
     }
 

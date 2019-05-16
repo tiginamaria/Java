@@ -1,6 +1,5 @@
 package ru.hse.hw;
 
-import javafx.geometry.Point2D;
 import javafx.geometry.Side;
 import java.util.List;
 
@@ -10,14 +9,15 @@ import static javafx.geometry.Side.RIGHT;
 
 public class Tank {
 
-    private Point2D position;
+    private double x, y;
     private final static double step = 0.8;
     private final static int barrelRotateAngle = 1;
     private double barrelAngle;
     private double tankAngle;
 
     public Tank(double x, double y) {
-        position = new Point2D(x, y);
+        this.x = x;
+        this.y = y;
     }
 
     public double moveBarrel(Side side) {
@@ -29,32 +29,12 @@ public class Tank {
         return 0;
     }
 
-    public void setX(double x) {
-        position = new Point2D(x, position.getY());
-    }
-
-    public void setY(double y) {
-        position = new Point2D(position.getX(), y);
-    }
-
-    public void setPosition(Point2D position) {
-        this.position = position;
-    }
-
-    public Point2D getPosition() {
-        return position;
-    }
-
     public double getX() {
-        return position.getX();
+        return x;
     }
 
     public double getY() {
-        return position.getY();
-    }
-
-    public void setBarrelAngle(double angle) {
-        barrelAngle = angle;
+        return y;
     }
 
     public double getBarrelAngle() {
@@ -65,15 +45,12 @@ public class Tank {
         return tankAngle;
     }
 
-    public void rotate(double angle) {
-        tankAngle = angle;
-    }
-
     public void move(List<Mountain> mountains, Side side) {
-        double newX = position.getX() + (side == RIGHT ? step : -step);
+        double newX = x + (side == RIGHT ? step : -step);
         for (var mountain : mountains) {
             if (mountain.isOnMountain(newX)) {
-                position = new Point2D(newX, mountain.mountainFunction(newX));
+                x = newX;
+                y = mountain.mountainFunction(newX);
                 tankAngle = mountain.getAngle();
             }
         }

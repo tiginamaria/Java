@@ -9,10 +9,11 @@ import java.util.List;
 public class BulletView extends Circle {
 
     private Bullet bullet;
+
     public BulletView(Point2D position, double angle, double radius, double speed) {
         super(radius);
         setPosition(position);
-        bullet = new Bullet(position, angle, speed);
+        bullet = new Bullet(position.getX(), position.getY(), radius, angle, speed);
         setFill(Color.BLACK);
     }
 
@@ -22,14 +23,13 @@ public class BulletView extends Circle {
         setCenterY(bullet.getY());
     }
 
-
     public void setPosition(Point2D position) {
         setCenterX(position.getX());
         setCenterY(position.getY());
     }
 
     public Point2D getPosition() {
-        return bullet.getPosition();
+        return new Point2D(bullet.getX(), bullet.getY());
     }
 
     public boolean onScene(double width, double height) {
@@ -37,12 +37,11 @@ public class BulletView extends Circle {
         return getCenterX() > 0 && getCenterX() < width && getCenterY() > 0 && getCenterY() < height;
     }
 
-    public boolean hit(List<Mountain> mountains) {
-        if (bullet.hit(mountains)) {
-            //TODO картинка взрыва
-            System.out.println("hit mountains");
-            return true;
-        }
-        return false;
+    public boolean hitMountains(List<Mountain> mountains) {
+        return bullet.hitMountains(mountains);
+    }
+
+    public boolean hitTarget(TargetView targetView) {
+        return bullet.hitTarget(targetView.getTarget());
     }
 }
