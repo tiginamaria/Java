@@ -10,11 +10,11 @@ public class Mountain {
     /**
      * Start position of line section
      */
-    private double x1, y1;
+    private final double x1, y1;
     /**
      * End position of line section
      */
-    private double y2, x2;
+    private final double y2, x2;
 
     /**
      * Create mountains from given start and end position
@@ -42,7 +42,6 @@ public class Mountain {
     /**
      * Check if mountain line contains given x
      * @param x position on OX axes
-     * @return
      */
     public boolean isOnMountain(double x) {
         return x < x2 && x >= x1;

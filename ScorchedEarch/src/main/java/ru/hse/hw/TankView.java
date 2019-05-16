@@ -27,7 +27,7 @@ public class TankView extends Pane {
     /**
      * The tank logic
      */
-    private Tank tank;
+    private final Tank tank;
 
     /**
      * Sizes to barrel fit tank
@@ -105,10 +105,10 @@ public class TankView extends Pane {
      * Calculates sizes for tank image can fit the environment
      */
     private void calculateOffset() {
-        double alpha = Math.toDegrees(Math.atan(currentTankView.getFitHeight() / currentTankView.getFitWidth()));
-        double betta = currentTankView == tankViewStay ? 0 : tank.getTankAngle();
-        double gamma = alpha - betta;
-        double diagonal = Math.sqrt(Math.pow(currentTankView.getFitHeight()/ 2, 2) + Math.pow(currentTankView.getFitWidth() / 2, 2));
+        var alpha = Math.toDegrees(Math.atan(currentTankView.getFitHeight() / currentTankView.getFitWidth()));
+        var betta = currentTankView == tankViewStay ? 0 : tank.getTankAngle();
+        var gamma = alpha - betta;
+        var diagonal = Math.sqrt(Math.pow(currentTankView.getFitHeight()/ 2, 2) + Math.pow(currentTankView.getFitWidth() / 2, 2));
         offsetX = Math.cos(Math.toRadians(gamma)) * diagonal;
         offsetY = Math.sin(Math.toRadians(gamma)) * diagonal;
     }

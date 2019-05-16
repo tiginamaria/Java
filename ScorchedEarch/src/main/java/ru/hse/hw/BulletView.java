@@ -14,7 +14,7 @@ public class BulletView extends Circle {
     /**
      * The bullet logic
      */
-    private Bullet bullet;
+    private final Bullet bullet;
 
     /**
      * Create bullet view with given start position, angle and size
@@ -24,7 +24,8 @@ public class BulletView extends Circle {
      */
     public BulletView(Point2D position, int size, double angle) {
         super(size);
-        setPosition(position);
+        setCenterX(position.getX());
+        setCenterY(position.getY());
         bullet = new Bullet(position.getX(), position.getY(), size, angle);
         setFill(Color.BLACK);
     }
@@ -36,11 +37,6 @@ public class BulletView extends Circle {
         bullet.move();
         setCenterX(bullet.getX());
         setCenterY(bullet.getY());
-    }
-
-    public void setPosition(Point2D position) {
-        setCenterX(position.getX());
-        setCenterY(position.getY());
     }
 
     public Point2D getPosition() {

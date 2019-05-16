@@ -48,7 +48,7 @@ public class Bullet {
         this.y = y;
         this.size = size;
         this.angle = Math.toRadians(90 - angle);
-        this.speed = 60 / size;
+        this.speed = 60.0 / size;
     }
 
     public double getX() {

@@ -15,12 +15,12 @@ import java.io.FileNotFoundException;
 public class TargetView extends Pane {
 
     private final ImageView targetView = new ImageView(new Image(new FileInputStream("src/main/resources/images/target.png")));
-    private Circle targetHeart;
+    private final Circle targetHeart;
 
     /**
      * The target logic
      */
-    private Target target;
+    private final Target target;
 
     /**
      * Create target in given position
