@@ -1,5 +1,7 @@
 package ru.hse.hw;
 
+import java.util.Random;
+
 public class Mountain {
     private double x1, y1;
     private double y2, x2;
@@ -21,6 +23,16 @@ public class Mountain {
 
     public boolean contains(double x, double y) {
         return isOnMountain(x) && mountainFunction(x) < y;
+    }
+
+    public double getRandomOverMountainX(Random random) {
+        return x1 + random.nextInt((int)(x2 - x1 - 1));
+    }
+
+    public double getRandomOverMountainY(Random random, double x, int max) {
+        int y = random.nextInt((int)(max - mountainFunction(x)));
+        System.out.println("random y x=" + x + " max=" + max + " y=" + y +" f=" + mountainFunction(x));
+        return Math.max(50, mountainFunction(x) - y);
     }
 
     public double getAngle() {

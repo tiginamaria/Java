@@ -5,7 +5,6 @@ import javafx.geometry.Side;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
-import javafx.scene.shape.Circle;
 import javafx.scene.transform.Rotate;
 
 import java.io.FileInputStream;

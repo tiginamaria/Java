@@ -6,15 +6,17 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
-import javafx.scene.shape.Line;
+import javafx.scene.shape.Circle;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -22,16 +24,19 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static javafx.geometry.Side.*;
 
 public class ScorchedEarch extends Application {
 
     private Image explosionImage = new Image(new FileInputStream("src/main/resources/images/boom.png"));
+    private ImageView backgroundView = new ImageView(new Image(new FileInputStream("src/main/resources/images/mountains.jpg")));
     private ImageView explosionView = new ImageView();
 
-    private static final double sceneWidth = 700;
-    private static final double sceneHeight = 600;
+    private static final int sceneWidth = 700;
+    private static final int sceneHeight = 600;
+    private int score;
 
     private static Pane gameRoot = new Pane();
 
@@ -47,19 +52,31 @@ public class ScorchedEarch extends Application {
     public ScorchedEarch() throws FileNotFoundException {
     }
 
+
+    private void getRandomTarget() {
+        double x, y;
+        Random random = new Random(System.currentTimeMillis());
+        int n = random.nextInt(mountains.size());
+        Mountain targetMountain = mountains.get(n);
+        x = targetMountain.getRandomOverMountainX(random);
+        y = targetMountain.getRandomOverMountainY(random, x, sceneHeight);
+        System.out.println("target " + n + " " + x + " " + y);
+        try {
+            targetView = new TargetView(x, y, 10);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        gameRoot.getChildren().addAll(targetView);
+    }
+
     private void initContent() throws FileNotFoundException {
         tankView = new TankView(0, 400);
         currentBulletSize = 5;
         createBackGround();
-        createTarget(10);
+        getRandomTarget();
         explosionView.setFitHeight(100);
         explosionView.setFitWidth(100);
         gameRoot.getChildren().addAll(tankView, explosionView);
-    }
-
-    private void createTarget(double size) {
-        targetView = new TargetView(20, 20, size);
-        gameRoot.getChildren().addAll(targetView);
     }
 
     private void update(KeyCode keyCode) {
@@ -87,13 +104,19 @@ public class ScorchedEarch extends Application {
                 var BulletBehavior = new BulletBehavior();
                 Thread fire = new Thread(BulletBehavior);
                 fire.start();
-                endGame();
                 break;
         }
     }
 
     private void endGame() {
+
+    }
+
+    private void checkResult() {
         if (targetView.isDone()) {
+            score++;
+            gameRoot.getChildren().remove(targetView);
+            getRandomTarget();
         }
     }
 
@@ -103,17 +126,20 @@ public class ScorchedEarch extends Application {
 
         @Override
         protected Object call() throws Exception {
-            bulletView = new BulletView(tankView.getBarrelPosition(), tankView.getBarrelAngle(), currentBulletSize, 60 / currentBulletSize);
+            bulletView = new BulletView(tankView.getBarrelPosition(), tankView.getBarrelAngle(), currentBulletSize, 50 / currentBulletSize);
             Platform.runLater(() -> gameRoot.getChildren().add(bulletView));
             while(bulletView.onScene(sceneWidth, sceneHeight) && !bulletView.hit(mountains) && !targetView.isDone()) {
-                if (targetView.contains(bulletView.getPosition())) {
+                if (targetView.containsBullet(bulletView)) {
                     targetView.markDone();
                 }
                 Thread.sleep(30);
                 bulletView.makeBulletMove();
             }
             explosion(bulletView.getPosition());
-            Platform.runLater(() -> gameRoot.getChildren().remove(bulletView));
+            Platform.runLater(() -> {
+                checkResult();
+                gameRoot.getChildren().remove(bulletView);
+            } );
             return null;
         }
 
@@ -125,44 +151,101 @@ public class ScorchedEarch extends Application {
     }
 
     private void createBackGround() {
+        gameRoot.getChildren().add(backgroundView);
+        backgroundView.setFitWidth(sceneWidth);
+        backgroundView.setFitHeight(sceneHeight);
         mountains.add(new Mountain(0, 400, 75, 300));
-        gameRoot.getChildren().addAll(new Line(0, 400, 75, 300));
         mountains.add(new Mountain(75, 300, 150, 350));
-        gameRoot.getChildren().addAll(new Line(75, 300, 150, 350));
         mountains.add(new Mountain(150, 350, 200, 250));
-        gameRoot.getChildren().addAll(new Line(150, 350, 200, 250));
         mountains.add(new Mountain(200, 250, 300, 375));
-        gameRoot.getChildren().addAll(new Line(200, 250, 300, 375));
         mountains.add(new Mountain(300, 375, 400, 200));
-        gameRoot.getChildren().addAll(new Line(300, 375, 400, 200));
         mountains.add(new Mountain(400, 200, 450, 275));
-        gameRoot.getChildren().addAll(new Line(400, 200, 450, 275));
         mountains.add(new Mountain(450, 275, 500, 175));
-        gameRoot.getChildren().addAll(new Line(450, 275, 500, 175));
         mountains.add(new Mountain(500, 175, 600, 300));
-        gameRoot.getChildren().addAll(new Line(500, 175, 600, 300));
         mountains.add(new Mountain(600, 300, 700, 200));
-        gameRoot.getChildren().addAll(new Line(600, 300, 700, 200));
+
+        setTimer();
+
+        setChooseBullet();
     }
+
+
+    private void setTimer() {
+        timer = new Timer();
+        Label statusLabel = new Label();
+        ProgressIndicator progressBar = new ProgressIndicator(0);
+        progressBar.progressProperty().unbind();
+        progressBar.progressProperty().bind(timer.progressProperty());
+        statusLabel.textProperty().unbind();
+        statusLabel.textProperty().bind(timer.messageProperty());
+        progressBar.setMinSize(70, 70);
+        progressBar.setLayoutX(sceneWidth - 67);
+        progressBar.setLayoutY(sceneHeight - 60);
+        statusLabel.setFont(Font.font("Cambria", 15));
+        statusLabel.setLayoutX(sceneWidth - 160);
+        statusLabel.setLayoutY(sceneHeight - 35);
+        timer.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED,
+                t -> {
+                    statusLabel.textProperty().unbind();
+                    statusLabel.setText("time is over");
+                    timer.isDone();
+                    endGame();
+                });
+        new Thread(timer).start();
+        gameRoot.getChildren().addAll(progressBar, statusLabel);
+    }
+
+    private void setChooseBullet() {
+        Label bulletLabel = new Label();
+        bulletLabel.setFont(Font.font("Cambria", 15));
+        bulletLabel.setText("Choose bullet size:");
+        bulletLabel.setLayoutX(20);
+        bulletLabel.setLayoutY(sceneHeight - 60);
+        HBox bulletButtons = new HBox(3);
+        bulletButtons.setFocusTraversable(false);
+        bulletButtons.setTranslateX(20);
+        bulletButtons.setTranslateY(sceneHeight - 35);
+        Circle bulletExample = new Circle(currentBulletSize);
+        bulletExample.setCenterX(130);
+        bulletExample.setCenterY(sceneHeight - 20);
+        for (int i = 0; i < 3; i++) {
+            var bulletButton = new Button(String.valueOf(i + 1));
+            var size = i;
+            bulletButton.setOnMouseClicked(event -> {
+                currentBulletSize = (size + 1) * 3;
+                bulletExample.setRadius(currentBulletSize);
+            });
+            bulletButtons.getChildren().add(bulletButton);
+            bulletButton.setFocusTraversable(false);
+        }
+        gameRoot.getChildren().addAll(bulletButtons, bulletLabel, bulletExample);
+    }
+
+    public class Timer extends Task<Double> {
+        @Override
+        protected Double call() throws InterruptedException {
+            double startTime = System.currentTimeMillis();
+            double totalTime = 1000 * 60 * 2;
+            double timeLeft = totalTime;
+            while(timeLeft > 0) {
+                this.updateProgress(System.currentTimeMillis() - startTime, totalTime);
+                int min = (int)(timeLeft / (1000 * 60));
+                int sec = (int)(timeLeft / 1000 - min * 60);
+                this.updateMessage(min + " m " + sec + "s left");
+                timeLeft = totalTime - (System.currentTimeMillis() - startTime);
+                Thread.sleep(500);
+            }
+            return Math.max(0, timeLeft);
+        }
+    }
+
+    private Timer timer;
 
     @Override
     public void start(Stage primaryStage) throws FileNotFoundException {
         initContent();
         Scene scene = new Scene(gameRoot, sceneWidth, sceneHeight);
         scene.setOnKeyPressed(event -> update(event.getCode()));
-
-        VBox bulletButtons = new VBox(3);
-        bulletButtons.setFocusTraversable(false);
-        bulletButtons.setTranslateX(sceneWidth - 30);
-        bulletButtons.setTranslateY(sceneHeight - 180);
-        for (int i = 0; i < 3; i++) {
-            var bulletButton = new Button(String.valueOf(i + 1));
-            var size = i;
-            bulletButton.setOnMouseClicked(event -> currentBulletSize = (size + 1) * 4);
-            bulletButtons.getChildren().add(bulletButton);
-            bulletButton.setFocusTraversable(false);
-        }
-        gameRoot.getChildren().addAll(bulletButtons);
         primaryStage.setTitle("ScorchedEarth");
         primaryStage.setScene(scene);
         primaryStage.show();
