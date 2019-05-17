@@ -129,7 +129,7 @@ public class ScorchedEarch extends Application {
     }
 
     /**
-     * Evaluate pressed keys to action according to game rules
+     * Translate pressed keys to action according to game rules
      * @param keyCode pressed key on keyboard
      */
     private void update(KeyCode keyCode) {
@@ -165,7 +165,7 @@ public class ScorchedEarch extends Application {
     }
 
     /**
-     * Show the game result
+     * Stop game and show the game result
      */
     private void endGame() {
         gameOver = true;
@@ -178,6 +178,9 @@ public class ScorchedEarch extends Application {
         gameRoot.getChildren().add(endGameLabel);
     }
 
+    /**
+     * Check if the target is done and set new one
+     */
     private void checkResult() {
         if (targetView.isDone()) {
             score++;
@@ -186,13 +189,30 @@ public class ScorchedEarch extends Application {
         }
     }
 
+    /**
+     * Implements bullet fly
+     */
     private class BulletBehavior extends Task {
 
+        /**
+         * Bullet to make fire
+         */
         private BulletView bulletView;
 
-        @Override
-        protected Object call() throws Exception {
+        /**
+         * Create new bullet in tank barrel end position
+         */
+        public BulletBehavior() {
             bulletView = new BulletView(tankView.getBarrelPosition(), currentBulletSize, tankView.getBarrelAngle());
+        }
+
+        /**
+         * While bullet is on the screen, don't hit mountains or target, move bullet. After remove bullet and check the result
+         * @return always null
+         * @throws InterruptedException when fly process was interrupted
+         */
+        @Override
+        protected Object call() throws InterruptedException {
             Platform.runLater(() -> gameRoot.getChildren().add(bulletView));
             while(bulletView.onScene(sceneWidth, sceneHeight) && !bulletView.hitMountains(mountains) && !bulletView.hitTarget(targetView)) {
                 Thread.sleep(30);
@@ -202,17 +222,24 @@ public class ScorchedEarch extends Application {
             Platform.runLater(() -> {
                 checkResult();
                 gameRoot.getChildren().remove(bulletView);
-            } );
+            });
             return null;
         }
 
+        /**
+         * Show the bullet explosion after hit
+         * @param position position of bullet when it hit something
+         */
         private void explosion(Point2D position) {
-            explosionView.setTranslateX(position.getX() - explosionView.getFitWidth() / 2);
-            explosionView.setTranslateY(position.getY() - explosionView.getFitHeight() / 2);
-            boom.play();
+                explosionView.setTranslateX(position.getX() - explosionView.getFitWidth() / 2);
+                explosionView.setTranslateY(position.getY() - explosionView.getFitHeight() / 2);
+                boom.play();
         }
     }
 
+    /**
+     * Set the background picture, create mountain lines, make to set additional information
+     */
     private void createBackGround() {
         gameRoot.getChildren().add(backgroundView);
         backgroundView.setFitWidth(sceneWidth);
@@ -232,10 +259,11 @@ public class ScorchedEarch extends Application {
         setChooseBullet();
     }
 
-    private Timer timer;
-
+    /**
+     * Set one minute timer for the game
+     */
     private void setTimer() {
-        timer = new Timer();
+        Timer timer = new Timer();
         Label statusLabel = new Label();
         ProgressIndicator progressBar = new ProgressIndicator(0);
         progressBar.progressProperty().unbind();
@@ -259,6 +287,36 @@ public class ScorchedEarch extends Application {
         gameRoot.getChildren().addAll(progressBar, statusLabel);
     }
 
+    /**
+     * Values to translate time
+     */
+    private static final int SECONDS = 60;
+    private static final int MILLIS = 1000;
+
+    /**
+     * Count how much time left since the game have started
+     */
+    public class Timer extends Task<Double> {
+        @Override
+        protected Double call() throws InterruptedException {
+            double startTime = System.currentTimeMillis();
+            double totalTime = 2 * SECONDS * MILLIS;
+            double timeLeft = totalTime;
+            while(timeLeft > 0) {
+                this.updateProgress(System.currentTimeMillis() - startTime, totalTime);
+                int min = (int)(timeLeft / SECONDS / MILLIS);
+                int sec = (int)(timeLeft / MILLIS - min * SECONDS);
+                this.updateMessage(min + " m " + sec + "s left");
+                timeLeft = totalTime - (System.currentTimeMillis() - startTime);
+                Thread.sleep(500);
+            }
+            return Math.max(0, timeLeft);
+        }
+    }
+
+    /**
+     * Set three buttons to choose bullet size
+     */
     private void setChooseBullet() {
         Label bulletLabel = new Label("Choose bullet size:");
         bulletLabel.setFont(Font.font("Cambria", 15));
@@ -284,27 +342,11 @@ public class ScorchedEarch extends Application {
         gameRoot.getChildren().addAll(bulletButtons, bulletLabel, bulletExample);
     }
 
-    private static final int SECONDS = 60;
-    private static final int MILLIS = 1000;
 
-    public class Timer extends Task<Double> {
-        @Override
-        protected Double call() throws InterruptedException {
-            double startTime = System.currentTimeMillis();
-            double totalTime = 0.2 * SECONDS * MILLIS;
-            double timeLeft = totalTime;
-            while(timeLeft > 0) {
-                this.updateProgress(System.currentTimeMillis() - startTime, totalTime);
-                int min = (int)(timeLeft / SECONDS / MILLIS);
-                int sec = (int)(timeLeft / MILLIS - min * SECONDS);
-                this.updateMessage(min + " m " + sec + "s left");
-                timeLeft = totalTime - (System.currentTimeMillis() - startTime);
-                Thread.sleep(500);
-            }
-            return Math.max(0, timeLeft);
-        }
-    }
-
+    /**
+     * Start the game
+     * @param primaryStage stage of the game
+     */
     @Override
     public void start(Stage primaryStage) {
         initContent();

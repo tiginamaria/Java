@@ -63,9 +63,9 @@ public class Bullet {
      * Calculates new bullet position after move according to lows of physics(parabola trajectory)
      */
     public void move() {
+        time += 0.2;
         x += time * speed * Math.cos(angle);
         y += -time * speed * Math.sin(angle) + G * time * time / 2;
-        time += 0.2;
     }
 
     /**

@@ -29,7 +29,7 @@ public class Tank {
     /**
      * Barrel angle in degree [-90, 90]
      */
-    private double barrelAngle;
+    private double barrelAngle = 0;
 
     /**
      * Tank angle in radians
