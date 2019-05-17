@@ -30,7 +30,7 @@ public class Target {
     /**
      * Target position
      */
-    private double x, y;
+    private final double x, y;
 
     /**
      * Lives of target decrease when bullet reach it
@@ -51,7 +51,7 @@ public class Target {
     /**
      * Mark bullet done - bullets killed it
      */
-    public void markDone() {
+    private void markDone() {
         done = true;
     }
 

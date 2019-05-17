@@ -38,15 +38,10 @@ import static javafx.geometry.Side.*;
  */
 public class ScorchedEarch extends Application {
 
-    private Image explosionImage = new Image(new FileInputStream("src/main/resources/images/boom.png"));
-    private ImageView backgroundView = new ImageView(new Image(new FileInputStream("src/main/resources/images/mountains.jpg")));
-    private ImageView explosionView = new ImageView();
+    private final Image explosionImage = new Image(new FileInputStream("src/main/resources/images/boom.png"));
+    private final ImageView backgroundView = new ImageView(new Image(new FileInputStream("src/main/resources/images/mountains.jpg")));
+    private final ImageView explosionView = new ImageView();
 
-
-    /**
-     * Scene of the game mode
-     */
-    private Scene scene;
 
     /**
      * Sizes of scene
@@ -62,12 +57,12 @@ public class ScorchedEarch extends Application {
     /**
      * Game panel
      */
-    private static Pane gameRoot = new Pane();
+    private final static Pane gameRoot = new Pane();
 
     /**
      * List of mountains
      */
-    private List<Mountain> mountains = new ArrayList<>();
+    private final List<Mountain> mountains = new ArrayList<>();
 
     /**
      * View of target
@@ -77,7 +72,7 @@ public class ScorchedEarch extends Application {
     /**
      * View of tank
      */
-    private TankView tankView = new TankView(0, 400);
+    private final TankView tankView = new TankView(0, 400);
 
     /**
      * Current bullet size
@@ -103,12 +98,11 @@ public class ScorchedEarch extends Application {
      * Set target on a random position under the mountains
      */
     private void getRandomTarget() {
-        double x, y;
-        Random random = new Random(System.currentTimeMillis());
+        var random = new Random(System.currentTimeMillis());
         int n = random.nextInt(mountains.size());
-        Mountain targetMountain = mountains.get(n);
-        x = targetMountain.getRandomOverMountainX(random);
-        y = targetMountain.getRandomOverMountainY(random, x, sceneHeight);
+        var targetMountain = mountains.get(n);
+        var x = targetMountain.getRandomOverMountainX(random);
+        var y = targetMountain.getRandomOverMountainY(random, x, sceneHeight);
         try {
             targetView = new TargetView(x, y);
         } catch (FileNotFoundException e) {
@@ -169,7 +163,7 @@ public class ScorchedEarch extends Application {
      */
     private void endGame() {
         gameOver = true;
-        var textLabel = "END GAME\nYour socre is " + score;
+        var textLabel = "END GAME\nYour score is " + score;
         var endGameLabel = new Label(textLabel);
         endGameLabel.setFont(Font.font("Cambria", 30));
         endGameLabel.setLayoutX(sceneWidth / 3.0);
@@ -197,7 +191,7 @@ public class ScorchedEarch extends Application {
         /**
          * Bullet to make fire
          */
-        private BulletView bulletView;
+        private final BulletView bulletView;
 
         /**
          * Create new bullet in tank barrel end position
@@ -214,7 +208,7 @@ public class ScorchedEarch extends Application {
         @Override
         protected Object call() throws InterruptedException {
             Platform.runLater(() -> gameRoot.getChildren().add(bulletView));
-            while(bulletView.onScene(sceneWidth, sceneHeight) && !bulletView.hitMountains(mountains) && !bulletView.hitTarget(targetView)) {
+            while (bulletView.onScene(sceneWidth, sceneHeight) && !bulletView.hitMountains(mountains) && !bulletView.hitTarget(targetView)) {
                 Thread.sleep(30);
                 bulletView.makeBulletMove();
             }
@@ -263,9 +257,9 @@ public class ScorchedEarch extends Application {
      * Set one minute timer for the game
      */
     private void setTimer() {
-        Timer timer = new Timer();
-        Label statusLabel = new Label();
-        ProgressIndicator progressBar = new ProgressIndicator(0);
+        var timer = new Timer();
+        var statusLabel = new Label();
+        var progressBar = new ProgressIndicator(0);
         progressBar.progressProperty().unbind();
         progressBar.progressProperty().bind(timer.progressProperty());
         statusLabel.textProperty().unbind();
@@ -296,13 +290,13 @@ public class ScorchedEarch extends Application {
     /**
      * Count how much time left since the game have started
      */
-    public class Timer extends Task<Double> {
+    private class Timer extends Task<Double> {
         @Override
         protected Double call() throws InterruptedException {
-            double startTime = System.currentTimeMillis();
-            double totalTime = 2 * SECONDS * MILLIS;
-            double timeLeft = totalTime;
-            while(timeLeft > 0) {
+            var startTime = System.currentTimeMillis();
+            var totalTime = 2.0 * SECONDS * MILLIS;
+            var timeLeft = totalTime;
+            while (timeLeft > 0) {
                 this.updateProgress(System.currentTimeMillis() - startTime, totalTime);
                 int min = (int)(timeLeft / SECONDS / MILLIS);
                 int sec = (int)(timeLeft / MILLIS - min * SECONDS);
@@ -318,15 +312,15 @@ public class ScorchedEarch extends Application {
      * Set three buttons to choose bullet size
      */
     private void setChooseBullet() {
-        Label bulletLabel = new Label("Choose bullet size:");
+        var bulletLabel = new Label("Choose bullet size:");
         bulletLabel.setFont(Font.font("Cambria", 15));
         bulletLabel.setLayoutX(20);
         bulletLabel.setLayoutY(sceneHeight - 60);
-        HBox bulletButtons = new HBox(3);
+        var bulletButtons = new HBox(3);
         bulletButtons.setFocusTraversable(false);
         bulletButtons.setTranslateX(20);
         bulletButtons.setTranslateY(sceneHeight - 35);
-        Circle bulletExample = new Circle(currentBulletSize);
+        var bulletExample = new Circle(currentBulletSize);
         bulletExample.setCenterX(130);
         bulletExample.setCenterY(sceneHeight - 20);
         for (int i = 0; i < 3; i++) {
@@ -350,7 +344,7 @@ public class ScorchedEarch extends Application {
     @Override
     public void start(Stage primaryStage) {
         initContent();
-        scene = new Scene(gameRoot, sceneWidth, sceneHeight);
+        var scene = new Scene(gameRoot, sceneWidth, sceneHeight);
         scene.setOnKeyPressed(event -> update(event.getCode()));
         primaryStage.setTitle("ScorchedEarth");
         primaryStage.setScene(scene);

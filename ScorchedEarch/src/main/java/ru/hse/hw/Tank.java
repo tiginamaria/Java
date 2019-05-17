@@ -4,7 +4,6 @@ import javafx.geometry.Side;
 import java.util.List;
 
 import static javafx.geometry.Side.*;
-import static javafx.geometry.Side.RIGHT;
 
 /**
  * Main object of the game. It can move to left and right along the mountains and move it's barrel
@@ -49,15 +48,12 @@ public class Tank {
     /**
      * Calculates new angle for barrel after move on given angle( if new angle is out of [-90, 90] leave old angle)
      * @param side side to move barrel
-     * @return 0 if angle has not changed, else BARREL_ROTATE_ANGLE with sign(- if left rotate, + if right)
      */
-    public double moveBarrel(Side side) {
+    public void moveBarrel(Side side) {
         if ((side == BOTTOM && barrelAngle > -90.0) || (side == TOP && barrelAngle < 90.0)) {
             var angle = (side == TOP) ? BARREL_ROTATE_ANGLE : -BARREL_ROTATE_ANGLE;
             barrelAngle += angle;
-            return angle;
         }
-        return 0;
     }
 
     public double getX() {
