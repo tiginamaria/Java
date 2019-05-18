@@ -24,6 +24,6 @@ public interface LightFuture<T> {
      * @param <R> type of the new task's result
      * @return new task
      */
-    <R> LightFuture<R> thenApply(Function<T, R> function);
+    <R> LightFuture<R> thenApply(Function<T, R> function) throws LightExecutionException;
 
 }

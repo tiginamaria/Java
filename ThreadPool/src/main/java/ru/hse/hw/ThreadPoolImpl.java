@@ -22,7 +22,12 @@ public class ThreadPoolImpl {
     /**
      * Pool of available threads
      */
-    private Thread[] threadPool;
+    private final Thread[] threadPool;
+
+    /**
+     * Flag which is true when thread pool was shut down
+     */
+    private final AtomicBoolean shutDown = new AtomicBoolean(false);
 
     /**
      * Count current active working threads
@@ -72,21 +77,28 @@ public class ThreadPoolImpl {
      * @param <T> type task's returned value
      * @return LightFuture - box, where result of task is stored
      */
-    public <T> LightFuture<T> execute(@NotNull Supplier<T> supplier) {
-        Task<T> task = new Task<>(supplier);
-        synchronized (taskQueue) {
-            taskQueue.add(task);
-            taskQueue.notify();
+    public <T> LightFuture<T> execute(@NotNull Supplier<T> supplier) throws LightExecutionException {
+        synchronized (shutDown) {
+            if (!shutDown.get()) {
+                Task<T> task = new Task<>(supplier);
+                synchronized (taskQueue) {
+                    taskQueue.add(task);
+                    taskQueue.notify();
+                }
+                return task;
+            }
+            throw new LightExecutionException(new IllegalStateException("Thread was shut down. Could not complete execution."));
         }
-        return task;
     }
 
     /**
      * Interrupt all threads in pool
      */
-    public void shutdown() {
+    public void shutdown() throws InterruptedException {
+        shutDown.set(true);
         for (var thread : threadPool) {
             thread.interrupt();
+            thread.join();
         }
     }
 
@@ -208,7 +220,7 @@ public class ThreadPoolImpl {
          * @return new task
          */
         @Override
-        public <R> LightFuture<R> thenApply(Function<T, R> function) {
+        public <R> LightFuture<R> thenApply(Function<T, R> function) throws LightExecutionException {
             Supplier<R> newSupplier = () -> {
                 try {
                     return function.apply(get());
@@ -221,10 +233,7 @@ public class ThreadPoolImpl {
 
             synchronized (isReady) {
                 if (isReady.get()) {
-                    synchronized (taskQueue) {
-                        taskQueue.add(task);
-                        taskQueue.notifyAll();
-                    }
+                    return execute(newSupplier);
                 } else {
                     synchronized (thenApplyTasks) {
                         thenApplyTasks.add(task);

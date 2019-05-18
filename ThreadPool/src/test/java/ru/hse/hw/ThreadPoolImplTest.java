@@ -129,7 +129,7 @@ class ThreadPoolImplTest {
     }
 
     @Test
-    void lightFutureExceptionThreadPoolTest() {
+    void lightFutureExceptionThreadPoolTest() throws LightExecutionException, InterruptedException {
         Supplier<Integer> supplier = () -> null;
         LightFuture<Integer> result = threadPool.execute(supplier);
         Function<Integer, Integer> function = (x) -> 2 * x;
