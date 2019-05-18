@@ -1,9 +1,9 @@
 language: java
 os:
-- linux
+-  linux
 jdk: 
-- oraclejdk11
+-  oraclejdk11
 env:
-- PROJECT_DIR=ScorchedEarch
+-  PROJECT_DIR=ScorchedEarch
 script:
--cd $PROJECT_DIR && ./gradlew test
+-  cd $PROJECT_DIR && ./gradlew test
