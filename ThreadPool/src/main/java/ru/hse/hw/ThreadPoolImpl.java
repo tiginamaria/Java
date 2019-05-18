@@ -56,7 +56,7 @@ public class ThreadPoolImpl {
         public void run() {
             Task<?> task;
             while (!Thread.interrupted()) {
-                synchronized(taskQueue) {
+                synchronized (taskQueue) {
                     while (taskQueue.isEmpty()) {
                         try {
                             taskQueue.wait();
@@ -200,7 +200,7 @@ public class ThreadPoolImpl {
          */
         @Override
         public T get() throws LightExecutionException, InterruptedException {
-            while(!isReady.get()) {
+            while (!isReady.get()) {
                 synchronized (this) {
                     if (!isReady.get()) {
                         wait();
@@ -215,12 +215,12 @@ public class ThreadPoolImpl {
 
         /**
          * Create a new task by applying given function to current task
-         * @param function function which can be applied to current task
          * @param <R> type of the new task's result
+         * @param function function which can be applied to current task
          * @return new task
          */
         @Override
-        public <R> LightFuture<R> thenApply(Function<T, R> function) throws LightExecutionException {
+        public <R> LightFuture<R> thenApply(Function<? super T, R> function) throws LightExecutionException {
             Supplier<R> newSupplier = () -> {
                 try {
                     return function.apply(get());

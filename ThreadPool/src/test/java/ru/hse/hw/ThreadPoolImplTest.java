@@ -16,6 +16,7 @@ class ThreadPoolImplTest {
     private static final int THREAD_COUNTER = 20;
     private static final int TASK_COUNTER = 1000;
     private ThreadPoolImpl threadPool;
+    private final Random random = new Random(System.currentTimeMillis());
 
     @BeforeEach
     private void threadPoolInit() {
@@ -23,10 +24,10 @@ class ThreadPoolImplTest {
     }
 
     private ArrayList<Integer> getRandomIntegerArray() {
-        int size = new Random().nextInt(1000);
-        ArrayList<Integer> array = new ArrayList<>(size);
+        var size = random.nextInt(1000);
+        var array = new ArrayList<Integer>(size);
         for (int i = 0; i < size; i++) {
-            array.add(new Random().nextInt());
+            array.add(random.nextInt());
         }
         return array;
     }
@@ -36,7 +37,7 @@ class ThreadPoolImplTest {
         int[] value = new int[1];
         value[0] = 1;
         Supplier<Integer> supplier = () -> value[0];
-        LightFuture<Integer> result = threadPool.execute(supplier);
+        var result = threadPool.execute(supplier);
         assertEquals(value[0], (int)result.get());
         value[0] = 2;
         assertNotEquals(value[0], result.get());
@@ -50,20 +51,20 @@ class ThreadPoolImplTest {
             Collections.sort(array);
             return array;
         };
-        LightFuture<ArrayList<Integer>> result = threadPool.execute(supplier);
+        var result = threadPool.execute(supplier);
         assertSame(result.get(), result.get());
         threadPool.shutdown();
     }
 
     @Test
     void sortArraysThreadPoolTest() throws LightExecutionException, InterruptedException {
-        int taskCounter = new Random().nextInt(TASK_COUNTER) + 1;
-        ArrayList<ArrayList<Integer>> toSortArrays = new ArrayList<>();
-        ArrayList<Supplier<ArrayList<Integer>>> tasks = new ArrayList<>();
-        ArrayList<LightFuture<ArrayList<Integer>>> results = new ArrayList<>();
+        int taskCounter = random.nextInt(TASK_COUNTER) + 1;
+        var toSortArrays = new ArrayList<ArrayList<Integer>>();
+        var tasks = new ArrayList<Supplier<ArrayList<Integer>>>();
+        var results = new ArrayList<LightFuture<ArrayList<Integer>>>();
 
         for (int i = 0; i < taskCounter; i++) {
-            ArrayList<Integer> array = getRandomIntegerArray();
+            var array = getRandomIntegerArray();
             toSortArrays.add(new ArrayList<>(array));
             Supplier<ArrayList<Integer>> supplier = () -> {
                 Collections.sort(array);
@@ -86,12 +87,12 @@ class ThreadPoolImplTest {
 
     @Test
     void thenApplyArraysThreadPoolTest() throws LightExecutionException, InterruptedException {
-        int taskCounter = new Random().nextInt(TASK_COUNTER) + 1;
-        ArrayList<ArrayList<Integer>> toSortArrays = new ArrayList<>();
-        ArrayList<Supplier<ArrayList<Integer>>> tasks = new ArrayList<>();
-        ArrayList<LightFuture<ArrayList<Integer>>> results = new ArrayList<>();
+        int taskCounter = random.nextInt(TASK_COUNTER) + 1;
+        var toSortArrays = new ArrayList<ArrayList<Integer>>();
+        var tasks = new ArrayList<Supplier<ArrayList<Integer>>>();
+        var results = new ArrayList<LightFuture<ArrayList<Integer>>>();
         for (int i = 0; i < taskCounter; i++) {
-            ArrayList<Integer> array = getRandomIntegerArray();
+            var array = getRandomIntegerArray();
             toSortArrays.add(new ArrayList<>(array));
             Supplier<ArrayList<Integer>> supplier = () -> {
                 Collections.sort(array);
@@ -101,7 +102,7 @@ class ThreadPoolImplTest {
         }
 
         for (int i = 0; i < taskCounter; i++) {
-            LightFuture<ArrayList<Integer>> result = threadPool.execute(tasks.get(i));
+            var result = threadPool.execute(tasks.get(i));
             results.add(result.thenApply((ArrayList<Integer> array) -> {
                 for (int j = 0; j < array.size(); j++) {
                     Integer value = array.get(j);
@@ -131,9 +132,9 @@ class ThreadPoolImplTest {
     @Test
     void lightFutureExceptionThreadPoolTest() throws LightExecutionException, InterruptedException {
         Supplier<Integer> supplier = () -> null;
-        LightFuture<Integer> result = threadPool.execute(supplier);
+        var result = threadPool.execute(supplier);
         Function<Integer, Integer> function = (x) -> 2 * x;
-        LightFuture<Integer> totalResult = result.thenApply(function);
+        var totalResult = result.thenApply(function);
         assertThrows(LightExecutionException.class, totalResult::get);
         threadPool.shutdown();
     }
