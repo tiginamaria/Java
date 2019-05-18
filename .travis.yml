@@ -9,7 +9,7 @@ env:
 - PROJECT_DIR=BinarySearchTree
 - PROJECT_DIR=QSort
 - PROJECT_DIR=Phonebook
-- GRADLE_PROJECT_DIR=ScorchedEarch
+- PROJECT_DIR=ScorchedEarch
 script: 
 -cd $PROJECT_DIR && mvn install 
--cd $GRADLE_PROJECT_DIR && ./gradlew test
+-cd $PROJECT_DIR && ./gradlew test
