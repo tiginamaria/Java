@@ -72,15 +72,25 @@ public class ThreadPoolImpl {
     }
 
     /**
-     * Execute all available threads in pool
-     * @param supplier task to execute
+     * Start execution of given supplier
+     * @param supplier for task to execute
      * @param <T> type task's returned value
      * @return LightFuture - box, where result of task is stored
      */
     public <T> LightFuture<T> execute(@NotNull Supplier<T> supplier) throws LightExecutionException {
+        Task<T> task = new Task<>(supplier);
+        return executeTask(task);
+    }
+
+    /**
+     * Put task in task queue to execute it
+     * @param task task to execute
+     * @param <T> type task's returned value
+     * @return LightFuture - box, where result of task is stored
+     */
+    private <T> LightFuture<T> executeTask(@NotNull Task<T> task) throws LightExecutionException {
         synchronized (shutDown) {
             if (!shutDown.get()) {
-                Task<T> task = new Task<>(supplier);
                 synchronized (taskQueue) {
                     taskQueue.add(task);
                     taskQueue.notify();
@@ -91,11 +101,14 @@ public class ThreadPoolImpl {
         }
     }
 
+
     /**
      * Interrupt all threads in pool
      */
     public void shutdown() throws InterruptedException {
-        shutDown.set(true);
+        synchronized (shutDown) {
+            shutDown.set(true);
+        }
         for (var thread : threadPool) {
             thread.interrupt();
             thread.join();
@@ -154,7 +167,12 @@ public class ThreadPoolImpl {
             }
 
             isReady.set(true);
-            executeThenApplyLightFuture();
+
+            try {
+                executeThenApplyLightFuture();
+            } catch (Exception e) {
+                setException(e);
+            }
             synchronized (this) {
                 this.notify();
             }
@@ -164,11 +182,10 @@ public class ThreadPoolImpl {
          * Functions, which use the result(thenApplyTasks) of current task are stored in queue inside the task, until the calculation of current function.
          * After calculation thenApplyTasks putted into global queue
          */
-        private void executeThenApplyLightFuture() {
+        private void executeThenApplyLightFuture() throws LightExecutionException {
             synchronized (thenApplyTasks) {
-                synchronized (taskQueue) {
-                    taskQueue.addAll(thenApplyTasks);
-                    taskQueue.notifyAll();
+                for (var task : thenApplyTasks) {
+                    executeTask(task);
                 }
             }
         }
@@ -220,7 +237,7 @@ public class ThreadPoolImpl {
          * @return new task
          */
         @Override
-        public <R> LightFuture<R> thenApply(Function<? super T, R> function) throws LightExecutionException {
+        public <R> LightFuture<R> thenApply(Function<? super T, ? extends R> function) throws LightExecutionException {
             Supplier<R> newSupplier = () -> {
                 try {
                     return function.apply(get());
@@ -233,7 +250,7 @@ public class ThreadPoolImpl {
 
             synchronized (isReady) {
                 if (isReady.get()) {
-                    return execute(newSupplier);
+                    return executeTask(task);
                 } else {
                     synchronized (thenApplyTasks) {
                         thenApplyTasks.add(task);
