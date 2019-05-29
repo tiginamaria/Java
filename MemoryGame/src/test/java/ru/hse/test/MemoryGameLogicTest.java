@@ -41,7 +41,7 @@ class MemoryGameLogicTest {
     }
 
     @Test
-    void getCardTest() {
+    void checkCardTest() {
         var cardsPairs = new LinkedHashMap<Integer, List<Pair<Integer, Integer>>>();
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
@@ -59,12 +59,10 @@ class MemoryGameLogicTest {
 
         var card1 = cardsPairs.get(0).get(0);
         var card2 = cardsPairs.get(0).get(1);
-        assertEquals(gameLogic.getCard(card1.getKey(), card1.getKey()), gameLogic.getCard(card2.getKey(), card2.getKey()));
+        assertTrue(gameLogic.checkCards(card1, card2));
 
         card1 = cardsPairs.get(0).get(0);
         card2 = cardsPairs.get(1).get(0);
-        assertNotEquals(gameLogic.getCard(card1.getKey(), card1.getKey()), gameLogic.getCard(card2.getKey(), card2.getKey()));
+        assertFalse(gameLogic.checkCards(card1, card2));
     }
-
-
 }
