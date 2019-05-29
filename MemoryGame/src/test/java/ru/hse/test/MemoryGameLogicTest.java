@@ -57,9 +57,15 @@ class MemoryGameLogicTest {
             }
         }
 
-        var card1 = cardsPairs.get(0).get(0);
-        var card2 = cardsPairs.get(0).get(1);
-        assertTrue(gameLogic.checkCards(card1, card2));
+        Pair<Integer, Integer> card1;
+        Pair<Integer, Integer> card2;
+
+        for (int i = 0; i < SIZE; i++) {
+            card1 = cardsPairs.get(i).get(0);
+            card2 = cardsPairs.get(i).get(1);
+            assertEquals(2, cardsPairs.get(i).size());
+            assertTrue(gameLogic.checkCards(card1, card2));
+        }
 
         card1 = cardsPairs.get(0).get(0);
         card2 = cardsPairs.get(1).get(0);
