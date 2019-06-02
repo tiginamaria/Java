@@ -12,13 +12,31 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Test {
 
+    /**
+     * Class for not expected exception
+     */
     class NoException extends Throwable { }
 
+    /**
+     * Default value for exception
+     */
     Class<? extends Throwable> EXPECTED = NoException.class;
+
+    /**
+     * Default value for ignore
+     */
     String IGNORE = "NO REASON";
 
+    /**
+     * Get expected exception from annotation
+     * @return exception
+     */
     Class<? extends Throwable> expected() default NoException.class;
 
+    /**
+     * Get ignore reason of the test
+     * @return reason to ignore
+     */
     String ignore() default IGNORE;
 }
 
