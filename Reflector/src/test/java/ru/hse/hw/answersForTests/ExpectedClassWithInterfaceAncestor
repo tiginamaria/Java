@@ -1,0 +1,4 @@
+public class ClassWithInterfaceAncestor<K, T> extends ru.hse.hw.testClasses.SimpleGenericClass<T> implements java.io.Serializable, java.lang.Runnable {
+	public ClassWithInterfaceAncestor() { }
+	public void run() { }
+}

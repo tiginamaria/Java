@@ -1,0 +1,4 @@
+public class SimpleGenericClass<T> {
+	public SimpleGenericClass() { }
+	public void printData() { }
+}
