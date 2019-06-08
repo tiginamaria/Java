@@ -30,13 +30,6 @@ public class ThreadPoolImpl {
     private final AtomicBoolean shutDown = new AtomicBoolean(false);
 
     /**
-     * Count current active working threads
-     */
-    public int countActiveThreads() {
-        return  Thread.activeCount();
-    }
-
-    /**
      * Constructor of thread pool
      * @param threadCounter number of available threads
      */
@@ -55,8 +48,11 @@ public class ThreadPoolImpl {
         @Override
         public void run() {
             Task<?> task;
-            while (!Thread.interrupted()) {
+            while (!shutDown.get()) {
                 synchronized (taskQueue) {
+                    if (shutDown.get()) {
+                        return;
+                    }
                     while (taskQueue.isEmpty()) {
                         try {
                             taskQueue.wait();
@@ -100,7 +96,6 @@ public class ThreadPoolImpl {
             throw new LightExecutionException(new IllegalStateException("Thread was shut down. Could not complete execution."));
         }
     }
-
 
     /**
      * Interrupt all threads in pool

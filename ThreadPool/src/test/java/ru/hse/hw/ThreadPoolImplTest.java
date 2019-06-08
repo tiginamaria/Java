@@ -141,6 +141,6 @@ class ThreadPoolImplTest {
 
     @Test
     void countActiveThreadsThreadPoolTest() {
-        assertTrue(THREAD_COUNTER <= threadPool.countActiveThreads());
+        assertTrue(THREAD_COUNTER <= Thread.activeCount());
     }
 }
