@@ -26,24 +26,24 @@ public class TankView extends Pane {
     private ImageView currentTankView = tankViewStay;
 
     /**
-     * The tank logic
+     * The tank logic.
      */
     private final Tank tank;
 
     /**
-     * Sizes to barrel fit tank
+     * Sizes to barrel fit tank.
      */
     private final static int offsetBarrelX = 7;
     private final static int offsetBarrelY = 40;
 
     /**
-     * Sizes to tank fit mountains
+     * Sizes to tank fit mountains.
      */
     private static double offsetX;
     private static double offsetY;
 
     /**
-     * Create tank in given position
+     * Create tank in given position.
      * @param x position on OX axes
      * @param y position on OY axes
      * @throws FileNotFoundException when no image of target is found
@@ -94,7 +94,7 @@ public class TankView extends Pane {
     }
 
     /**
-     * Set position and angle of barrel image
+     * Set position and angle of barrel image.
      */
     private void setBarrelOrientation() {
         barrelView.setX(tank.getX() - offsetBarrelX);
@@ -104,7 +104,7 @@ public class TankView extends Pane {
     }
 
     /**
-     * Calculates sizes for tank image can fit the environment
+     * Calculates sizes for tank image can fit the environment.
      */
     private void calculateOffset() {
         var alpha = Math.toDegrees(Math.atan(currentTankView.getFitHeight() / currentTankView.getFitWidth()));
@@ -116,7 +116,7 @@ public class TankView extends Pane {
     }
 
     /**
-     * Move tank image
+     * Move tank image.
      */
     private void updateTankView() {
         calculateOffset();
@@ -125,7 +125,7 @@ public class TankView extends Pane {
     }
 
     /**
-     * Get the end of the barrel image to set fire from it
+     * Get the end of the barrel image to set fire from it.
      * @return end point of the barrel
      */
     public Point2D getBarrelPosition() {
@@ -140,7 +140,7 @@ public class TankView extends Pane {
     }
 
     /**
-     * Move tank image along the mountains
+     * Move tank image along the mountains.
      * @param mountains piece of the environment
      * @param side side where tank is moving
      */
@@ -151,7 +151,7 @@ public class TankView extends Pane {
     }
 
     /**
-     * Move barrel image
+     * Move barrel image.
      * @param side side to move the barrel
      */
     public void makeBarrelMove(@NotNull Side side) {
@@ -165,7 +165,7 @@ public class TankView extends Pane {
     }
 
     /**
-     * Rotate tank image
+     * Rotate tank image.
      * @param angle angle to rotate
      */
     private void rotateTank(double angle) {

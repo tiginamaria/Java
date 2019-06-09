@@ -8,34 +8,34 @@ package ru.hse.hw;
 public class Target {
 
     /**
-     * Different radius for different bullet size
+     * Different radius for different bullet size.
      */
     public final static double SMALL_RADIUS = 10;
     public final static double MIDDLE_RADIUS = 18;
     public final static double BIG_RADIUS = 25;
 
     /**
-     * Flag which is true, when bullet decreased lives of target to 0
+     * Flag which is true, when bullet decreased lives of target to 0.
      */
     private boolean done = false;
 
     /**
-     * Target x position
+     * Target x position.
      */
     private final double x;
 
     /**
-     * Target y position
+     * Target y position.
      */
     private final double y;
 
     /**
-     * Lives of target decrease when bullet reach it
+     * Lives of target decrease when bullet reach it.
      */
     private int lives;
 
     /**
-     * Create target in given position
+     * Create target in given position.
      * @param x position on OX axes
      * @param y position on OY axes
      */
@@ -46,7 +46,7 @@ public class Target {
     }
 
     /**
-     * Mark bullet done - bullets killed it
+     * Mark bullet done - bullets killed it.
      */
     private void markDone() {
         done = true;
@@ -57,7 +57,7 @@ public class Target {
     }
 
     /**
-     * Get the matching radius for given bullet size
+     * Get the matching radius for given bullet size.
      * @param bulletSize bullet size
      * @return radius of bullet
      */
@@ -75,7 +75,7 @@ public class Target {
     }
 
     /**
-     * Decrease target lives when bullet of given size reach it
+     * Decrease target lives when bullet of given size reach it.
      * @param bulletId bullet size
      */
     public void decreaseLives(int bulletId) {
@@ -96,7 +96,7 @@ public class Target {
     }
 
     /**
-     * Check if target contains bullet with given parameters
+     * Check if target contains bullet with given parameters.
      * @param x bullet position on OX axes
      * @param y bullet position on OY axes
      * @param id bullet id

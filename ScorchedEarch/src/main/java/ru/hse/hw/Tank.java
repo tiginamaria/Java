@@ -8,37 +8,37 @@ import java.util.List;
 import static javafx.geometry.Side.*;
 
 /**
- * Main object of the game. It can move to left and right along the mountains and move it's barrel
+ * Main object of the game. It can move to left and right along the mountains and move it's barrel.
  */
 public class Tank {
 
     /**
-     * Step in pixels to ones move tank
+     * Step in pixels to ones move tank.
      */
     private final static double STEP = 0.8;
 
     /**
-     * Angle in degree to ones move barrel
+     * Angle in degree to ones move barrel.
      */
     private final static int BARREL_ROTATE_ANGLE = 1;
 
     /**
-     * Tank position
+     * Tank position.
      */
     private double x, y;
 
     /**
-     * Barrel angle in degree [-90, 90]
+     * Barrel angle in degree [-90, 90].
      */
     private double barrelAngle = 0;
 
     /**
-     * Tank angle in radians
+     * Tank angle in radians.
      */
     private double tankAngle;
 
     /**
-     * Create tank on given position
+     * Create tank on given position.
      * @param x position on OX axes
      * @param y position on OY axes
      */
@@ -48,7 +48,7 @@ public class Tank {
     }
 
     /**
-     * Calculates new angle for barrel after move on given angle( if new angle is out of [-90, 90] leave old angle)
+     * Calculates new angle for barrel after move on given angle( if new angle is out of [-90, 90] leave old angle).
      * @param side side to move barrel
      */
     public void moveBarrel(@NotNull Side side) {
@@ -75,7 +75,7 @@ public class Tank {
     }
 
     /**
-     * Calculates new tank position after move along the mountains(given list of "lines")
+     * Calculates new tank position after move along the mountains(given list of "lines").
      * @param mountains list of lines to move along
      * @param side side to move tank
      */

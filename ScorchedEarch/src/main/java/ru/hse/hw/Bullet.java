@@ -9,74 +9,74 @@ import java.util.List;
 public class Bullet {
 
     /**
-     * Gravity constant
+     * Gravity constant.
      */
     private static final double G = 9.8;
 
     /**
-     * Max bullet speed
+     * Max bullet speed.
      */
     private static final double SPEED = 300.0;
 
     /**
-     * Bullet start x position
+     * Bullet start x position.
      */
     private final double x0;
 
     /**
-     * Bullet start y position
+     * Bullet start y position.
      */
     private final double y0;
 
     /**
-     * Bullet current x position
+     * Bullet current x position.
      */
     private double x;
 
     /**
-     * Bullet current y position
+     * Bullet current y position.
      */
     private double y;
 
     /**
-     * Bullet size
+     * Bullet size.
      */
     private final double size;
 
     /**
-     * Bullet id
+     * Bullet id.
      */
     private final int id;
 
     /**
-     * Bullet speed
+     * Bullet speed.
      */
     private final double speed;
 
     /**
-     * Bullet angle
+     * Bullet angle.
      */
     private final double angle;
 
     /**
-     * Current time on fly
+     * Current time on fly.
      */
     private double time;
 
     /**
-     * Flag if bullet exploded or not
+     * Flag if bullet exploded or not.
      */
     private boolean isExploded = false;
 
     /**
-     * Different radius for different bullet size
+     * Different radius for different bullet size.
      */
     public final static double SMALL_RADIUS = 4;
     public final static double MIDDLE_RADIUS = 6;
     public final static double BIG_RADIUS = 8;
 
     /**
-     * Create bullet with given start position, angle and size
+     * Create bullet with given start position, angle and size.
      * @param x0 position on OX axes
      * @param y0 position on OY axes
      * @param id size of bullet
@@ -92,7 +92,7 @@ public class Bullet {
     }
 
     /**
-     * Get size of target for each bullet type
+     * Get size of target for each bullet type.
      * @param id bullet id
      * @return size of target
      */
@@ -120,7 +120,7 @@ public class Bullet {
     }
 
     /**
-     * Calculates new bullet position after move according to laws of physics(parabola trajectory)
+     * Calculates new bullet position after move according to laws of physics(parabola trajectory).
      */
     public void move() {
         time += 0.2;
@@ -129,7 +129,7 @@ public class Bullet {
     }
 
     /**
-     * Check if bullet hit the mountains(cross the mountain line)
+     * Check if bullet hit the mountains(cross the mountain line).
      * @param mountains mountain lines
      * @return true if hit, false otherwise
      */
@@ -144,7 +144,7 @@ public class Bullet {
     }
 
     /**
-     * Check if bullet hit the target and is yes, make lives of target decrease
+     * Check if bullet hit the target and is yes, make lives of target decrease.
      * @param target target to check
      * @return true if hit, false otherwise
      */

@@ -10,42 +10,42 @@ import java.util.Random;
 public class Mountain {
 
     /**
-     * Start x position of line section
+     * Start x position of line section.
      */
     private final double x1;
 
     /**
-     * Start y position of line section
+     * Start y position of line section.
      */
     private final double y1;
 
     /**
-     * End x position of line section
+     * End x position of line section.
      */
     private final double x2;
 
     /**
-     * End x position of line section
+     * End x position of line section.
      */
     private final double y2;
 
     /**
-     * Coefficient between x in equation ax+by+c=0
+     * Coefficient between x in equation ax+by+c=0.
      */
     private final double a;
 
     /**
-     * Coefficient between y in equation ax+by+c=0
+     * Coefficient between y in equation ax+by+c=0.
      */
     private final double b;
 
     /**
-     * Free coefficient in equation ax+by+c=0
+     * Free coefficient in equation ax+by+c=0.
      */
     private final double c;
 
     /**
-     * Create mountains from given start and end position
+     * Create mountains from given start and end position.
      * @param x1 start position on OX axes
      * @param y1 start position on OY axes
      * @param x2 end position on OX axes
@@ -62,7 +62,7 @@ public class Mountain {
     }
 
     /**
-     * From given x position on mountain line gets it's y position
+     * From given x position on mountain line gets it's y position.
      * @param x position on OX axes
      * @return position on OY axes
      */
@@ -71,7 +71,7 @@ public class Mountain {
     }
 
     /**
-     * Check if mountain line contains given x
+     * Check if mountain line contains given x.
      * @param x position on OX axes
      */
     public boolean isOnMountain(double x) {
@@ -79,7 +79,7 @@ public class Mountain {
     }
 
     /**
-     * Check if bullet is under the mountain line
+     * Check if bullet is under the mountain line.
      * @param x bullet position on OX axes
      * @param y bullet position on OY axes
      * @param r bullet radius
@@ -90,7 +90,7 @@ public class Mountain {
     }
 
     /**
-     * Check if bullet touch mountain
+     * Check if bullet touch mountain.
      * @param x bullet position on OX axes
      * @param y bullet position on OY axes
      * @param r bullet radius
@@ -102,7 +102,7 @@ public class Mountain {
     }
 
     /**
-     * Calculate random x coordinate on mountain line
+     * Calculate random x coordinate on mountain line.
      * @param random randomiser
      * @return required random x coordinate
      */
@@ -111,7 +111,7 @@ public class Mountain {
     }
 
     /**
-     * Calculate random y coordinate of point under the given x on mountain line
+     * Calculate random y coordinate of point under the given x on mountain line.
      * @param random randomiser
      * @param x given point on mountain line
      * @param max max returned answer
@@ -123,7 +123,7 @@ public class Mountain {
     }
 
     /**
-     * Get the angle of mountain line in radians
+     * Get the angle of mountain line in radians.
      * @return mountain angle
      */
     public double getAngle() {

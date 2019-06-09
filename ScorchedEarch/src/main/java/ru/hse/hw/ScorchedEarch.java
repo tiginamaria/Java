@@ -17,6 +17,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
+import javafx.scene.control.Label;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -46,57 +47,63 @@ public class ScorchedEarch extends Application {
 
 
     /**
-     * Sizes of scene
+     * Sizes of scene.
      */
     private static final int sceneWidth = 700;
     private static final int sceneHeight = 600;
 
     /**
-     * Current number of killed targets
+     * Current number of killed targets.
      */
     private int score;
 
     /**
-     * Game panel
+     * Game panel.
      */
     private final static Pane gameRoot = new Pane();
 
     /**
-     * List of mountains
+     * List of mountains.
      */
     private final List<Mountain> mountains = new ArrayList<>();
 
     /**
-     * View of target
+     * View of target.
      */
     private TargetView targetView;
 
     /**
-     * View of tank
+     * View of tank.
      */
     private final TankView tankView = new TankView(0, 400);
 
     /**
-     * Current bullet id (0 - SMALL_RADIUS, 1 - MIDDLE_RADIUS, 2 - BIG_RADIUS)
+     * Current bullet id (0 - SMALL_RADIUS, 1 - MIDDLE_RADIUS, 2 - BIG_RADIUS).
      */
     private int currentBulletId = 2;
 
     /**
-     * Flag to freeze the screen
+     * Flag to freeze the screen.
      */
     private boolean gameOver;
 
     /**
-     * Process of bullet explosion
+     * Process of bullet explosion.
      */
     private final Timeline boom = new Timeline(
             new KeyFrame(Duration.seconds(0), new KeyValue(explosionView.imageProperty(), explosionImage)),
             new KeyFrame(Duration.seconds(2), new KeyValue(explosionView.imageProperty(), null)));
 
-    public ScorchedEarch() throws FileNotFoundException { }
+    /**
+     * Constructor included only for not writing try catch for all images.
+     * @throws FileNotFoundException when can't load image to the game
+     */
+    public ScorchedEarch() throws FileNotFoundException {
+    }
+
 
     /**
-     * Set target on a random position under the mountains
+     * Set target on a random position under the mountains.
      */
     private void getRandomTarget() {
         var random = new Random(System.currentTimeMillis());
@@ -113,7 +120,7 @@ public class ScorchedEarch extends Application {
     }
 
     /**
-     * Create environment of the game
+     * Create environment of the game.
      */
     private void initContent() {
         createBackGround();
@@ -124,7 +131,7 @@ public class ScorchedEarch extends Application {
     }
 
     /**
-     * Translate pressed keys to action according to game rules
+     * Translate pressed keys to action according to game rules.
      * @param keyCode pressed key on keyboard
      */
     private void update(@NotNull KeyCode keyCode) {
@@ -160,7 +167,7 @@ public class ScorchedEarch extends Application {
     }
 
     /**
-     * Stop game and show the game result
+     * Stop game and show the game result.
      */
     private void endGame() {
         gameOver = true;
@@ -174,7 +181,7 @@ public class ScorchedEarch extends Application {
     }
 
     /**
-     * Check if the target is done and set new one
+     * Check if the target is done and set new one.
      */
     private void checkResult() {
         if (targetView.isDone()) {
@@ -185,24 +192,24 @@ public class ScorchedEarch extends Application {
     }
 
     /**
-     * Implements bullet fly
+     * Implements bullet fly.
      */
     private class BulletBehavior extends Task {
 
         /**
-         * Bullet to make fire
+         * Bullet to make fire.
          */
         private final BulletView bulletView;
 
         /**
-         * Create new bullet in tank barrel end position
+         * Create new bullet in tank barrel end position.
          */
         public BulletBehavior() {
             bulletView = new BulletView(tankView.getBarrelPosition(), currentBulletId, tankView.getBarrelAngle());
         }
 
         /**
-         * While bullet is on the screen, don't hit mountains or target, move bullet. After remove bullet and check the result
+         * While bullet is on the screen, don't hit mountains or target, move bullet. After remove bullet and check the result.
          * @return always null
          * @throws InterruptedException when fly process was interrupted
          */
@@ -222,7 +229,7 @@ public class ScorchedEarch extends Application {
         }
 
         /**
-         * Show the bullet explosion after hit
+         * Show the bullet explosion after hit.
          * @param position position of bullet when it hit something
          */
         private void explosion(@NotNull Point2D position) {
@@ -235,7 +242,7 @@ public class ScorchedEarch extends Application {
     }
 
     /**
-     * Set the background picture, create mountain lines, make to set additional information
+     * Set the background picture, create mountain lines, make to set additional information.
      */
     private void createBackGround() {
         gameRoot.getChildren().add(backgroundView);
@@ -257,7 +264,7 @@ public class ScorchedEarch extends Application {
     }
 
     /**
-     * Set one minute timer for the game
+     * Set one minute timer for the game.
      */
     private void setTimer() {
         var timer = new Timer();
@@ -285,13 +292,13 @@ public class ScorchedEarch extends Application {
     }
 
     /**
-     * Values to translate time
+     * Values to translate time.
      */
     private static final int SECONDS = 60;
     private static final int MILLIS = 1000;
 
     /**
-     * Count how much time left since the game have started
+     * Count how much time left since the game have started.
      */
     private class Timer extends Task<Double> {
         @Override
@@ -312,7 +319,7 @@ public class ScorchedEarch extends Application {
     }
 
     /**
-     * Set three buttons to choose bullet size
+     * Set three buttons to choose bullet size.
      */
     private void setChooseBullet() {
         var bulletLabel = new Label("Choose bullet size:");
@@ -341,7 +348,7 @@ public class ScorchedEarch extends Application {
 
 
     /**
-     * Start the game
+     * Start the game.
      * @param primaryStage stage of the game
      */
     @Override

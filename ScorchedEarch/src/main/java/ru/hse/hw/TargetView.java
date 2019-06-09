@@ -18,12 +18,12 @@ public class TargetView extends Pane {
     private final Circle targetHeart;
 
     /**
-     * The target logic
+     * The target logic.
      */
     private final Target target;
 
     /**
-     * Create target in given position
+     * Create target in given position.
      * @param x position on OX axes
      * @param y position on OY axes
      * @throws FileNotFoundException when no image of target is found
@@ -46,7 +46,7 @@ public class TargetView extends Pane {
     }
 
     /**
-     * Check if target is done
+     * Check if target is done.
      * @return state of target
      */
     public boolean isDone() {
