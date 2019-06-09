@@ -3,6 +3,7 @@ package ru.hse.hw;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -19,14 +20,14 @@ public class BulletView extends Circle {
     /**
      * Create bullet view with given start position, angle and size
      * @param position position of bullet
-     * @param size size of bullet
+     * @param id size of bullet
      * @param angle angle of fire
      */
-    public BulletView(Point2D position, int size, double angle) {
-        super(size);
+    public BulletView(@NotNull Point2D position, int id, double angle) {
+        super(Bullet.getSizeById(id));
         setCenterX(position.getX());
         setCenterY(position.getY());
-        bullet = new Bullet(position.getX(), position.getY(), size, angle);
+        bullet = new Bullet(position.getX(), position.getY(), id, angle);
         setFill(Color.BLACK);
     }
 
@@ -39,10 +40,20 @@ public class BulletView extends Circle {
         setCenterY(bullet.getY());
     }
 
+    /**
+     * Check if bullet is exploded or not
+     */
+    public boolean isExploded() {
+        return bullet.isExploded();
+    }
+
     public Point2D getPosition() {
         return new Point2D(bullet.getX(), bullet.getY());
     }
 
+    /**
+     * Check if bullet is on scene
+     */
     public boolean onScene(double width, double height) {
         return getCenterX() > 0 && getCenterX() < width && getCenterY() > 0 && getCenterY() < height;
     }
@@ -52,7 +63,7 @@ public class BulletView extends Circle {
      * @param mountains mountain lines
      * @return true if hit, false otherwise
      */
-    public boolean hitMountains(List<Mountain> mountains) {
+    public boolean hitMountains(@NotNull List<Mountain> mountains) {
         return bullet.hitMountains(mountains);
     }
 
@@ -61,7 +72,7 @@ public class BulletView extends Circle {
      * @param targetView target to check
      * @return true if hit, false otherwise
      */
-    public boolean hitTarget(TargetView targetView) {
+    public boolean hitTarget(@NotNull TargetView targetView) {
         return bullet.hitTarget(targetView.getTarget());
     }
 }

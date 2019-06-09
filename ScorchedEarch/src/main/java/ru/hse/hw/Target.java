@@ -8,14 +8,6 @@ package ru.hse.hw;
 public class Target {
 
     /**
-     * All different sizes of bullets
-     */
-    private final static int SMALL = 3;
-    private final static int MIDDLE = 6;
-    private final static int BIG = 9;
-
-
-    /**
      * Different radius for different bullet size
      */
     private final static double SMALL_RADIUS = 10;
@@ -28,9 +20,14 @@ public class Target {
     private boolean done = false;
 
     /**
-     * Target position
+     * Target x position
      */
-    private final double x, y;
+    private final double x;
+
+    /**
+     * Target y position
+     */
+    private final double y;
 
     /**
      * Lives of target decrease when bullet reach it
@@ -59,14 +56,6 @@ public class Target {
         return done;
     }
 
-    public double getX() {
-        return x;
-    }
-
-    public double getY() {
-        return y;
-    }
-
     /**
      * Get the matching radius for given bullet size
      * @param bulletSize bullet size
@@ -74,34 +63,45 @@ public class Target {
      */
     public double getR(int bulletSize) {
         switch (bulletSize) {
-            case SMALL:
+            case 0:
                 return SMALL_RADIUS;
-            case MIDDLE:
+            case 1:
                 return MIDDLE_RADIUS;
-            case BIG:
+            case 2:
                 return BIG_RADIUS;
+            default:
+                return -1;
         }
-        return 0;
     }
 
     /**
      * Decrease target lives when bullet of given size reach it
-     * @param bulletSize bullet size
+     * @param bulletId bullet size
      */
-    public void decreaseLives(int bulletSize) {
-        switch (bulletSize) {
-            case SMALL:
+    public void decreaseLives(int bulletId) {
+        switch (bulletId) {
+            case 0:
                 lives -= 1;
                 break;
-            case MIDDLE:
+            case 1:
                 lives -= 2;
                 break;
-            case BIG:
+            case 2:
                 lives -= 3;
                 break;
         }
         if (lives <= 0) {
             markDone();
         }
+    }
+
+    /**
+     * Check if target contains bullet with given parameters
+     * @param x bullet position on OX axes
+     * @param y bullet position on OY axes
+     * @param id bullet id
+     */
+    public boolean contains(double x, double y, int id) {
+        return Math.pow(this.x - x, 2) + Math.pow(this.y - y, 2) <= Math.pow(getR(id) + Bullet.getSizeById(id), 2);
     }
 }

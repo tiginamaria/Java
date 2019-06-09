@@ -1,5 +1,7 @@
 package ru.hse.hw;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Random;
 
 /**
@@ -8,13 +10,39 @@ import java.util.Random;
 public class Mountain {
 
     /**
-     * Start position of line section
+     * Start x position of line section
      */
-    private final double x1, y1;
+    private final double x1;
+
     /**
-     * End position of line section
+     * Start y position of line section
      */
-    private final double y2, x2;
+    private final double y1;
+
+    /**
+     * End x position of line section
+     */
+    private final double x2;
+
+    /**
+     * End x position of line section
+     */
+    private final double y2;
+
+    /**
+     * Coefficient between x in equation ax+by+c=0
+     */
+    private double a;
+
+    /**
+     * Coefficient between y in equation ax+by+c=0
+     */
+    private double b;
+
+    /**
+     * Free coefficient in equation ax+by+c=0
+     */
+    private double c;
 
     /**
      * Create mountains from given start and end position
@@ -28,6 +56,9 @@ public class Mountain {
         this.y1 = y1;
         this.x2 = x2;
         this.y2 = y2;
+        a = (y1 - y2);
+        b = (x1 - x2);
+        c = (x1 * y2 - x2 * y1);
     }
 
     /**
@@ -36,7 +67,7 @@ public class Mountain {
      * @return position on OY axes
      */
     public double mountainFunction(double x) {
-        return (y1 - y2) / (x1 - x2) * x  + (x1 * y2 - x2 * y1) / (x1 - x2);
+        return a / b * x  + c / b;
     }
 
     /**
@@ -48,13 +79,26 @@ public class Mountain {
     }
 
     /**
-     * Check if mountain line is under point (x, y)
-     * @param x position on OX axes
-     * @param y position on OY axes
-     * @return true if mountain line contains given point, false otherwise
+     * Check if bullet is under the mountain line
+     * @param x bullet position on OX axes
+     * @param y bullet position on OY axes
+     * @param r bullet radius
+     * @return true if bullet is under the mountain line, false otherwise
      */
-    public boolean contains(double x, double y) {
-        return isOnMountain(x) && mountainFunction(x) < y;
+    public boolean contains(double x, double y, double r) {
+        return isOnMountain(x) && (mountainFunction(x) < y || intersects(x, y, r));
+    }
+
+    /**
+     * Check if bullet touch mountain
+     * @param x bullet position on OX axes
+     * @param y bullet position on OY axes
+     * @param r bullet radius
+     * @return true if bullet touch mountain, false otherwise
+     */
+    private boolean intersects(double x, double y, double r) {
+        double d = (Math.abs(a * x + b * y + c)) / Math.sqrt(a * a + b * b);
+        return (r >= d);
     }
 
     /**
@@ -62,7 +106,7 @@ public class Mountain {
      * @param random randomiser
      * @return required random x coordinate
      */
-    public double getRandomOverMountainX(Random random) {
+    public double getRandomOverMountainX(@NotNull Random random) {
         return x1 + random.nextInt((int)(x2 - x1 - 1));
     }
 
@@ -73,7 +117,7 @@ public class Mountain {
      * @param max max returned answer
      * @return required random y coordinate
      */
-    public double getRandomOverMountainY(Random random, double x, int max) {
+    public double getRandomOverMountainY(@NotNull Random random, double x, int max) {
         int y = random.nextInt((int)(max - mountainFunction(x)));
         return Math.max(50, mountainFunction(x) - y);
     }

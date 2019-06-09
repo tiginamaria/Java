@@ -1,6 +1,8 @@
 package ru.hse.hw;
 
 import javafx.geometry.Side;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 import static javafx.geometry.Side.*;
@@ -49,9 +51,9 @@ public class Tank {
      * Calculates new angle for barrel after move on given angle( if new angle is out of [-90, 90] leave old angle)
      * @param side side to move barrel
      */
-    public void moveBarrel(Side side) {
-        if ((side == BOTTOM && barrelAngle > -90.0) || (side == TOP && barrelAngle < 90.0)) {
-            var angle = (side == TOP) ? BARREL_ROTATE_ANGLE : -BARREL_ROTATE_ANGLE;
+    public void moveBarrel(@NotNull Side side) {
+        if ((side == LEFT && barrelAngle > -90.0) || (side == RIGHT && barrelAngle < 90.0)) {
+            var angle = (side == RIGHT) ? BARREL_ROTATE_ANGLE : -BARREL_ROTATE_ANGLE;
             barrelAngle += angle;
         }
     }
@@ -77,7 +79,7 @@ public class Tank {
      * @param mountains list of lines to move along
      * @param side side to move tank
      */
-    public void move(List<Mountain> mountains, Side side) {
+    public void move(@NotNull List<Mountain> mountains, Side side) {
         double newX = x + (side == RIGHT ? STEP : -STEP);
         for (var mountain : mountains) {
             if (mountain.isOnMountain(newX)) {

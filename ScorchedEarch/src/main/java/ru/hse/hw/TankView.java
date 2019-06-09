@@ -1,17 +1,20 @@
 package ru.hse.hw;
 
+import com.sun.javafx.scene.traversal.TopMostTraversalEngine;
 import javafx.geometry.Point2D;
 import javafx.geometry.Side;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.transform.Rotate;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.List;
 
 import static javafx.geometry.Side.BOTTOM;
+import static javafx.geometry.Side.TOP;
 
 /**
  * View for tank.
@@ -65,7 +68,7 @@ public class TankView extends Pane {
      * STAY - tank stays and ready to fire
      * @param side state of the tank
      */
-    public void setOrientation(Side side) {
+    public void setOrientation(@NotNull Side side) {
         if (currentTankView == tankViewStay) {
             getChildren().remove(barrelView);
         }
@@ -83,8 +86,9 @@ public class TankView extends Pane {
             case BOTTOM:
                 currentTankView = tankViewStay;
                 getChildren().add(tankViewStay);
+                updateTankView();
                 getChildren().add(barrelView);
-                setBarrelOrientation();
+                makeBarrelMove(BOTTOM);
                 break;
         }
         updateTankView();
@@ -142,7 +146,7 @@ public class TankView extends Pane {
      * @param mountains piece of the environment
      * @param side side where tank is moving
      */
-    public void makeTankMove(List<Mountain> mountains, Side side) {
+    public void makeTankMove(@NotNull List<Mountain> mountains, @NotNull Side side) {
         tank.move(mountains, side);
         updateTankView();
         rotateTank(tank.getTankAngle());
@@ -152,7 +156,7 @@ public class TankView extends Pane {
      * Move barrel image
      * @param side side to move the barrel
      */
-    public void makeBarrelMove(Side side) {
+    public void makeBarrelMove(@NotNull Side side) {
         if (currentTankView != tankViewStay) {
             setOrientation(BOTTOM);
         }

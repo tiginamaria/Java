@@ -20,6 +20,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.jetbrains.annotations.NotNull;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -75,9 +77,9 @@ public class ScorchedEarch extends Application {
     private final TankView tankView = new TankView(0, 400);
 
     /**
-     * Current bullet size
+     * Current bullet id (0 - SMALL, 1 - MIDDLE, 2 - BIG)
      */
-    private int currentBulletSize = 6;
+    private int currentBulletId = 2;
 
     /**
      * Flag to freeze the screen
@@ -91,8 +93,7 @@ public class ScorchedEarch extends Application {
             new KeyFrame(Duration.seconds(0), new KeyValue(explosionView.imageProperty(), explosionImage)),
             new KeyFrame(Duration.seconds(2), new KeyValue(explosionView.imageProperty(), null)));
 
-    public ScorchedEarch() throws FileNotFoundException {
-    }
+    public ScorchedEarch() throws FileNotFoundException { }
 
     /**
      * Set target on a random position under the mountains
@@ -126,17 +127,17 @@ public class ScorchedEarch extends Application {
      * Translate pressed keys to action according to game rules
      * @param keyCode pressed key on keyboard
      */
-    private void update(KeyCode keyCode) {
+    private void update(@NotNull KeyCode keyCode) {
         if (gameOver) {
             return;
         }
         switch (keyCode) {
             case UP:
-                tankView.makeBarrelMove(TOP);
+                tankView.makeBarrelMove(RIGHT);
                 break;
 
             case DOWN:
-                tankView.makeBarrelMove(BOTTOM);
+                tankView.makeBarrelMove(LEFT);
                 break;
 
             case LEFT:
@@ -151,8 +152,8 @@ public class ScorchedEarch extends Application {
 
             case ENTER:
                 tankView.setOrientation(BOTTOM);
-                var BulletBehavior = new BulletBehavior();
-                Thread fire = new Thread(BulletBehavior);
+                var bulletBehavior = new BulletBehavior();
+                var fire = new Thread(bulletBehavior);
                 fire.start();
                 break;
         }
@@ -197,7 +198,7 @@ public class ScorchedEarch extends Application {
          * Create new bullet in tank barrel end position
          */
         public BulletBehavior() {
-            bulletView = new BulletView(tankView.getBarrelPosition(), currentBulletSize, tankView.getBarrelAngle());
+            bulletView = new BulletView(tankView.getBarrelPosition(), currentBulletId, tankView.getBarrelAngle());
         }
 
         /**
@@ -224,10 +225,12 @@ public class ScorchedEarch extends Application {
          * Show the bullet explosion after hit
          * @param position position of bullet when it hit something
          */
-        private void explosion(Point2D position) {
+        private void explosion(@NotNull Point2D position) {
+            if (bulletView.isExploded()) {
                 explosionView.setTranslateX(position.getX() - explosionView.getFitWidth() / 2);
                 explosionView.setTranslateY(position.getY() - explosionView.getFitHeight() / 2);
                 boom.play();
+            }
         }
     }
 
@@ -320,15 +323,15 @@ public class ScorchedEarch extends Application {
         bulletButtons.setFocusTraversable(false);
         bulletButtons.setTranslateX(20);
         bulletButtons.setTranslateY(sceneHeight - 35);
-        var bulletExample = new Circle(currentBulletSize);
+        var bulletExample = new Circle(Bullet.getSizeById(currentBulletId));
         bulletExample.setCenterX(130);
         bulletExample.setCenterY(sceneHeight - 20);
         for (int i = 0; i < 3; i++) {
             var bulletButton = new Button(String.valueOf(i + 1));
-            var size = i;
+            var id = i;
             bulletButton.setOnMouseClicked(event -> {
-                currentBulletSize = (size + 1) * 3;
-                bulletExample.setRadius(currentBulletSize);
+                currentBulletId = id;
+                bulletExample.setRadius(Bullet.getSizeById(currentBulletId));
             });
             bulletButtons.getChildren().add(bulletButton);
             bulletButton.setFocusTraversable(false);
@@ -344,6 +347,7 @@ public class ScorchedEarch extends Application {
     @Override
     public void start(Stage primaryStage) {
         initContent();
+        primaryStage.setResizable(false);
         var scene = new Scene(gameRoot, sceneWidth, sceneHeight);
         scene.setOnKeyPressed(event -> update(event.getCode()));
         primaryStage.setTitle("ScorchedEarth");
