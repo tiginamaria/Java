@@ -6,44 +6,58 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static ru.hse.hw.TestReport.Status.*;
+import static ru.hse.hw.TestReport.Tag.BEFORE;
 
 class MyJUnitTest {
 
     @Test
     void testsWrongExceptionsTest() {
         var myJUnit = new MyJUnit();
-        var reports = myJUnit.runAll(Arrays.asList(SuccessSample.class));
+        var reports = myJUnit.runAll(Arrays.asList(SuccessSample.class, SuccessSample.class));
         for (var report : reports) {
-            if (report.getTestName() == null) {
-                assertEquals(TestReport.TestStatus.SUCCESS, report.getStatus());
-                continue;
-            }
-            switch (report.getTestName()) {
-                case "test1":
-                    assertEquals(TestReport.TestStatus.SUCCESS, report.getStatus());
+            switch (report.getTag()) {
+                case BEFORE_CLASS:
+                    assertEquals(SUCCESS, report.getStatus());
                     break;
-
-                case "test2":
-                    assertEquals(TestReport.TestStatus.FAIL, report.getStatus());
-                    assertEquals(java.lang.RuntimeException.class, report.getException());
+                case AFTER_CLASS:
+                    assertEquals(SUCCESS, report.getStatus());
                     break;
-
-                case "test3":
-                    assertEquals(TestReport.TestStatus.IGNORE, report.getStatus());
-                    assertEquals(report.getReason(), "ignore with exception");
+                case BEFORE:
+                    assertEquals(SUCCESS, report.getStatus());
                     break;
-
-                case "test4":
-                    assertEquals(TestReport.TestStatus.FAIL, report.getStatus());
+                case AFTER:
+                    assertEquals(SUCCESS, report.getStatus());
                     break;
+                case TEST:
+                    switch (report.getTestName()) {
+                        case "test1":
+                            assertEquals(SUCCESS, report.getStatus());
+                            break;
 
-                case "test5":
-                    assertEquals(TestReport.TestStatus.IGNORE, report.getStatus());
-                    assertEquals(report.getReason(), "why not");
-                    break;
+                        case "test2":
+                            assertEquals(FAIL, report.getStatus());
+                            assertEquals(java.lang.RuntimeException.class, report.getException());
+                            break;
 
-                case "test6":
-                    assertEquals(TestReport.TestStatus.SUCCESS, report.getStatus());
+                        case "test3":
+                            assertEquals(IGNORE, report.getStatus());
+                            assertEquals(report.getReason(), "ignore with exception");
+                            break;
+
+                        case "test4":
+                            assertEquals(FAIL, report.getStatus());
+                            break;
+
+                        case "test5":
+                            assertEquals(IGNORE, report.getStatus());
+                            assertEquals(report.getReason(), "why not");
+                            break;
+
+                        case "test6":
+                            assertEquals(SUCCESS, report.getStatus());
+                            break;
+                    }
                     break;
             }
         }
@@ -54,40 +68,47 @@ class MyJUnitTest {
         var myJUnit = new MyJUnit();
         var reports = myJUnit.runAll(Arrays.asList(SuccessSample.class));
         for (var report : reports) {
-            if (report.getTestName() == null) {
-                assertEquals(TestReport.TestStatus.SUCCESS, report.getStatus());
-                continue;
-            }
-            switch (report.getTestName()) {
-                case "test1":
-                    assertEquals(TestReport.TestStatus.BEFORE_FAIL, report.getStatus());
-                    assertEquals(java.lang.IllegalAccessException.class, report.getException());
+            switch (report.getTag()) {
+                case BEFORE_CLASS:
+                    assertEquals(SUCCESS, report.getStatus());
                     break;
+                case AFTER_CLASS:
+                    assertEquals(SUCCESS, report.getStatus());
+                    break;
+                case BEFORE:
+                    switch (report.getTestName()) {
+                        case "test1":
+                            assertEquals(FAIL, report.getStatus());
+                            assertEquals(java.lang.IllegalAccessException.class, report.getException());
+                            break;
 
-                case "test2":
-                    assertEquals(TestReport.TestStatus.BEFORE_FAIL, report.getStatus());
-                    assertEquals(java.lang.IllegalAccessException.class, report.getException());
-                    break;
+                        case "test2":
+                            assertEquals(FAIL, report.getStatus());
+                            assertEquals(java.lang.IllegalAccessException.class, report.getException());
+                            break;
 
-                case "test3":
-                    assertEquals(TestReport.TestStatus.IGNORE, report.getStatus());
-                    assertEquals(report.getReason(), "ignore with exception");
+                        case "test4":
+                            assertEquals(FAIL, report.getStatus());
+                            assertEquals(java.lang.IllegalAccessException.class, report.getException());
+                            break;
+                    }
                     break;
+                case AFTER:
+                    assertEquals(SUCCESS, report.getStatus());
+                    break;
+                case TEST:
+                    switch (report.getTestName()) {
+                        case "test3":
+                            assertEquals(IGNORE, report.getStatus());
+                            assertEquals(report.getReason(), "ignore with exception");
+                            break;
 
-                case "test4":
-                    assertEquals(TestReport.TestStatus.BEFORE_FAIL, report.getStatus());
-                    assertEquals(java.lang.IllegalAccessException.class, report.getException());
-                    break;
+                        case "test5":
+                            assertEquals(IGNORE, report.getStatus());
+                            assertEquals(report.getReason(), "why not");
+                            break;
 
-                case "test5":
-                    assertEquals(TestReport.TestStatus.IGNORE, report.getStatus());
-                    assertEquals(report.getReason(), "why not");
-                    break;
-
-                case "test6":
-                    assertEquals(TestReport.TestStatus.BEFORE_FAIL, report.getStatus());
-                    assertEquals(java.lang.IllegalAccessException.class, report.getException());
-                    break;
+                    }
             }
         }
     }

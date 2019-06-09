@@ -23,37 +23,45 @@ public class Main {
      * @param args argument of recipe
      * @throws MalformedURLException when exception occur in getting loaded class
      * @throws ClassNotFoundException when exception occur in getting loaded class
-     * @throws InstantiationException when exception occur in testing given
-     * @throws IllegalAccessException when exception occur in testing given
      */
     public static void main(String[] args) throws MalformedURLException, ClassNotFoundException {
+        if (args.length != 1) {
+            System.out.format("Wrong parameters: only one parameter required");
+            return;
+        }
         var pathName = args[0];
         var path = Paths.get(pathName);
         var reports = new ArrayList<TestReport>();
-
         var myJUnit = new MyJUnit();
+
         if (!Files.exists(path)) {
             System.out.format("Wrong parameters: path %s does not exist", pathName);
-        } else {
-            if (pathName.endsWith(".class")) {
-                reports.addAll(myJUnit.runAll(Arrays.asList(getClass(path))));
-            } else if (pathName.endsWith(".jar")) {
-                try {
-                    JarInputStream jarFile = new JarInputStream(new FileInputStream(pathName));
-                    JarEntry entry;
-                    var testClasses = new ArrayList<Class<?>>();
-                    while ((entry = jarFile.getNextJarEntry()) != null) {
-                        if (entry.getName().endsWith(".class")) {
-                            var entryPath = Paths.get(entry.getName());
-                            testClasses.add(getClass(entryPath));
-                        }
+            return;
+        }
+
+        if (!(pathName.endsWith(".class") || pathName.endsWith(".jar"))) {
+            System.out.format("Wrong parameters: no .class or .jar files was found on path: %s", pathName);
+            return;
+        }
+
+        if (pathName.endsWith(".class")) {
+            reports.addAll(myJUnit.runAll(Arrays.asList(getClass(path))));
+        }
+
+        if (pathName.endsWith(".jar")) {
+            try {
+                var jarFile = new JarInputStream(new FileInputStream(pathName));
+                JarEntry entry;
+                var testClasses = new ArrayList<Class<?>>();
+                while ((entry = jarFile.getNextJarEntry()) != null) {
+                    if (entry.getName().endsWith(".class")) {
+                        var entryPath = Paths.get(entry.getName());
+                        testClasses.add(getClass(entryPath));
                     }
-                    reports.addAll(myJUnit.runAll(testClasses));
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
-            } else {
-                System.out.format("Wrong parameters: no .class or .jar files was found on path: %s", pathName);
+                reports.addAll(myJUnit.runAll(testClasses));
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 
@@ -70,35 +78,38 @@ public class Main {
      * @throws MalformedURLException when exception occur in getting loaded class
      */
     private static Class<?> getClass(Path path) throws ClassNotFoundException, MalformedURLException {
-        URLClassLoader classLoader = URLClassLoader.newInstance(new URL[] { path.toFile().toURI().toURL()});
-        String fileName = path.getFileName().toString().replaceFirst("\\.class$", "");
+        var classLoader = URLClassLoader.newInstance(new URL[] { path.toFile().toURI().toURL()});
+        var fileName = path.getFileName().toString().replaceFirst("\\.class$", "");
         var testClass = classLoader.loadClass(fileName);
         return testClass;
     }
 
     private static void printReport(TestReport report) {
-        switch (report.getStatus()) {
-            case FAIL:
-                System.out.println("Test " + report.getTestName() + " failed. " +  "Report: <<" + report.getReason() + ">>");
+        switch (report.getTag()) {
+            case BEFORE_CLASS:
+                System.out.println(report.getTestClass().getName() + ": All test failed. " + "Before class method " + report.getMethodName() + " terminated with report: <<" + report.getReason() + ">>");
                 break;
-            case IGNORE:
-                System.out.println("Test " + report.getTestName() + " ignored. " + "Reason: " + report.getReason() + ">");
+            case AFTER_CLASS:
+                System.out.println(report.getTestClass().getName() + ": All test failed. " + "After class method " + report.getMethodName() + " terminated with report: <<" + report.getReason() + ">>");
                 break;
-            case SUCCESS:
-                System.out.println("Test " + report.getTestName() + " succeeded. " + "Time: " + report.getTime() + "ms");
+            case BEFORE:
+                System.out.println(report.getTestClass().getName() + ": Test " + report.getTestName() + " failed. " + "Before test method " + report.getMethodName() + " terminated with report: <<" + report.getReason() + ">>");
                 break;
-            case BEFORE_CLASS_FAIL:
-                System.out.println("All test failed. " + "Before class method " + report.getMethodName() + " terminated with report: <<" + report.getReason() + ">>");
+            case AFTER:
+                System.out.println(report.getTestClass().getName() + ": Test " + report.getTestName() + " failed. " + "After test method " + report.getMethodName() + " terminated with report: <<" + report.getReason() + ">>");
                 break;
-            case AFTER_CLASS_FAIL:
-                System.out.println("All test failed. " + "After class method " + report.getMethodName() + " terminated with report: <<" + report.getReason() + ">>");
-                break;
-            case BEFORE_FAIL:
-                System.out.println("Test " + report.getTestName() + " failed. " + "Before test method " + report.getMethodName() + " terminated with report: <<" + report.getReason() + ">>");
-                break;
-            case AFTER_FAIL:
-                System.out.println("Test " + report.getTestName() + " failed. " + "After test method " + report.getMethodName() + " terminated with report: <<" + report.getReason() + ">>");
-                break;
+            case TEST:
+                switch (report.getStatus()) {
+                    case FAIL:
+                        System.out.println(report.getTestClass().getName() + ": Test " + report.getTestName() + " failed. " + "Report: <<" + report.getReason() + ">>");
+                        break;
+                    case IGNORE:
+                        System.out.println(report.getTestClass().getName() + ": Test " + report.getTestName() + " ignored. " + "Reason: " + report.getReason() + ">");
+                        break;
+                    case SUCCESS:
+                        System.out.println(report.getTestClass().getName() + ": Test " + report.getTestName() + " succeeded. " + "Time: " + report.getTime() + "ms");
+                        break;
+                }
         }
     }
 }

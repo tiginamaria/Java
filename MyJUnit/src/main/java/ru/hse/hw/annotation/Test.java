@@ -25,7 +25,7 @@ public @interface Test {
     /**
      * Default value for ignore
      */
-    String IGNORE = "NO REASON";
+    String IGNORE = "";
 
     /**
      * Get expected exception from annotation

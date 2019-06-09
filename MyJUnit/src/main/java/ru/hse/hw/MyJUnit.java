@@ -9,7 +9,8 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ru.hse.hw.TestReport.TestStatus.*;
+import static ru.hse.hw.TestReport.Status.*;
+import static ru.hse.hw.TestReport.Tag.*;
 
 /**
  * MyJUnit class run test methods of given class.
@@ -28,6 +29,11 @@ public class MyJUnit {
     private List<TestReport> tests = new ArrayList<>();
     private List<TestReport> reports = new ArrayList<>();
 
+    /**
+     * Build all reports about all tests in given class.
+     * @param testClasses to build reports for them
+     * @return list with reports
+     */
     public List<TestReport> runAll(List<Class<?>> testClasses) {
 
         for (var testClass : testClasses) {
@@ -36,13 +42,13 @@ public class MyJUnit {
             beforeMethods.put(testClass, classifyMethods(testClass, Before.class));
             afterMethods.put(testClass, classifyMethods(testClass, After.class));
             tests.addAll(classifyMethods(testClass, Test.class)
-                    .stream().map(test -> new TestReport(test, testClass)).collect(Collectors.toList()));
+                    .stream().map(test -> new TestReport(test, testClass, TEST)).collect(Collectors.toList()));
         }
 
         beforeClassMethods.entrySet().forEach(e -> {
-            var report = new TestReport(e.getKey());
-            invokeMethods(report, BEFORE_CLASS_FAIL);
-            if (report.getStatus() == BEFORE_CLASS_FAIL) {
+            var report = new TestReport(e.getKey(), BEFORE_CLASS);
+            invokeMethods(report, BEFORE_CLASS);
+            if (report.getStatus() == FAIL) {
                 reports.add(report);
             }
         });
@@ -50,9 +56,9 @@ public class MyJUnit {
         reports.addAll(tests.parallelStream().map(this::buildReport).collect(Collectors.toList()));
 
         afterClassMethods.entrySet().forEach(e -> {
-            var report = new TestReport(e.getKey());
-            invokeMethods(report, AFTER_CLASS_FAIL);
-            if (report.getStatus() == AFTER_CLASS_FAIL) {
+            var report = new TestReport(e.getKey(), AFTER_CLASS);
+            invokeMethods(report, AFTER_CLASS);
+            if (report.getStatus() == FAIL) {
                 reports.add(report);
             }
         });
@@ -61,6 +67,11 @@ public class MyJUnit {
     }
 
 
+    /**
+     * Builds report about test.
+     * @param report to put information about test
+     * @return report about test
+     */
     public TestReport buildReport(TestReport report) {
         var test = report.getTest();
         var testAnnotation = test.getAnnotation(Test.class);
@@ -70,17 +81,17 @@ public class MyJUnit {
             report.setReason(testAnnotation.ignore());
         }
 
-        invokeMethods(report, BEFORE_FAIL);
+        invokeMethods(report, BEFORE);
 
         invokeTest(report);
 
-        invokeMethods(report, AFTER_FAIL);
+        invokeMethods(report, AFTER);
 
         return report;
     }
 
     /**
-     * Get methods with given annotations from class
+     * Get methods with given annotations from class.
      * @param tesClass class to get methods from
      * @param annotation type of annotation
      * @return list of methods which has such annotations
@@ -92,6 +103,11 @@ public class MyJUnit {
                 .collect(Collectors.toList());
     }
 
+
+    /**
+     * Invoke test.
+     * @param report to put information about test invoke
+     */
     private void invokeTest(TestReport report) {
         if (report.getStatus() != SUCCESS) {
             return;
@@ -130,8 +146,12 @@ public class MyJUnit {
         }
     }
 
-
-    private void invokeMethods(TestReport report, @NotNull TestReport.TestStatus checkStatus) {
+    /**
+     * Invoke method.
+     * @param report to put information about method invoke
+     * @param tag type of annotation om method
+     */
+    private void invokeMethods(TestReport report, TestReport.Tag tag) {
         if (report.getStatus() != SUCCESS) {
             return;
         }
@@ -139,17 +159,17 @@ public class MyJUnit {
         var testClass = report.getTestClass();
         List<Method> methods;
 
-        switch (checkStatus) {
-            case BEFORE_CLASS_FAIL:
+        switch (tag) {
+            case BEFORE_CLASS:
                 methods = beforeClassMethods.get(testClass);
                 break;
-            case AFTER_CLASS_FAIL:
+            case AFTER_CLASS:
                 methods = afterClassMethods.get(testClass);
                 break;
-            case BEFORE_FAIL:
+            case BEFORE:
                 methods = beforeMethods.get(testClass);
                 break;
-            case AFTER_FAIL:
+            case AFTER:
                 methods = afterMethods.get(testClass);
                 break;
             default:
@@ -159,13 +179,15 @@ public class MyJUnit {
         for (Method method : methods) {
             try {
                 if (method.getParameters().length != 0) {
-                    report.setStatus(checkStatus);
+                    report.setStatus(FAIL);
+                    report.setTag(tag);
                     report.setMethodName(method.getName());
                     report.setReason("Invocation exception: before/after methods should not have parameters.");
                 }
                 method.invoke(report.getInstance());
             } catch (Exception e) {
-                report.setStatus(checkStatus);
+                report.setStatus(FAIL);
+                report.setTag(tag);
                 report.setMethodName(method.getName());
                 report.setReason("Invocation exception: \"" + e.getCause().getMessage() + "\"");
                 report.setException(e.getCause().getClass());

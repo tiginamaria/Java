@@ -14,29 +14,38 @@ import java.lang.reflect.Method;
 public class TestReport {
 
     /** Status of test invocation. */
-    public enum TestStatus {
-        SUCCESS, FAIL, IGNORE,
-        BEFORE_CLASS_FAIL, AFTER_CLASS_FAIL,
-        BEFORE_FAIL, AFTER_FAIL,
+    public enum Status {
+        SUCCESS, FAIL, IGNORE
     }
 
-    public TestReport(Class<?> testClass) {
-        this.status = TestStatus.SUCCESS;
+    /** Status of test invocation. */
+    public enum Tag {
+        BEFORE_CLASS, AFTER_CLASS,
+        BEFORE, AFTER,
+        TEST
+    }
+
+    public TestReport(Class<?> testClass, Tag tag) {
+        this.status = Status.SUCCESS;
+        this.tag = tag;
         this.testClass = testClass;
         try {
             this.instance = testClass.newInstance();
         } catch (IllegalAccessException | InstantiationException e) {
-            status = TestStatus.FAIL;
+            status = Status.FAIL;
             exception = e.getClass();
             reason = "creating instance exeption :" + e.getMessage();
         }
     }
 
-    public TestReport(Method test, Class<?> testClass) {
-        this(testClass);
+    public TestReport(Method test, Class<?> testClass, Tag tag) {
+        this(testClass, tag);
         this.test = test;
         this.testName = test.getName();
     }
+
+    /** Tested annotation tag. */
+    private Tag tag;
 
     /** Test. */
     private Method test;
@@ -48,7 +57,7 @@ public class TestReport {
     private Object instance;
 
     /** Status of test. */
-    private TestStatus status;
+    private Status status;
 
     /** Test name. */
     private String testName;
