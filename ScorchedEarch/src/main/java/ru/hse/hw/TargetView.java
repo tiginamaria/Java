@@ -53,14 +53,4 @@ public class TargetView extends Pane {
         return target.isDone();
     }
 
-
-    /**
-     * Check if target contains bullet with given parameters
-     * @param x bullet position on OX axes
-     * @param y bullet position on OY axes
-     * @param id bullet id
-     */
-    private boolean contains(double x, double y, int id) {
-        return target.contains(x, y, id);
-    }
 }

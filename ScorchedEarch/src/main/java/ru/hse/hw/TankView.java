@@ -1,6 +1,5 @@
 package ru.hse.hw;
 
-import com.sun.javafx.scene.traversal.TopMostTraversalEngine;
 import javafx.geometry.Point2D;
 import javafx.geometry.Side;
 import javafx.scene.image.Image;
@@ -14,7 +13,6 @@ import java.io.FileNotFoundException;
 import java.util.List;
 
 import static javafx.geometry.Side.BOTTOM;
-import static javafx.geometry.Side.TOP;
 
 /**
  * View for tank.

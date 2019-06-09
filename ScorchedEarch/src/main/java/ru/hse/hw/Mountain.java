@@ -32,17 +32,17 @@ public class Mountain {
     /**
      * Coefficient between x in equation ax+by+c=0
      */
-    private double a;
+    private final double a;
 
     /**
      * Coefficient between y in equation ax+by+c=0
      */
-    private double b;
+    private final double b;
 
     /**
      * Free coefficient in equation ax+by+c=0
      */
-    private double c;
+    private final double c;
 
     /**
      * Create mountains from given start and end position

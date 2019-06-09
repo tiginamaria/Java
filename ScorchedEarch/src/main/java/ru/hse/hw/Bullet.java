@@ -21,12 +21,12 @@ public class Bullet {
     /**
      * Bullet start x position
      */
-    private double x0;
+    private final double x0;
 
     /**
      * Bullet start y position
      */
-    private double y0;
+    private final double y0;
 
     /**
      * Bullet current x position
