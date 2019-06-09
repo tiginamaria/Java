@@ -77,7 +77,7 @@ public class ScorchedEarch extends Application {
     private final TankView tankView = new TankView(0, 400);
 
     /**
-     * Current bullet id (0 - SMALL, 1 - MIDDLE, 2 - BIG)
+     * Current bullet id (0 - SMALL_RADIUS, 1 - MIDDLE_RADIUS, 2 - BIG_RADIUS)
      */
     private int currentBulletId = 2;
 

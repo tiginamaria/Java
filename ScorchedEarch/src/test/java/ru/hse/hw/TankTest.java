@@ -12,26 +12,26 @@ class TankTest {
     @Test
     void moveBarrelTest() {
         var tank = new Tank(100, 100);
-        tank.moveBarrel(Side.BOTTOM);
+        tank.moveBarrel(Side.LEFT);
         assertEquals(-1, tank.getBarrelAngle());
-        tank.moveBarrel(Side.TOP);
+        tank.moveBarrel(Side.RIGHT);
         assertEquals(0, tank.getBarrelAngle());
-        tank.moveBarrel(Side.TOP);
+        tank.moveBarrel(Side.RIGHT);
         assertEquals(1, tank.getBarrelAngle());
         for (int i = 0; i < 90; i++) {
-            tank.moveBarrel(Side.TOP);
+            tank.moveBarrel(Side.RIGHT);
         }
-        tank.moveBarrel(Side.TOP);
+        tank.moveBarrel(Side.RIGHT);
         assertEquals(90, tank.getBarrelAngle());
-        tank.moveBarrel(Side.TOP);
+        tank.moveBarrel(Side.RIGHT);
         assertEquals(90, tank.getBarrelAngle());
 
         for (int i = 0; i < 180; i++) {
-            tank.moveBarrel(Side.BOTTOM);
+            tank.moveBarrel(Side.LEFT);
         }
-        tank.moveBarrel(Side.BOTTOM);
+        tank.moveBarrel(Side.LEFT);
         assertEquals(-90, tank.getBarrelAngle());
-        tank.moveBarrel(Side.BOTTOM);
+        tank.moveBarrel(Side.LEFT);
         assertEquals(-90, tank.getBarrelAngle());
     }
 

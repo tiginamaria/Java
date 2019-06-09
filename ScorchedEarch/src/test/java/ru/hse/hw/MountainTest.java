@@ -33,12 +33,12 @@ class MountainTest {
     @Test
     void mountainContainsPointsTest() {
         var mountain = new Mountain(0, 0, 6, 6);
-        assertTrue(mountain.contains(2, 3));
-        assertTrue(mountain.contains(1, 5));
-        assertFalse(mountain.contains(6, 6));
-        assertFalse(mountain.contains(2, 1));
-        assertFalse(mountain.contains(10, 10));
-        assertFalse(mountain.contains(-1, -1));
+        assertTrue(mountain.contains(2, 3, 1));
+        assertTrue(mountain.contains(1, 5, 1));
+        assertFalse(mountain.contains(6, 6, 1));
+        assertFalse(mountain.contains(2, 1, 1));
+        assertFalse(mountain.contains(10, 10, 1));
+        assertFalse(mountain.contains(-1, -1, 1));
     }
 
     @Test
@@ -46,7 +46,7 @@ class MountainTest {
         var mountain = new Mountain(0, 0, 6, 6);
         var random = new Random();
         var x = mountain.getRandomOverMountainX(random);
-        assertFalse(mountain.contains(x, mountain.mountainFunction(x)));
+        assertFalse(mountain.contains(x, mountain.mountainFunction(x), 1));
     }
 
     @Test
@@ -55,7 +55,7 @@ class MountainTest {
         var random = new Random();
         var x = mountain.getRandomOverMountainX(random);
         var y = mountain.getRandomOverMountainY(random, x, 400);
-        assertFalse(mountain.contains(x, y));
+        assertFalse(mountain.contains(x, y, 1));
         assertTrue(y < 400);
     }
 

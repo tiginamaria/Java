@@ -10,9 +10,9 @@ public class Target {
     /**
      * Different radius for different bullet size
      */
-    private final static double SMALL_RADIUS = 10;
-    private final static double MIDDLE_RADIUS = 18;
-    private final static double BIG_RADIUS = 25;
+    public final static double SMALL_RADIUS = 10;
+    public final static double MIDDLE_RADIUS = 18;
+    public final static double BIG_RADIUS = 25;
 
     /**
      * Flag which is true, when bullet decreased lives of target to 0

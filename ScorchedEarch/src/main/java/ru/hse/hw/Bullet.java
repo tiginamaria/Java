@@ -71,9 +71,9 @@ public class Bullet {
     /**
      * Different radius for different bullet size
      */
-    public final static double SMALL = 4;
-    public final static double MIDDLE = 6;
-    public final static double BIG = 8;
+    public final static double SMALL_RADIUS = 4;
+    public final static double MIDDLE_RADIUS = 6;
+    public final static double BIG_RADIUS = 8;
 
     /**
      * Create bullet with given start position, angle and size
@@ -83,8 +83,8 @@ public class Bullet {
      * @param angle angle of fire
      */
     public Bullet(double x0, double y0, int id,  double angle) {
-        this.x0 = x0;
-        this.y0 = y0;
+        this.x = this.x0 = x0;
+        this.y = this.y0 = y0;
         this.id = id;
         this.size = getSizeById(id);
         this.angle = Math.toRadians(90 - angle);
@@ -99,11 +99,11 @@ public class Bullet {
     public static double getSizeById(int id) {
         switch (id) {
             case 0:
-                return SMALL;
+                return SMALL_RADIUS;
             case 1:
-                return MIDDLE;
+                return MIDDLE_RADIUS;
             default:
-                return BIG;
+                return BIG_RADIUS;
         }
     }
 
