@@ -2,14 +2,22 @@ package ru.hse.hw;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MyJUnitTest {
 
     @Test
-    void testsWrongExceptionsTest() throws InstantiationException, IllegalAccessException {
-        var reports = MyJUnit.run(SuccessSample.class);
+    void testsWrongExceptionsTest() {
+        var myJUnit = new MyJUnit();
+        var reports = myJUnit.runAll(Arrays.asList(SuccessSample.class));
         for (var report : reports) {
+            if (report.getTestName() == null) {
+                assertEquals(TestReport.TestStatus.SUCCESS, report.getStatus());
+                continue;
+            }
             switch (report.getTestName()) {
                 case "test1":
                     assertEquals(TestReport.TestStatus.SUCCESS, report.getStatus());
@@ -41,11 +49,15 @@ class MyJUnitTest {
         }
     }
 
-
     @Test
-    void testsBeforeFailTest() throws InstantiationException, IllegalAccessException {
-        var reports = MyJUnit.run(FailBeforeSample.class);
+    void testsBeforeFailTest() {
+        var myJUnit = new MyJUnit();
+        var reports = myJUnit.runAll(Arrays.asList(SuccessSample.class));
         for (var report : reports) {
+            if (report.getTestName() == null) {
+                assertEquals(TestReport.TestStatus.SUCCESS, report.getStatus());
+                continue;
+            }
             switch (report.getTestName()) {
                 case "test1":
                     assertEquals(TestReport.TestStatus.BEFORE_FAIL, report.getStatus());
@@ -78,6 +90,5 @@ class MyJUnitTest {
                     break;
             }
         }
-
     }
 }

@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
@@ -25,26 +26,29 @@ public class Main {
      * @throws InstantiationException when exception occur in testing given
      * @throws IllegalAccessException when exception occur in testing given
      */
-    public static void main(String[] args) throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public static void main(String[] args) throws MalformedURLException, ClassNotFoundException {
         var pathName = args[0];
         var path = Paths.get(pathName);
         var reports = new ArrayList<TestReport>();
+
+        var myJUnit = new MyJUnit();
         if (!Files.exists(path)) {
             System.out.format("Wrong parameters: path %s does not exist", pathName);
         } else {
             if (pathName.endsWith(".class")) {
-                reports.addAll(MyJUnit.run(getClass(path)));
+                reports.addAll(myJUnit.runAll(Arrays.asList(getClass(path))));
             } else if (pathName.endsWith(".jar")) {
                 try {
                     JarInputStream jarFile = new JarInputStream(new FileInputStream(pathName));
                     JarEntry entry;
-
+                    var testClasses = new ArrayList<Class<?>>();
                     while ((entry = jarFile.getNextJarEntry()) != null) {
                         if (entry.getName().endsWith(".class")) {
                             var entryPath = Paths.get(entry.getName());
-                            reports.addAll(MyJUnit.run(getClass(entryPath)));
+                            testClasses.add(getClass(entryPath));
                         }
                     }
+                    reports.addAll(myJUnit.runAll(testClasses));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

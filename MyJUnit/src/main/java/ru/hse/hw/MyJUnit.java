@@ -6,9 +6,7 @@ import ru.hse.hw.annotation.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.hse.hw.TestReport.TestStatus.*;
@@ -23,38 +21,62 @@ import static ru.hse.hw.TestReport.TestStatus.*;
  */
 public class MyJUnit {
 
-    /**
-     * Get tests and required methods from given class and run them in order:
-     * BeforeClass -> [Before -> Test -> After] ->  ... -> [Before -> Test -> After] -> AfterClass
-     * @param testClass class to run tests in it
-     * @return array of report for all done tests
-     * @throws IllegalAccessException if instance construction terminated with error
-     * @throws InstantiationException if instance construction terminated with erro
-     */
-    public static List<TestReport> run(Class<?> testClass) throws IllegalAccessException, InstantiationException {
-        var classInstance = testClass.newInstance();
-        var beforeClassMethods = classifyMethods(testClass, BeforeClass.class);
-        var afterClassMethods = classifyMethods(testClass, AfterClass.class);
-        var beforeMethods = classifyMethods(testClass, Before.class);
-        var afterMethods = classifyMethods(testClass, After.class);
-        var tests = classifyMethods(testClass, Test.class);
+    private Map<Class<?>, List<Method>> beforeMethods = new HashMap<>();
+    private Map<Class<?>, List<Method>> afterMethods = new HashMap<>();
+    private Map<Class<?>, List<Method>> beforeClassMethods = new HashMap<>();
+    private Map<Class<?>, List<Method>> afterClassMethods = new HashMap<>();
+    private List<TestReport> tests = new ArrayList<>();
+    private List<TestReport> reports = new ArrayList<>();
 
-        var reports = new ArrayList<TestReport>();
+    public List<TestReport> runAll(List<Class<?>> testClasses) {
 
-        var beforeClassReport = invokeMethods(classInstance, beforeClassMethods, BEFORE_CLASS_FAIL);
-        if (beforeClassReport != null) {
-            reports.add(beforeClassReport);
+        for (var testClass : testClasses) {
+            beforeClassMethods.put(testClass, classifyMethods(testClass, BeforeClass.class));
+            afterClassMethods.put(testClass, classifyMethods(testClass, AfterClass.class));
+            beforeMethods.put(testClass, classifyMethods(testClass, Before.class));
+            afterMethods.put(testClass, classifyMethods(testClass, After.class));
+            tests.addAll(classifyMethods(testClass, Test.class)
+                    .stream().map(test -> new TestReport(test, testClass)).collect(Collectors.toList()));
         }
 
-        for (var test : tests) {
-            reports.add(invokeTest(classInstance, test, beforeMethods, afterMethods));
-        }
+        beforeClassMethods.entrySet().forEach(e -> {
+            var report = new TestReport(e.getKey());
+            invokeMethods(report, BEFORE_CLASS_FAIL);
+            if (report.getStatus() == BEFORE_CLASS_FAIL) {
+                reports.add(report);
+            }
+        });
 
-        var afterClassReport = invokeMethods(classInstance, afterClassMethods, AFTER_CLASS_FAIL);
-        if (afterClassReport != null) {
-            reports.add(afterClassReport);
-        }
+        reports.addAll(tests.parallelStream().map(this::buildReport).collect(Collectors.toList()));
+
+        afterClassMethods.entrySet().forEach(e -> {
+            var report = new TestReport(e.getKey());
+            invokeMethods(report, AFTER_CLASS_FAIL);
+            if (report.getStatus() == AFTER_CLASS_FAIL) {
+                reports.add(report);
+            }
+        });
+
         return reports;
+    }
+
+
+    public TestReport buildReport(TestReport report) {
+        var test = report.getTest();
+        var testAnnotation = test.getAnnotation(Test.class);
+
+        if (!testAnnotation.ignore().equals(Test.IGNORE)) {
+            report.setStatus(IGNORE);
+            report.setReason(testAnnotation.ignore());
+        }
+
+        invokeMethods(report, BEFORE_FAIL);
+
+        invokeTest(report);
+
+        invokeMethods(report, AFTER_FAIL);
+
+        return report;
     }
 
     /**
@@ -70,34 +92,18 @@ public class MyJUnit {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Run test (and before and after methods)
-     * @param classInstance instance of tested class
-     * @param test method to test
-     * @param beforeMethods to run before test
-     * @param afterMethods to run after test
-     * @return
-     */
-    private static TestReport invokeTest(@NotNull Object classInstance, @NotNull Method test, @NotNull List<Method> beforeMethods, @NotNull List<Method> afterMethods) {
-        TestReport report = new TestReport(test.getName());
+    private void invokeTest(TestReport report) {
+        if (report.getStatus() != SUCCESS) {
+            return;
+        }
+
+        var test = report.getTest();
         var testAnnotation = test.getAnnotation(Test.class);
         var expectedException = testAnnotation.expected();
 
-        if (!testAnnotation.ignore().equals(Test.IGNORE)) {
-            report.setStatus(IGNORE);
-            report.setReason(testAnnotation.ignore());
-            return report;
-        }
-
-        var beforeReport = invokeMethods(classInstance, beforeMethods, BEFORE_FAIL);
-        if (beforeReport != null) {
-            beforeReport.setTestName(test.getName());
-            return beforeReport;
-        }
-
         long start = System.currentTimeMillis();
         try {
-            test.invoke(classInstance);
+            test.invoke(report.getInstance());
             report.setTime(System.currentTimeMillis() - start);
             if (expectedException.equals(Test.EXPECTED)) {
                 report.setStatus(SUCCESS);
@@ -122,41 +128,48 @@ public class MyJUnit {
                 report.setReason("Expected " + exceptionName + " exception" + ", but found " + receivedException.getName() + " with message: \"" + e.getCause().getMessage() + "\"");
             }
         }
-
-        var afterReport = invokeMethods(classInstance, afterMethods, AFTER_FAIL);
-        if (afterReport != null) {
-            afterReport.setTestName(test.getName());
-            return afterReport;
-        }
-        return report;
     }
 
-    /**
-     * Invoke all given methods
-     * @param classInstance instance of tested class
-     * @param methods method to test
-     * @param failStatus status to set if one
-     * @return report of method invocation
-     */
-    private static TestReport invokeMethods(@NotNull Object classInstance, @NotNull List<Method> methods, @NotNull TestReport.TestStatus failStatus) {
-        TestReport report = new TestReport();
+
+    private void invokeMethods(TestReport report, @NotNull TestReport.TestStatus checkStatus) {
+        if (report.getStatus() != SUCCESS) {
+            return;
+        }
+
+        var testClass = report.getTestClass();
+        List<Method> methods;
+
+        switch (checkStatus) {
+            case BEFORE_CLASS_FAIL:
+                methods = beforeClassMethods.get(testClass);
+                break;
+            case AFTER_CLASS_FAIL:
+                methods = afterClassMethods.get(testClass);
+                break;
+            case BEFORE_FAIL:
+                methods = beforeMethods.get(testClass);
+                break;
+            case AFTER_FAIL:
+                methods = afterMethods.get(testClass);
+                break;
+            default:
+                return;
+        }
+
         for (Method method : methods) {
             try {
                 if (method.getParameters().length != 0) {
-                    report.setStatus(failStatus);
+                    report.setStatus(checkStatus);
                     report.setMethodName(method.getName());
                     report.setReason("Invocation exception: before/after methods should not have parameters.");
-                    return report;
                 }
-                method.invoke(classInstance);
+                method.invoke(report.getInstance());
             } catch (Exception e) {
-                report.setStatus(failStatus);
+                report.setStatus(checkStatus);
                 report.setMethodName(method.getName());
                 report.setReason("Invocation exception: \"" + e.getCause().getMessage() + "\"");
                 report.setException(e.getCause().getClass());
-                return report;
             }
         }
-        return null;
     }
 }
