@@ -1,6 +1,7 @@
 package ru.hse.hw;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.hse.hw.annotation.*;
 
 import java.lang.annotation.Annotation;
@@ -23,19 +24,19 @@ import static ru.hse.hw.TestReport.Tag.*;
  */
 public class MyJUnit {
 
-    private Map<Class<?>, List<Method>> beforeMethods = new HashMap<>();
-    private Map<Class<?>, List<Method>> afterMethods = new HashMap<>();
-    private Map<Class<?>, List<Method>> beforeClassMethods = new HashMap<>();
-    private Map<Class<?>, List<Method>> afterClassMethods = new HashMap<>();
-    private List<TestReport> tests = new ArrayList<>();
-    private List<TestReport> reports = new ArrayList<>();
+    private final Map<Class<?>, List<Method>> beforeMethods = new HashMap<>();
+    private final Map<Class<?>, List<Method>> afterMethods = new HashMap<>();
+    private final Map<Class<?>, List<Method>> beforeClassMethods = new HashMap<>();
+    private final Map<Class<?>, List<Method>> afterClassMethods = new HashMap<>();
+    private final List<TestReport> tests = new ArrayList<>();
+    private final List<TestReport> reports = new ArrayList<>();
 
     /**
      * Build all reports about all tests in given class.
      * @param testClasses to build reports for them
      * @return list with reports
      */
-    public List<TestReport> runAll(List<Class<?>> testClasses) {
+    public List<TestReport> runAll(@NotNull List<Class<?>> testClasses) {
 
         for (var testClass : testClasses) {
             beforeClassMethods.put(testClass, classifyMethods(testClass, BeforeClass.class));
@@ -73,7 +74,7 @@ public class MyJUnit {
      * @param report to put information about test
      * @return report about test
      */
-    public TestReport buildReport(TestReport report) {
+    public TestReport buildReport(@NotNull TestReport report) {
         var test = report.getTest();
         var testAnnotation = test.getAnnotation(Test.class);
 
@@ -109,7 +110,7 @@ public class MyJUnit {
      * Invoke test.
      * @param report to put information about test invoke
      */
-    private void invokeTest(TestReport report) {
+    private void invokeTest(@NotNull TestReport report) {
         if (report.getStatus() != SUCCESS) {
             return;
         }
@@ -153,7 +154,7 @@ public class MyJUnit {
      * @param report to put information about method invoke
      * @param tag type of annotation om method
      */
-    private void invokeMethods(TestReport report, TestReport.Tag tag) {
+    private void invokeMethods(@NotNull TestReport report, @NotNull TestReport.Tag tag) {
         if (report.getStatus() != SUCCESS) {
             return;
         }
@@ -206,7 +207,15 @@ public class MyJUnit {
         }
     }
 
-    private void setStatusFail(TestReport report, TestReport.Tag tag, Method method, String reason, Exception e) {
+    /**
+     * Set status failed for given method.
+     * @param report to fill
+     * @param tag annotation tag for method
+     * @param method method which caused fail
+     * @param reason message with reason of failure
+     * @param e occurred exception
+     */
+    private void setStatusFail(@NotNull TestReport report, @NotNull TestReport.Tag tag, @NotNull Method method, @NotNull String reason, @Nullable Exception e) {
         if (report.getStatus() != SUCCESS) {
             return;
         }
