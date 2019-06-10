@@ -47,8 +47,8 @@ public class MyJUnit {
                     .stream().map(test -> new TestReport(test, testClass, TEST)).collect(Collectors.toList()));
         }
 
-        beforeClassMethods.entrySet().forEach(e -> {
-            var report = new TestReport(e.getKey(), BEFORE_CLASS);
+        beforeClassMethods.forEach((key, value) -> {
+            var report = new TestReport(key, BEFORE_CLASS);
             invokeMethods(report, BEFORE_CLASS);
             if (report.getStatus() == FAIL) {
                 reports.add(report);
@@ -57,8 +57,8 @@ public class MyJUnit {
 
         reports.addAll(tests.parallelStream().map(this::buildReport).collect(Collectors.toList()));
 
-        afterClassMethods.entrySet().forEach(e -> {
-            var report = new TestReport(e.getKey(), AFTER_CLASS);
+        afterClassMethods.forEach((key, value) -> {
+            var report = new TestReport(key, AFTER_CLASS);
             invokeMethods(report, AFTER_CLASS);
             if (report.getStatus() == FAIL) {
                 reports.add(report);
@@ -74,7 +74,7 @@ public class MyJUnit {
      * @param report to put information about test
      * @return report about test
      */
-    public TestReport buildReport(@NotNull TestReport report) {
+    private TestReport buildReport(@NotNull TestReport report) {
         var test = report.getTest();
         var testAnnotation = test.getAnnotation(Test.class);
 
@@ -133,11 +133,11 @@ public class MyJUnit {
             report.setTime(System.currentTimeMillis() - start);
             report.setStatus(FAIL);
             report.setException(e.getClass());
-            report.setReason("Invocation exception: " + e.getCause().getMessage());
+            report.setReason("Invocation exception: " + e.getMessage());
         } catch (InvocationTargetException e) {
             report.setTime(System.currentTimeMillis() - start);
-            var receivedException = e.getCause().getClass() != null ? e.getCause().getClass() : e.getClass();
-            var message = e.getCause().getMessage() != null ? e.getCause().getMessage() : e.getMessage();
+            var receivedException = e.getCause() != null ? e.getCause().getClass() : e.getClass();
+            var message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
             if (expectedException.equals(receivedException)) {
                 report.setStatus(SUCCESS);
             } else {
@@ -224,7 +224,7 @@ public class MyJUnit {
         report.setMethodName(method.getName());
         report.setReason(reason);
         if (e != null) {
-            report.setException(e.getCause().getClass());
+            report.setException(e.getClass());
         }
     }
 }
