@@ -6,6 +6,7 @@ import ru.hse.hw.annotation.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -134,14 +135,15 @@ public class MyJUnit {
             report.setReason("Invocation exception: " + e.getCause().getMessage());
         } catch (InvocationTargetException e) {
             report.setTime(System.currentTimeMillis() - start);
-            var receivedException = e.getCause().getClass();
+            var receivedException = e.getCause().getClass() != null ? e.getCause().getClass() : e.getClass();
+            var message = e.getCause().getMessage() != null ? e.getCause().getMessage() : e.getMessage();
             if (expectedException.equals(receivedException)) {
                 report.setStatus(SUCCESS);
             } else {
                 report.setStatus(FAIL);
                 var exceptionName = expectedException.equals(Test.NoException.class) ? "no" : expectedException.getName();
                 report.setException(receivedException);
-                report.setReason("Expected " + exceptionName + " exception" + ", but found " + receivedException.getName() + " with message: \"" + e.getCause().getMessage() + "\"");
+                report.setReason("Expected " + exceptionName + " exception" + ", but found " + receivedException.getName() + " with message: \"" + message + "\"");
             }
         }
     }
@@ -179,19 +181,41 @@ public class MyJUnit {
         for (Method method : methods) {
             try {
                 if (method.getParameters().length != 0) {
-                    report.setStatus(FAIL);
-                    report.setTag(tag);
-                    report.setMethodName(method.getName());
-                    report.setReason("Invocation exception: before/after methods should not have parameters.");
+                    setStatusFail(report, tag, method,
+                            "Invocation exception: before/after methods should not have parameters.", null);
                 }
+                if (Modifier.isAbstract(method.getModifiers())) {
+                    setStatusFail(report, tag, method,
+                            "Invocation exception: before/after methods should not be abstract.", null);
+                }
+                if (method.getReturnType() != void.class) {
+                    setStatusFail(report, tag, method,
+                            "Invocation exception: before/after methods should have void return type.", null);
+                }
+                if ((tag == BEFORE_CLASS || tag == AFTER_CLASS) &&
+                        !Modifier.isStatic(method.getModifiers())) {
+                    setStatusFail(report, tag, method,
+                            "Invocation exception: before/after class methods be static.", null);
+                }
+                method.setAccessible(true);
                 method.invoke(report.getInstance());
             } catch (Exception e) {
-                report.setStatus(FAIL);
-                report.setTag(tag);
-                report.setMethodName(method.getName());
-                report.setReason("Invocation exception: \"" + e.getCause().getMessage() + "\"");
-                report.setException(e.getCause().getClass());
+                setStatusFail(report, tag, method,
+                        "Invocation exception: \"" + e.getMessage() + "\"", e);
             }
+        }
+    }
+
+    private void setStatusFail(TestReport report, TestReport.Tag tag, Method method, String reason, Exception e) {
+        if (report.getStatus() != SUCCESS) {
+            return;
+        }
+        report.setStatus(FAIL);
+        report.setTag(tag);
+        report.setMethodName(method.getName());
+        report.setReason(reason);
+        if (e != null) {
+            report.setException(e.getCause().getClass());
         }
     }
 }

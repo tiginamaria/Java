@@ -38,7 +38,7 @@ public class FailBeforeSample {
     }
 
     @BeforeClass
-    public void method4() {
+    public static void method4() {
 
     }
 
