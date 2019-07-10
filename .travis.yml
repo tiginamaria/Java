@@ -10,4 +10,5 @@ env:
 - PROJECT_DIR=ThreadPool
 - PROJECT_DIR=QSort
 - PROJECT_DIR=Phonebook
+- PROJECT_DIR=MyJUnit
 script: cd $PROJECT_DIR && mvn install 
